@@ -1,0 +1,34 @@
+python_api: # LangChain Framework
+  host: "0.0.0.0"     # FastAPI bind address
+  port: 8000          # FastAPI port
+
+dotnet_api: # Semantic Kernel Framework
+  urls: "http://localhost:5000"  # Minimal API URL + Port
+
+embeddings_service: # Shared embeddings server used by both APIs (HuggingFaceEmbeddings)
+  host: "0.0.0.0"
+  port: 8080
+  url: "http://localhost:8080"
+  instruction_file: "embeddings.jsonl"
+
+vector_storage: # Vector Storage Configuration to use with both APIs
+  type: "qdrant"                 # qdrant: common for both apis | native: sk= vector storage lc=chroma
+  collection_name: "candidates"
+
+llm_provider: # LLM Provider Configuration to use with both APIs
+  provider: "llama"   # OpenAI | Llama (Make sure previously have this model installed in ollama)
+  model: "llama3:8b"             # OpenAI: gpt-4, gpt-3.5-turbo | Llama: llama3:8b, gpt-oss, deepseek-r1:7b
+  openai: # Supported by both APIs. Prefer open models for local setup/benchmarking
+    api_key: ""                   # prefer env var OPENAI_API_KEY
+    base_url: ""                  # prefer env var OPENAI_BASE_URL
+
+qdrant: # Qdrant Vector Database Configuration if VectorStorage.Type equals 'qdrant'
+  url: "http://localhost:6333"   # QDRANT HTTP URL
+
+data:
+  root: "./data"
+  input: "input"
+  prompts: "prompts"
+  embeddings_instructions: "instructions"
+  finetuning: "instructions"
+  schema: "schema"

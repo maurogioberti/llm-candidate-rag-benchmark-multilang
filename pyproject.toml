@@ -1,0 +1,44 @@
+[project]
+name = "llm-candidate-rag-benchmark-multilang"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi>=0.115.0",
+  "uvicorn[standard]>=0.30.0",
+  "python-dotenv>=1.0.1",
+  "pydantic>=2.7.0",
+
+  "langchain>=0.2.11",
+  "langchain-community>=0.2.10",
+  "langchain-openai>=0.1.17",
+  "langchain-text-splitters>=0.2.2",
+  "langchain-huggingface>=0.0.3",
+  "langchain-chroma>=0.1.4",
+  "langchain-ollama>=0.1.1",
+
+  "chromadb>=0.5.3",
+  "faiss-cpu>=1.8.0.post1",
+
+  "sentence-transformers>=3.0.1",
+  "torch>=2.1.0",
+
+  "httpx>=0.27.0",
+  "pytest>=8.2.0"
+
+  "pyyaml>=6.0.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["src/python"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src/python"}
+
+[tool.setuptools.packages.find]
+where = ["src/python"]
+include = ["api*", "core*"]
+exclude = []

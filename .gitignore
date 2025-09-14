@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+
+# Caches
+.mypy_cache/
+.pytest_cache/
+.cache/
+.coverage
+htmlcov/
+
+# Databases
+*.sqlite
+*.db
+
+# .NET
+bin/
+obj/
+[Bb]uild/
+[Ll]ogs/
+[Tt]est[Rr]esult*/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Rider / Visual Studio
+*.userprefs
+*.csproj.user
+*.rsuser
+*.sln.ide
+*.DotSettings.user
+
+# Coverage reports
+*.coverage
+*.coveragexml
+TestResults/
+
+# IDE configuration
+.vscode/
+.idea/
+*.iml
+
+# Environment variables / secrets
+.env
+*.env.local
+config/common.local.yaml
+secrets.yaml
+
+# OS / generated data
+*.DS_Store
+data/vectors/
+data/chroma/
+data/faiss/
+
+# Backup files
+*.bak

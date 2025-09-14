@@ -1,0 +1,164 @@
+{
+  "$id": "https://maurogioberti.com/schemas/talk-llm-benchmark-candidates-dataset.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CandidateRagSchema",
+  "type": "object",
+  "description": "Resultado estructurado de análisis de CV por LLM.",
+  "additionalProperties": false,
+  "patternProperties": { "^x-": {} },
+  "properties": {
+    "schemaVersion": { "type": "string", "default": "1.0" },
+    "generatedAt": { "type": ["string","null"], "format": "date-time" },
+    "source": { "type": ["string","null"] },
+
+    "GeneralInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "patternProperties": { "^x-": {} },
+      "properties": {
+        "CandidateId": { "type": ["string","null"] },
+        "Fullname": { "type": ["string","null"] },
+        "TitleDetected": { "type": ["string","null"] },
+        "TitlePredicted": { "type": ["string","null"] },
+        "SeniorityLevel": {
+          "type": ["string","null"],
+          "enum": [null, "Intern","Junior","Mid","Senior","Lead","Principal","Staff"]
+        },
+        "YearsExperience": { "type": ["number","null"], "minimum": 0 },
+        "RelevantYears": { "type": ["number","null"], "minimum": 0 },
+        "IndustryMatch": { "type": ["string","null"] },
+        "TrajectoryPattern": { "type": ["string","null"] },
+        "MainIndustry": { "type": ["string","null"] },
+        "EnglishLevel": { "type": ["string","null"] },
+        "OtherLanguages": {
+          "type": ["array","null"],
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Language": { "type": ["string","null"] },
+              "Proficiency": {
+                "type": ["string","null"],
+                "enum": [null, "A1","A2","B1","B2","C1","C2","Basic","Conversational","Fluent","Native","Advanced"]
+              },
+              "Evidence": { "type": ["string","null"] }
+            }
+          }
+        },
+        "Location": { "type": ["string","null"] }
+      }
+    },
+
+    "SkillMatrix": {
+      "type": ["array","null"],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "SkillName": { "type": ["string","null"] },
+          "SkillLevel": { "type": ["string","null"] },
+          "Years": { "type": ["number","null"], "minimum": 0 },
+          "Evidence": { "type": ["string","null"] }
+        },
+        "required": ["SkillName"]
+      }
+    },
+
+    "KeywordCoverage": {
+      "type": ["object","null"],
+      "additionalProperties": false,
+      "properties": {
+        "KeywordsDetected": {
+          "type": ["array","null"],
+          "items": { "type": "string" }
+        },
+        "KeywordsMissing": {
+          "type": ["array","null"],
+          "items": { "type": "string" }
+        },
+        "Density": { "type": ["number","null"], "minimum": 0 },
+        "Context": { "type": ["string","null"] }
+      }
+    },
+
+    "Languages": {
+      "type": ["array","null"],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Language": { "type": ["string","null"] },
+          "Proficiency": {
+            "type": ["string","null"],
+            "enum": [null, "A1","A2","B1","B2","C1","C2","Basic","Conversational","Fluent","Native","Advanced"]
+          },
+          "Evidence": { "type": ["string","null"] }
+        },
+        "required": ["Language"]
+      }
+    },
+
+    "Scores": {
+      "type": ["object","null"],
+      "additionalProperties": false,
+      "properties": {
+        "GeneralScore": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "ATSCompatibility": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "ClarityScore": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "FormattingScore": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "KeywordDensity": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "EnglishProficiency": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "SeniorityMatch": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "SkillCoverage": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "AchievementsQuantification": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "SoftSkillsCoverage": { "type": ["number","null"], "minimum": 0, "maximum": 100 }
+      }
+    },
+
+    "Relevance": {
+      "type": ["object","null"],
+      "additionalProperties": false,
+      "properties": {
+        "TitleMatch": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "ResponsibilityMatch": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "OverallFit": {
+          "oneOf": [
+            { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+            { "type": ["string","null"], "enum": [null, "Low","Medium","High"] }
+          ]
+        }
+      }
+    },
+
+    "ClarityAndFormatting": {
+      "type": ["object","null"],
+      "additionalProperties": false,
+      "properties": {
+        "ClarityScore": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "FormattingScore": { "type": ["number","null"], "minimum": 0, "maximum": 100 },
+        "SpellingErrors": { "type": ["number","null"], "minimum": 0 }
+      }
+    },
+
+    "Summary": { "type": "string", "minLength": 1 },
+
+    "Strengths": {
+      "type": ["array","null"],
+      "items": { "type": "string" }
+    },
+
+    "AreasToImprove": {
+      "type": ["array","null"],
+      "items": { "type": "string" }
+    },
+
+    "Tips": {
+      "type": ["array","null"],
+      "items": { "type": "string" }
+    },
+
+    "CleanedResumeText": { "type": ["string","null"] }
+  },
+
+  "required": ["Summary"]
+}

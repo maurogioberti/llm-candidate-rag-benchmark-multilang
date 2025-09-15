@@ -16,6 +16,7 @@ RESPONSE_TEXT_KEY = "text"
 RESPONSE_METADATA_KEY = "metadata"
 QUERY_PARAM_DESCRIPTION = "Full path or filename (.jsonl) within Data.EmbInstructions directory"
 
+
 app = FastAPI()
 
 CFG = load_config()
@@ -26,13 +27,16 @@ emb = HuggingFaceEmbeddings(
     encode_kwargs={"normalize_embeddings": True}
 )
 
+
 class Req(BaseModel):
     texts: list[str]
+
 
 @app.post(ENDPOINT_EMBED)
 def embed(r: Req):
     vectors = emb.embed_documents(r.texts)
     return {RESPONSE_VECTORS_KEY: vectors}
+
 
 @app.get(ENDPOINT_INSTRUCTION_PAIRS)
 def instruction_pairs(path: str | None = Query(default=None, description=QUERY_PARAM_DESCRIPTION)):

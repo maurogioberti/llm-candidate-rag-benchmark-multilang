@@ -13,6 +13,7 @@ TYPE_QUERY = "query"
 TYPE_POSITIVE = "positive"
 TYPE_NEGATIVE = "negative"
 
+
 def load_instruction_pairs(path: str | Path) -> List[Tuple[str, Dict[str, Any]]]:
     p = Path(path)
     if not p.exists():

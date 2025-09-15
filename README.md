@@ -15,14 +15,26 @@ A benchmarking project to compare RAG (Retrieval-Augmented Generation) implement
 
 ```
 llm-candidate-rag-benchmark-multilang/
-├── data/
-│   └── instructions/           # Training/evaluation datasets
-│       └── embedings.jsonl     # Candidate matching examples
-├── services/
-│   └── embeddings-python/      # Shared embeddings microservice
 ├── config/
 │   └── common.yaml            # Centralized configuration
-└── ... (more components coming)
+├── data/
+│   ├── input/                 # Raw candidate data (JSON profiles)
+│   ├── instructions/          # Training datasets
+│   │   └── embedings.jsonl    # Synthetic candidate matching examples
+│   ├── prompts/               # LLM prompt templates
+│   │   ├── chat_system.txt    # System prompt for recruiter AI
+│   │   └── chat_human.txt     # Human prompt with context template
+│   └── schema/                # Data structure definitions
+├── services/
+│   └── embeddings-python/     # Shared embeddings service
+│       ├── config_loader.py   # YAML configuration management
+│       ├── embedding_server.py # FastAPI server
+│       ├── embeddings_utils.py # Utility functions
+│       └── run_server.py      # Service entry point
+├── src/
+│   └── python/                # Python RAG implementation (coming soon)
+├── pyproject.toml             # Python project configuration
+└── README.md
 ```
 
 ## Services
@@ -81,9 +93,19 @@ Data:
   EmbInstructions: "instructions"
 ```
 
-## Dataset Format
+## Data Structure
 
-The instruction pairs follow this JSONL format:
+### Candidate Profiles (`data/input/`)
+Processed JSON files with structured candidate information including:
+- **GeneralInfo**: Experience, seniority, languages, location
+- **SkillMatrix**: Technical competencies with proficiency levels
+- **KeywordCoverage**: ATS compatibility and keyword analysis
+- **Scoring**: Overall candidate evaluation metrics
+
+### Training Data (`data/instructions/`)
+
+**Embeddings Instructions (`embedings.jsonl`)**  
+JSONL instruction pairs for embeddings training:
 
 ```json
 {
@@ -93,10 +115,12 @@ The instruction pairs follow this JSONL format:
 }
 ```
 
-Each line contains:
-- **query**: Job requirement or search criteria
-- **positive**: Matching candidate profile  
-- **negative**: Non-matching candidate profile
+**Fine-tuning Data (`llm.jsonl`)**  
+JSONL instruction pairs for LLM fine-tuning with conversational format.
+
+### Prompt Templates (`data/prompts/`)
+- **System Prompt**: Defines AI assistant role as senior technical recruiter
+- **Human Prompt**: Template with retrieval context and query structure
 
 ## What's Coming Next
 

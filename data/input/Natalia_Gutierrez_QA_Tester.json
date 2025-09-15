@@ -1,0 +1,259 @@
+{
+  "GeneralInfo": {
+    "CandidateId": "NataliaSoledadGutierrezQATesterManualAutomationEnglishB1",
+    "Fullname": "Natalia Soledad Gutierrez",
+    "TitleDetected": "QA Tester | Automation Trainee",
+    "TitlePredicted": "QA Manual Tester (API & SQL) | Automation Trainee (Robot Framework)",
+    "SeniorityLevel": "Mid",
+    "YearsExperience": 14,
+    "RelevantYears": 2,
+    "IndustryMatch": "High",
+    "TrajectoryPattern": "Variable",
+    "MainIndustry": "Software Quality Assurance (QA)",
+    "EnglishLevel": "Intermediate (B1)",
+    "OtherLanguages": [
+      {
+        "Language": "Spanish",
+        "Proficiency": "Native",
+        "Evidence": "Spanish: Native speaker."
+      },
+      {
+        "Language": "English",
+        "Proficiency": "Intermediate (B1)",
+        "Evidence": "English: B1 – reading technical documentation and basic communication."
+      }
+    ],
+    "Location": "Barcelona, Catalonia, Spain"
+  },
+  "SkillMatrix": [
+    {
+      "SkillName": "Manual Functional Testing",
+      "SkillLevel": "High",
+      "Evidence": "Design, execution, and follow-up of test cases; functional testing across multiple projects."
+    },
+    {
+      "SkillName": "Exploratory Testing",
+      "SkillLevel": "High",
+      "Evidence": "Exploratory Testing training (Udemy) and hands-on experience in Agile environments."
+    },
+    {
+      "SkillName": "Test Case Design & Execution",
+      "SkillLevel": "High",
+      "Evidence": "Designed and executed test cases in Prosegur, Cooperación Seguros, and Viterra projects."
+    },
+    {
+      "SkillName": "Defect Reporting & Tracking",
+      "SkillLevel": "High",
+      "Evidence": "Defect reporting and tracking in Jira; experience with Xray and Squash."
+    },
+    {
+      "SkillName": "API Testing (Postman)",
+      "SkillLevel": "High",
+      "Evidence": "API testing with Postman; completed Postman API Testing course."
+    },
+    {
+      "SkillName": "API Testing (SoapUI)",
+      "SkillLevel": "High",
+      "Evidence": "API and WebServices testing with SoapUI (Viterra project)."
+    },
+    {
+      "SkillName": "SQL (Queries)",
+      "SkillLevel": "Medium",
+      "Evidence": "Queries with PostgreSQL and SQL Server; completed SQL for Beginners course; used DBeaver."
+    },
+    {
+      "SkillName": "Jira",
+      "SkillLevel": "High",
+      "Evidence": "Test and defect management in Jira; Scrum with Jira course."
+    },
+    {
+      "SkillName": "Xray (Test Management)",
+      "SkillLevel": "High",
+      "Evidence": "Test management with Jira and Xray (Prosegur)."
+    },
+    {
+      "SkillName": "Squash (Test Management)",
+      "SkillLevel": "Medium",
+      "Evidence": "Test management in Cooperación Seguros using Squash."
+    },
+    {
+      "SkillName": "Azure DevOps (Boards)",
+      "SkillLevel": "Medium",
+      "Evidence": "Used Azure DevOps as task board (Viterra project)."
+    },
+    {
+      "SkillName": "Agile/Scrum",
+      "SkillLevel": "High",
+      "Evidence": "Participation in daily meetings, sprint planning, and retrospectives."
+    },
+    {
+      "SkillName": "Robot Framework",
+      "SkillLevel": "Medium",
+      "Evidence": "Completed Robot Framework Level 1 and 2 courses; automation practice with Selenium."
+    },
+    {
+      "SkillName": "Selenium (via Robot Framework)",
+      "SkillLevel": "Medium",
+      "Evidence": "Course 'Robot Framework Test Automation - Level 1 (Selenium)'."
+    },
+    {
+      "SkillName": "Python (for QA/Automation)",
+      "SkillLevel": "Medium",
+      "Evidence": "Course on REST API with Python and MySQL; Robot Framework with Python."
+    },
+    {
+      "SkillName": "SAP (Logon/HANA) Testing",
+      "SkillLevel": "Medium",
+      "Evidence": "Functional testing with SAP Logon and SAP HANA (Cooperación Seguros)."
+    },
+    {
+      "SkillName": "PostgreSQL",
+      "SkillLevel": "Medium",
+      "Evidence": "Queries with PostgreSQL in Prosegur."
+    },
+    {
+      "SkillName": "SQL Server",
+      "SkillLevel": "Medium",
+      "Evidence": "Queries with SQL Server (Viterra)."
+    },
+    {
+      "SkillName": "DBeaver",
+      "SkillLevel": "Medium",
+      "Evidence": "Database queries using DBeaver."
+    },
+    {
+      "SkillName": "Communication & Teamwork",
+      "SkillLevel": "High",
+      "Evidence": "Over 10 years of teaching experience; collaboration in Agile teams and Scrum ceremonies."
+    },
+    {
+      "SkillName": "Organization & Attention to Detail",
+      "SkillLevel": "High",
+      "Evidence": "Background in teaching and QA emphasizing organization and detail orientation."
+    }
+  ],
+  "KeywordCoverage": {
+    "KeywordsDetected": [
+      "QA",
+      "Manual Testing",
+      "Exploratory Testing",
+      "Test Cases",
+      "Defect Reporting",
+      "Jira",
+      "Xray",
+      "Squash",
+      "Postman",
+      "SoapUI",
+      "API Testing",
+      "SQL",
+      "PostgreSQL",
+      "SQL Server",
+      "DBeaver",
+      "Azure DevOps",
+      "SAP",
+      "SAP HANA",
+      "Agile",
+      "Scrum",
+      "Robot Framework",
+      "Selenium",
+      "Python",
+      "MySQL",
+      "REST API"
+    ],
+    "KeywordsMissing": [
+      "Playwright",
+      "Cypress",
+      "Selenium WebDriver (coding)",
+      "BDD",
+      "Cucumber/Gherkin",
+      "Test Strategy",
+      "Regression Testing",
+      "Smoke Testing",
+      "UAT",
+      "Test Plan",
+      "TestRail",
+      "Zephyr",
+      "CI/CD",
+      "Git",
+      "GitHub Actions",
+      "Docker",
+      "JMeter",
+      "Performance Testing",
+      "Mobile Testing",
+      "Accessibility Testing",
+      "Security Testing",
+      "Allure Reporting",
+      "K6",
+      "Contract Testing",
+      "OpenAPI/Swagger"
+    ],
+    "Density": 60,
+    "Context": "Strong coverage of manual QA and API testing (Postman, SoapUI, SQL, Jira/Xray/Squash, Agile/Scrum); weaker coverage in coded automation, CI/CD, BDD, and performance testing."
+  },
+  "Languages": [
+    {
+      "Language": "Spanish",
+      "Proficiency": "Native",
+      "Evidence": "Languages: Spanish: Native speaker."
+    },
+    {
+      "Language": "English",
+      "Proficiency": "Intermediate (B1)",
+      "Evidence": "Languages: English: B1 – technical reading and basic communication."
+    }
+  ],
+  "Scores": {
+    "GeneralScore": 78,
+    "GeneralScoreComment": "Solid QA manual profile with API and SQL; clear trajectory and relevant tools.",
+    "ATSCompatibility": 80,
+    "ATSCompatibilityComment": "Good titles/sections and QA keywords; missing automation/CI keywords for improvement.",
+    "ClarityScore": 82,
+    "ClarityScoreComment": "Clear and structured content, focused on responsibilities and tools.",
+    "FormattingScore": 78,
+    "FormattingScoreComment": "Consistent structure; could improve with uniform bullets and quantified achievements.",
+    "KeywordDensity": 60,
+    "KeywordDensityComment": "Broad coverage in manual QA and API; limited in modern automation and CI/CD.",
+    "EnglishProficiency": 50,
+    "EnglishProficiencyComment": "Intermediate level declared (B1 – technical reading and basic communication).",
+    "SeniorityMatch": 70,
+    "SeniorityMatchComment": "2 years of QA experience; suitable for mid-level in manual QA, junior in automation.",
+    "SkillCoverage": 76,
+    "SkillCoverageComment": "Broad in manual/API/management; medium in automation and performance.",
+    "AchievementsQuantification": 35,
+    "AchievementsQuantificationComment": "Few measurable results; more focused on tasks than impact.",
+    "SoftSkillsCoverage": 85,
+    "SoftSkillsCoverageComment": "Teaching and teamwork background well evidenced; strong communication and organization."
+  },
+  "Relevance": {
+    "TitleMatch": 95,
+    "ResponsibilityMatch": 85,
+    "OverallFit": "High"
+  },
+  "ClarityAndFormatting": {
+    "ClarityScore": 82,
+    "FormattingScore": 78,
+    "SpellingErrors": 0
+  },
+  "Summary": "QA Manual Tester with 2 years of experience in Agile environments, strong focus on functional and exploratory testing, API validation (Postman, SoapUI), and SQL queries (PostgreSQL, SQL Server) using tools such as Jira, Xray, and Azure DevOps. Intensive training in Robot Framework and Selenium to start automation, plus a solid foundation of soft skills from more than 10 years of teaching.",
+  "Strengths": [
+    "Strong command of functional and exploratory manual testing",
+    "Experience in API testing with Postman and SoapUI",
+    "Test and defect management with Jira/Xray/Squash",
+    "Practical knowledge of SQL in PostgreSQL and SQL Server",
+    "Solid soft skills (communication, organization, teamwork) from teaching background"
+  ],
+  "AreasToImprove": [
+    "Showcase measurable achievements (defect KPIs, coverage, cycle times)",
+    "Strengthen coded automation (Playwright/Cypress/Selenium WebDriver)",
+    "Introduce CI/CD and QA practices in pipelines (reporting, continuous quality)"
+  ],
+  "Tips": [
+    "Add 3–5 measurable achievements per project (e.g., +30% test coverage, −20% UAT defects).",
+    "Create an automation section with GitHub PoCs (Robot Framework + Selenium or Playwright).",
+    "Include BDD (Gherkin/Cucumber) and explicit regression/smoke testing to boost ATS.",
+    "Add reporting tools (Allure) and contract testing (OpenAPI/Swagger).",
+    "Mention CI/CD practices (e.g., GitHub Actions) and containerization (Docker) as desirable.",
+    "Highlight basic knowledge in performance (JMeter/K6) and accessibility (WAI-ARIA) if applicable."
+  ],
+  "CleanedResumeText": "NATALIA SOLEDAD GUTIERREZ | Barcelona, Catalonia, Spain | nataliasolegutierrez@gmail.com\nGitHub: github.com/natysoledadgutierrez | LinkedIn: linkedin.com/in/natalia-soledad-gutierrez\n\nTITLE\nQA Tester (Manual) | Automation Trainee\n\nPROFESSIONAL PROFILE\nQuality-oriented professional with a background in teaching and a strong focus on QA Testing. Experience in functional and exploratory testing, defect management, API testing, and SQL queries in Agile environments. Seeking to consolidate expertise in Manual QA and advance in automation.\n\nWORK EXPERIENCE\nQA Tester (Manual) — NEORIS (Remote) | 11/2022 – 10/2024\n• Designed, executed, and tracked test cases in Agile (Scrum) environments.\n• Reported and managed defects with Jira, Xray, and Squash.\n• API testing with Postman and SoapUI; data validation with PostgreSQL, SQL Server, and DBeaver.\n• Coordinated and participated in Scrum ceremonies.\nProjects:\n• Prosegur (Spain): API testing with Postman; test management with Jira/Xray; PostgreSQL/DBeaver queries.\n• Cooperación Seguros: Functional testing with SAP Logon and SAP HANA; management with Jira and Squash.\n• Viterra: Azure DevOps Boards management; WebServices testing with SoapUI; SQL Server queries.\n\nPrimary School Teacher — Rosario, Santa Fe | 04/2010 – 11/2022\n• Developed communication, planning, organization, and leadership skills applied to teams and projects.\n\nEDUCATION\n• QA Manual Testing — Coderhouse (2022)\n• EGB 1 & 2 Teacher — Escuela Normal N.°1 Dr. Nicolás Avellaneda (2010)\n• Accounting Technician — Escuela N.°638 Margarita Mazza de Carles (2002)\n• Administration Specialization — Escuela N.°638 Margarita Mazza de Carles (2001)\n\nIT TRAINING\n• QA Manual Testing (Coderhouse, 2022)\n• React JS (Coderhouse, 2022)\n• JavaScript (Coderhouse, 2021)\n• Web Development: HTML/CSS/Responsive (Coderhouse, 2021)\n• REST API with Python and MySQL (Udemy, 2022)\n• Robot Framework Test Automation — Level 1 & Level 2 (Udemy, 2022)\n• Robot Framework with Python (Udemy, 2022)\n• Postman API Testing (Udemy, 2022)\n• SQL for Beginners (Udemy, 2022)\n• Scrum with Jira (Udemy, 2022)\n• Exploratory Testing (Udemy, 2022)\n\nSKILLS\nTesting: functional, exploratory, test case design/execution, defect management.\nAPIs & Databases: Postman, SoapUI, SQL (PostgreSQL, SQL Server), DBeaver.\nTools: Jira, Xray, Squash, Azure DevOps, SAP Logon/HANA.\nAutomation (in progress): Robot Framework, Selenium; Python.\nMethodologies: Agile/Scrum (daily, planning, retrospectives).\nSoft Skills: effective communication, teamwork, organization, and attention to detail.\n\nLANGUAGES\n• Spanish: Native\n• English: Intermediate (B1 – technical reading and basic communication)"
+}

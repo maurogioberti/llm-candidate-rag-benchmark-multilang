@@ -1,0 +1,185 @@
+{
+  "GeneralInfo": {
+    "CandidateId": "JeronimoGarciaFrontendReactEnglishC1",
+    "Fullname": "Jerónimo García",
+    "TitleDetected": "Software Developer",
+    "TitlePredicted": "Frontend Developer (React/Next.js)",
+    "SeniorityLevel": "Mid",
+    "YearsExperience": 3,
+    "RelevantYears": 2,
+    "IndustryMatch": "High",
+    "TrajectoryPattern": "Stable",
+    "MainIndustry": "Web Development",
+    "EnglishLevel": "Advanced (C1)",
+    "OtherLanguages": [
+      {
+        "Language": "Spanish",
+        "Proficiency": "Native",
+        "Evidence": "Languages: Spanish: native."
+      }
+    ],
+    "Location": "Puçol, Comunitat Valenciana, Spain"
+  },
+  "SkillMatrix": [
+    {
+      "SkillName": "React",
+      "SkillLevel": "High",
+      "Evidence": "Developed a responsive React landing page; migrated AngularJS components to React within Next.js."
+    },
+    {
+      "SkillName": "Next.js",
+      "SkillLevel": "High",
+      "Evidence": "Contributed to migration from AngularJS to Next.js; optimized tables and forms for performance and UX."
+    },
+    {
+      "SkillName": "JavaScript (ES6+)",
+      "SkillLevel": "High",
+      "Evidence": "Frontend career training and multiple projects using JavaScript/React."
+    },
+    {
+      "SkillName": "TypeScript",
+      "SkillLevel": "Medium",
+      "Evidence": "Courses: React/TypeScript practical guide; mentions TypeScript in education."
+    },
+    {
+      "SkillName": "HTML5/CSS3",
+      "SkillLevel": "High",
+      "Evidence": "VOLTA project: page layout with HTML and CSS; responsive landing page work."
+    },
+    {
+      "SkillName": "Responsive Design",
+      "SkillLevel": "High",
+      "Evidence": "Built conversion-optimized responsive landing page for a real client."
+    },
+    {
+      "SkillName": "Formik/Yup",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed under skills: React JS Formik/Yup."
+    },
+    {
+      "SkillName": "AngularJS (migration)",
+      "SkillLevel": "Medium",
+      "Evidence": "Converted AngularJS components to React within Next.js during application migration."
+    },
+    {
+      "SkillName": "Vue.js",
+      "SkillLevel": "Medium",
+      "Evidence": "Completed Coderhouse Vue.js course; Udemy Vue JS (bluuweb)."
+    },
+    {
+      "SkillName": "Git/GitHub",
+      "SkillLevel": "High",
+      "Evidence": "Active GitHub profile listed; OpenBootcamp and projects imply version control usage."
+    },
+    {
+      "SkillName": "UI/UX Collaboration",
+      "SkillLevel": "Medium",
+      "Evidence": "Worked in a collaborative team; optimized forms and tables for usability and performance."
+    },
+    {
+      "SkillName": "Soft Skills (Curiosity, Teamwork)",
+      "SkillLevel": "High",
+      "Evidence": "About me highlights curiosity; collaborated closely with backend developers."
+    }
+  ],
+  "KeywordCoverage": {
+    "KeywordsDetected": [
+      "React",
+      "Next.js",
+      "AngularJS",
+      "JavaScript",
+      "TypeScript",
+      "HTML",
+      "CSS",
+      "Responsive Design",
+      "Formik",
+      "Yup",
+      "Vue.js",
+      "Git",
+      "Frontend",
+      "Migration",
+      "Optimization",
+      "Tables",
+      "Forms",
+      "User Experience"
+    ],
+    "KeywordsMissing": [
+      "Jest",
+      "React Testing Library",
+      "Cypress",
+      "Redux",
+      "Zustand",
+      "Tailwind CSS",
+      "SASS/SCSS",
+      "Accessibility (a11y)",
+      "SEO",
+      "Performance metrics (LCP/CLS)",
+      "CI/CD",
+      "REST APIs",
+      "GraphQL",
+      "Node.js",
+      "Design Systems",
+      "Storybook",
+      "Webpack/Vite",
+      "ESLint/Prettier",
+      "Docker"
+    ],
+    "Density": 45,
+    "Context": "Strong emphasis on React/Next.js migration and UI work (forms, tables, responsiveness); lacks explicit testing, state management, accessibility, and CI/CD tooling keywords."
+  },
+  "Languages": [
+    {
+      "Language": "Spanish",
+      "Proficiency": "Native",
+      "Evidence": "Languages: Spanish: native."
+    },
+    {
+      "Language": "English",
+      "Proficiency": "Advanced",
+      "Evidence": "Languages: English: advanced."
+    }
+  ],
+  "Scores": {
+    "GeneralScore": 76,
+    "ATSCompatibility": 74,
+    "ClarityScore": 72,
+    "FormattingScore": 60,
+    "KeywordDensity": 45,
+    "EnglishProficiency": 85,
+    "SeniorityMatch": 70,
+    "SkillCoverage": 72,
+    "AchievementsQuantification": 35,
+    "SoftSkillsCoverage": 78
+  },
+  "Relevance": {
+    "TitleMatch": 85,
+    "ResponsibilityMatch": 75,
+    "OverallFit": "High"
+  },
+  "ClarityAndFormatting": {
+    "ClarityScore": 72,
+    "FormattingScore": 60,
+    "SpellingErrors": 6
+  },
+  "Summary": "Frontend developer with ~3 years of experience focused on React and Next.js, including migration from AngularJS, rebuilding complex tables and forms, and improving responsiveness and user experience; complemented by hands-on HTML/CSS and practical TypeScript training, plus teamwork with backend developers for smooth integration.",
+  "Strengths": [
+    "Real experience migrating from AngularJS to Next.js",
+    "Solid React/JavaScript foundations with responsive UI skills",
+    "Hands-on form handling and validation (Formik/Yup)",
+    "Collaborative work style with backend teams",
+    "Continuous learning across React, Vue, and TypeScript"
+  ],
+  "AreasToImprove": [
+    "Add automated testing (Jest, RTL, Cypress) and coverage",
+    "Document state management choices (Redux/Zustand) and architecture",
+    "Highlight performance, accessibility, and CI/CD practices with metrics"
+  ],
+  "Tips": [
+    "Include 3–5 quantified achievements (e.g., reduced table render time by 40%, improved form completion rate by 15%).",
+    "Add a Tech Stack per project (React 18, Next.js 13/14, TypeScript, Formik/Yup, CSS Modules/Tailwind).",
+    "Show testing in action (unit/UI/e2e) and CI (GitHub Actions) on GitHub projects.",
+    "Mention accessibility practices (ARIA, keyboard navigation) and performance metrics (LCP/CLS).",
+    "Link to live demos for Raíz Podcast and VOLTA; add screenshots and READMEs."
+  ],
+  "CleanedResumeText": "JERÓNIMO GARCÍA | Puçol, Comunitat Valenciana, Spain | jerogarcai23.jg@gmail.com | \nLinkedIn: linkedin.com/in/jeronimogarciacoding | GitHub: github.com/jeronimogarcia\n\nTITLE\nFrontend Developer (React/Next.js)\n\nPROFESSIONAL SUMMARY\nCurious and driven frontend developer with ~3 years of experience building responsive, conversion-oriented UIs. Strong in React and Next.js, with proven work migrating AngularJS applications, rebuilding complex tables and forms, and collaborating closely with backend teams to improve performance and UX.\n\nPROFESSIONAL EXPERIENCE\nITECH GLOBAL SOLUTIONS | Frontend Developer | 2022 – 2024\n• Migrated a production web app from AngularJS to Next.js, converting AngularJS components to React.\n• Rebuilt and optimized data tables and forms for reusability, responsiveness, and better UX.\n• Collaborated with backend developers to streamline data flow and integration.\n\nCODERHOUSE PROJECT — PROYECTO RAÍZ | Frontend Developer | 2022\n• Built and deployed a responsive, conversion-focused React landing page for a real client.\n• Contributed to design and implementation in a collaborative team.\nLive: raizpodcast.com.ar\n\nVOLTA | Frontend Developer | 2022\n• Implemented page layout using HTML and CSS for a commercial site.\nLive: electricidadvolta.com/index.html\n\nEDUCATION\nCoderhouse — Frontend Career (Web Developer, JavaScript, React JS)\nCoderhouse — Vue.js Course\nOpenBootcamp — Frontend Route (Intro to Programming, HTML/CSS, JavaScript, Git, React, Advanced React), MERN Advanced Course\nCoderhouse — Full-Stack (in progress/attended)\nUniversidad Nacional de Rosario — Political Sciences (3 years completed)\nInstituto Politécnico Superior — High School\n\nCERTIFICATES\nReact/TypeScript — The Practical Guide (Maximilian Schwarzmüller)\nSOLID Principles & Clean Code (Fernando Herrera)\n\nSKILLS\nFrontend: React, Next.js, JavaScript (ES6+), TypeScript, HTML5, CSS3, Formik/Yup, Vue.js, AngularJS (migration)\nPractices: Responsive design, component reusability, performance/UX improvements\nTools: Git/GitHub\n\nLANGUAGES\nSpanish — Native\nEnglish — Advanced"
+}

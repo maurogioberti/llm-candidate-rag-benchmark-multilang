@@ -1,0 +1,223 @@
+{
+  "GeneralInfo": {
+    "CandidateId": "MauroGiobertiSeniorBackendDotNetEnglishC1",
+    "Fullname": "Mauro Gioberti",
+    "TitleDetected": "Software Engineer | Technical Mentor | Backend Team Lead",
+    "TitlePredicted": "Senior Backend .NET Engineer / Technical Lead",
+    "SeniorityLevel": "Senior",
+    "YearsExperience": 12,
+    "RelevantYears": 10,
+    "IndustryMatch": "High",
+    "TrajectoryPattern": "Stable",
+    "MainIndustry": "Financial Technology / Enterprise Software",
+    "EnglishLevel": "Advanced (C1)",
+    "OtherLanguages": [
+      {
+        "Language": "Spanish",
+        "Proficiency": "Native",
+        "Evidence": "Languages: Spanish (Native)."
+      }
+    ],
+    "Location": "Barcelona, Spain"
+  },
+  "SkillMatrix": [
+    {
+      "SkillName": ".NET (6–8) / C#",
+      "SkillLevel": "Very High",
+      "Evidence": "Designed, developed, and maintained cloud-native APIs using .NET 8+; multi-year backend roles."
+    },
+    {
+      "SkillName": "Clean Architecture / DDD / CQRS",
+      "SkillLevel": "Very High",
+      "Evidence": "Applied Domain-Driven Design (DDD) principles; built clean, testable, modular codebases; CQRS-like patterns."
+    },
+    {
+      "SkillName": "Azure (Functions, DevOps, Redis, CI/CD)",
+      "SkillLevel": "High",
+      "Evidence": "Azure Functions, Azure DevOps, Redis caching strategies; CI/CD pipelines with GitHub Actions/Azure DevOps."
+    },
+    {
+      "SkillName": "AWS (EC2, S3, CloudWatch)",
+      "SkillLevel": "Medium",
+      "Evidence": "Deployed/monitored microservices in AWS Cloud leveraging EC2, S3, CloudWatch."
+    },
+    {
+      "SkillName": "SQL Server / EF Core",
+      "SkillLevel": "Very High",
+      "Evidence": "Extensive use of Entity Framework Core, SQL Server across multiple roles."
+    },
+    {
+      "SkillName": "Microservices / Event-Driven Architecture",
+      "SkillLevel": "High",
+      "Evidence": "Built resilient microservices; event-driven architectures noted in talks and experience."
+    },
+    {
+      "SkillName": "API Design (REST, Security)",
+      "SkillLevel": "Very High",
+      "Evidence": "Skilled in API design; security initiatives; OAuth/Secure coding with OWASP coursework."
+    },
+    {
+      "SkillName": "CI/CD Automation",
+      "SkillLevel": "High",
+      "Evidence": "Implemented CI/CD with GitHub Actions and Azure DevOps; published internal NuGet packages."
+    },
+    {
+      "SkillName": "Caching (Redis)",
+      "SkillLevel": "High",
+      "Evidence": "Leveraged Redis-based caching strategies to enhance performance and scalability."
+    },
+    {
+      "SkillName": "Mentoring / Tech Leadership",
+      "SkillLevel": "Very High",
+      "Evidence": "Mentored engineers; Backend Team Lead; delivered brown-bag sessions and public talks."
+    },
+    {
+      "SkillName": "Testing (Unit/API)",
+      "SkillLevel": "High",
+      "Evidence": "Skilled in Unit Testing and API Testing; promoted testing strategies in talks."
+    },
+    {
+      "SkillName": "React / TypeScript / JavaScript",
+      "SkillLevel": "Medium",
+      "Evidence": "Skills list includes React, JavaScript, TypeScript; supporting experience alongside backend."
+    },
+    {
+      "SkillName": "WPF / .NET Framework / WCF",
+      "SkillLevel": "High",
+      "Evidence": "Built and maintained WPF, MVC, WCF services in financial applications."
+    },
+    {
+      "SkillName": "PHP",
+      "SkillLevel": "Medium",
+      "Evidence": "Maintained and migrated PHP systems to ASP.NET; earlier career experience."
+    },
+    {
+      "SkillName": "Java (Spring/JSP)",
+      "SkillLevel": "Medium",
+      "Evidence": "Java web developer for Citibank LATAM using JSP and Spring."
+    },
+    {
+      "SkillName": "Security Best Practices (OWASP)",
+      "SkillLevel": "High",
+      "Evidence": "Secured extranet with certificates; courses in OWASP and secure coding."
+    }
+  ],
+  "KeywordCoverage": {
+    "KeywordsDetected": [
+      ".NET 8",
+      "C#",
+      "EF Core",
+      "Azure Functions",
+      "Azure",
+      "AWS",
+      "Redis",
+      "CI/CD",
+      "GitHub Actions",
+      "Azure DevOps",
+      "DDD",
+      "Clean Architecture",
+      "CQRS",
+      "Microservices",
+      "Event-driven",
+      "REST APIs",
+      "Unit Testing",
+      "API Testing",
+      "OAuth",
+      "Security",
+      "WCF",
+      "WPF",
+      "SQL Server",
+      "React",
+      "TypeScript",
+      "JavaScript",
+      "NuGet",
+      "Jira",
+      "SAFe",
+      "Confluence"
+    ],
+    "KeywordsMissing": [
+      "Kubernetes",
+      "Docker Compose",
+      "Helm",
+      "gRPC",
+      "OpenAPI/Swagger",
+      "Observability (OpenTelemetry)",
+      "Feature Flags",
+      "Blue-Green/Canary",
+      "Message Broker (Kafka/RabbitMQ)",
+      "IaC (Terraform/Bicep)",
+      "Secrets Management (Key Vault)",
+      "SAST/DAST",
+      "Performance Testing (k6/JMeter)",
+      "Chaos Engineering",
+      "GraphQL"
+    ],
+    "Density": 71,
+    "Context": "Strong emphasis on .NET backend, cloud (Azure/AWS), architecture patterns (DDD/Clean/CQRS), CI/CD, security, and fintech; fewer explicit mentions of Kubernetes, messaging, and observability tooling."
+  },
+  "Languages": [
+    {
+      "Language": "English",
+      "Proficiency": "Advanced",
+      "Evidence": "Languages: English (CEF C1); talks delivered in English."
+    },
+    {
+      "Language": "Spanish",
+      "Proficiency": "Native",
+      "Evidence": "Languages: Spanish (Native)."
+    }
+  ],
+  "Scores": {
+    "GeneralScore": 90,
+    "GeneralScoreComment": "Highly experienced .NET backend/tech lead profile with strong architecture, cloud, and security focus.",
+    "ATSCompatibility": 88,
+    "ATSCompatibilityComment": "Clear headings, rich keywords, consistent dates; could add more tool-specific terms (Swagger, Kafka, Kubernetes).",
+    "ClarityScore": 90,
+    "ClarityScoreComment": "Concise, professional, and impact-oriented; good use of bullets and structure.",
+    "FormattingScore": 86,
+    "FormattingScoreComment": "Well-structured and scannable; minor gains possible by standardizing bullet metrics across roles.",
+    "KeywordDensity": 71,
+    "KeywordDensityComment": "High coverage for .NET, cloud, architecture; fewer mentions of Kubernetes/messaging/observability.",
+    "EnglishProficiency": 90,
+    "EnglishProficiencyComment": "C1 certified and public speaking in English.",
+    "SeniorityMatch": 95,
+    "SeniorityMatchComment": "10+ years with leadership; aligns strongly to Senior/Lead roles.",
+    "SkillCoverage": 92,
+    "SkillCoverageComment": "Broad backend/cloud/security/tooling coverage; minor gaps in Kubernetes/messaging specifics.",
+    "AchievementsQuantification": 78,
+    "AchievementsQuantificationComment": "Good descriptions; could use more numeric impact (latency, throughput, cost).",
+    "SoftSkillsCoverage": 95,
+    "SoftSkillsCoverageComment": "Mentoring, talks, cross-functional collaboration, and leadership are prominent."
+  },
+  "Relevance": {
+    "TitleMatch": 95,
+    "ResponsibilityMatch": 92,
+    "OverallFit": "High"
+  },
+  "ClarityAndFormatting": {
+    "ClarityScore": 90,
+    "FormattingScore": 86,
+    "SpellingErrors": 0
+  },
+  "Summary": "Senior backend .NET engineer and technical mentor with a decade of experience building secure, scalable microservices and cloud-native systems for fintech and enterprise workloads; strong in DDD/Clean Architecture, API design, CI/CD automation, Azure/AWS, caching, and security, with a proven record of leading teams, publishing internal tooling, and delivering talks and training.",
+  "Strengths": [
+    "Deep .NET backend expertise with modern architecture patterns (DDD, Clean, CQRS)",
+    "Cloud proficiency across Azure and AWS with CI/CD automation",
+    "Security-minded engineering (OWASP practices, certificate-based access)",
+    "Team leadership, mentoring, and public speaking",
+    "Proven delivery in financial platforms and high-impact systems"
+  ],
+  "AreasToImprove": [
+    "Explicitly quantify outcomes (e.g., latency reductions, cost savings, throughput gains)",
+    "Add concrete experience with Kubernetes, service mesh, and observability (OTel)",
+    "Detail messaging/event infrastructure (Kafka/RabbitMQ) and API documentation (Swagger/OpenAPI)"
+  ],
+  "Tips": [
+    "Add 3–5 quantified achievements per recent role (e.g., −35% p95 latency, +50% throughput, −20% infra cost).",
+    "Include a short Tech Stack block per role (Azure Key Vault, OpenAPI/Swagger, Redis, Terraform, RabbitMQ/Kafka).",
+    "Link selected GitHub repos or NuGet packages; list internal package names if public links aren’t possible.",
+    "Expand Security section with concrete practices (OWASP ASVS, threat modeling, secrets rotation, SAST/DAST).",
+    "If applicable, add Kubernetes/Containers orchestration and Observability (Prometheus/Grafana/OTel) exposure."
+  ],
+  "CleanedResumeText": "MAURO GIOBERTI | Barcelona, Spain (Remote) | maurol.gioberti@gmail.com | +1 929 393 2427 \nLinkedIn: linkedin.com/in/maurogioberti | GitHub: github.com/maurogioberti | Portfolio: maurogioberti.com\nLanguages: English (CEF C1), Spanish (Native) | Nationality: Argentine / Italian | Date of Birth: 1992-05-16\n\nTITLE\nSenior Backend .NET Engineer | Technical Mentor | Backend Team Lead\n\nPROFESSIONAL SUMMARY\nSenior backend engineer with 10+ years delivering secure, scalable, cloud-native solutions for financial and enterprise systems. Leads and mentors distributed teams, drives DDD/Clean Architecture, and implements CI/CD automation. Skilled in API design, event-driven architectures, Azure/AWS, caching, and security.\n\nWORK EXPERIENCE\nPayRetailers — Senior .NET Software Engineer (Remote, Barcelona) | 2024 – Present\n• Led security and backend architecture initiatives for financial transaction systems.\n• Built cloud-native APIs with .NET 8+, Azure Functions, EF Core; published internal NuGet tooling.\n• Implemented Redis caching and performance improvements; promoted clean, testable code with DDD.\n• Mentored engineers and aligned cross-functional teams (AI, QA, Architecture) on delivery and quality.\n\nInnoIT Consulting — Senior .NET Developer (Hybrid, Barcelona) | 2023 – 2024\n• Led projects using .NET 8 and microservices; designed data access with EF Core (SQL Server/SQLite).\n• Implemented CI/CD with GitHub Actions and best practices for continuous delivery.\n\nBonzzu / Intelliflo (Invesco Ltd) — Backend .NET Software Engineer (Remote, USA) | 2021 – 2023\n• Designed and maintained financial microservices (.NET Core, EF, SQL Server, Redis) on AWS (EC2/S3/CloudWatch).\n• Automated CI/CD (GitHub Actions, Azure DevOps) and collaborated across time zones; delivered brown-bag sessions.\n\nNeoris / Rosario Stock Exchange — Senior .NET Developer (Hybrid, Argentina) | 2019 – 2021\n• Built WPF, MVC, WCF services; secured extranet with digital certificates; maintained legacy APIs (CQRS-like).\n• Mentored juniors and delivered internal engineering training.\n\nTesis IT / Cordial Financiera — .NET Developer (On-site, Argentina) | 2018 – 2019\n• Modernized legacy VB6/SOA to .NET Core; implemented EF Code First; supported Angular/Ionic frontends.\n\nTecso Coop / Citibank — Java Web Developer (On-site, Argentina) | 2018\n• Frontend for Citibank LATAM using JSP/Spring; integrated with COBOL backends via middleware; secure banking UI.\n\nIntegral Pack Express — PHP/.NET Developer (On-site, Argentina) | 2015 – 2018\n• Maintained PHP platform with MS SQL; migrated to ASP.NET MVC; rebuilt Clipper systems to .NET WinForms.\n• Built REST APIs for integrations with Netshoes, Dafiti, Amway.\n\nEDUCATION\n• Systems Analyst — I.E.S. N.º 4041 “Brigadier Lopez”, Rosario (2011 – 2013)\n• Analyst Developer — I.E.S. N.º 4041 “Brigadier Lopez”, Rosario (2011 – 2013)\n• SQL Server Provisioning & Administration — Full Solutions (2018)\n• English CEF C1 Certificate — Oxford Placement Test (2018)\n\nFURTHER TECHNICAL EDUCATION (Selected)\nArtificial Intelligence: LinkedIn Learning (Azure OpenAI, GPT Store), Lablab.ai Hackathon (3rd place).\nPluralsight: Clean Architecture, OWASP security, API security, Azure Functions, .NET microservices, DevOps/CI/CD.\nUdemy: .NET Core Microservices (Advanced), Clean Code C#, Secure Coding, Azure for Developers, Testing/Automation.\nLinkedIn Learning: Git Essentials/Intermediate, Mentoring, GA4, Data-Driven Product Management.\n\nTALKS & PUBLIC SPEAKING\nWhy Should Developers Automate? — Global Power Platform Bootcamp Buenos Aires 2025 (Online, ES)\nWhy Should Developers Automate? — InnoIT Tech Talks 2025 (Online, EN)\nWhy Should Developers Automate? — Ministry of Testing Barcelona (Onsite, EN)\n\nSKILLS\nCloud & DevOps: Azure, AWS, Docker, CI/CD, Azure DevOps, GitHub Actions, Git, Jira, Azure OpenAI\nArchitecture: DDD, Microservices, Clean Architecture, REST APIs, CQRS, Hexagonal, Event-Driven\nLanguages/Frameworks: .NET 6–8, C#, EF Core, React, TypeScript/JavaScript, .NET Framework, WPF, Angular, Ionic, Azure Functions, WCF, VB6, PHP, Java\nTesting & Security: Unit/API Testing, OAuth, OWASP practices, MediatR, Automation\nLeadership: Mentoring, Team Leadership, Code Reviews, Technical Guidance, Cross-functional Collaboration\n\nINTERESTS\nTechnology leadership and automation; mentoring and public speaking; event-driven architectures and testing; soccer, fitness, travel, gaming"
+}

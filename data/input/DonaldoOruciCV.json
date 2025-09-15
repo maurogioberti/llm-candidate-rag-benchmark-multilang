@@ -1,0 +1,274 @@
+{
+  "GeneralInfo": {
+    "CandidateId": "DonaldoOruciFullStackReactNodeEnglishC1",
+    "Fullname": "Donaldo Oruci",
+    "TitleDetected": "Web-Developer",
+    "TitlePredicted": "Full-Stack Web Developer (React/Node.js | PHP/CakePHP)",
+    "SeniorityLevel": "Mid",
+    "YearsExperience": 5,
+    "RelevantYears": 3,
+    "IndustryMatch": null,
+    "TrajectoryPattern": "Variable",
+    "MainIndustry": "Software/Web Development",
+    "EnglishLevel": "Advanced (C1)",
+    "OtherLanguages": [
+      {
+        "Language": "Albanian",
+        "Proficiency": "Native",
+        "Evidence": "Listed as Albanian *****."
+      },
+      {
+        "Language": "Italian",
+        "Proficiency": "Advanced",
+        "Evidence": "Listed as Italian ****."
+      },
+      {
+        "Language": "Turkish",
+        "Proficiency": "Basic",
+        "Evidence": "Listed as Turkish *."
+      }
+    ],
+    "Location": "Tirana, Albania"
+  },
+  "SkillMatrix": [
+    {
+      "SkillName": "JavaScript",
+      "SkillLevel": "High",
+      "Evidence": "Used across web roles; skills list includes JavaScript for front-end and Node.js for back-end."
+    },
+    {
+      "SkillName": "Node.js",
+      "SkillLevel": "High",
+      "Evidence": "Intern Web-App (Back-End) using Node.js, RESTful APIs; listed in skills."
+    },
+    {
+      "SkillName": "React",
+      "SkillLevel": "Medium",
+      "Evidence": "Web-Developer Intern built responsive apps with React; included in frameworks."
+    },
+    {
+      "SkillName": "PHP",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed in Web Development and Tools (PHP, CakePHP)."
+    },
+    {
+      "SkillName": "CakePHP",
+      "SkillLevel": "Medium",
+      "Evidence": "Explicitly listed under Web Development and Frameworks."
+    },
+    {
+      "SkillName": "HTML/CSS",
+      "SkillLevel": "High",
+      "Evidence": "Core stack for multiple web roles; listed under Web Development."
+    },
+    {
+      "SkillName": "SQL/MySQL/PostgreSQL",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed under Databases & Backend; used with web apps."
+    },
+    {
+      "SkillName": "Firebase",
+      "SkillLevel": "Medium",
+      "Evidence": "Intern Web-App used Firebase; listed in Tools & Platforms."
+    },
+    {
+      "SkillName": "Git/GitHub",
+      "SkillLevel": "High",
+      "Evidence": "Listed under Project Management & Collaboration and Tools."
+    },
+    {
+      "SkillName": "Agile",
+      "SkillLevel": "Medium",
+      "Evidence": "Agile Development listed; collaborated with teams."
+    },
+    {
+      "SkillName": "Unity",
+      "SkillLevel": "Medium",
+      "Evidence": "Assistant Teacher taught Unity; listed in tools."
+    },
+    {
+      "SkillName": "C#",
+      "SkillLevel": "Medium",
+      "Evidence": "Assistant Teacher taught C#; included in programming languages."
+    },
+    {
+      "SkillName": "C++",
+      "SkillLevel": "Medium",
+      "Evidence": "Assistant Teacher taught C++; included in programming languages."
+    },
+    {
+      "SkillName": "Figma",
+      "SkillLevel": "Medium",
+      "Evidence": "Design & UI/UX tools include Figma; used in graphic work."
+    },
+    {
+      "SkillName": "Adobe Creative Suite",
+      "SkillLevel": "High",
+      "Evidence": "Graphic Designer/Video Editor role; Adobe Package listed."
+    },
+    {
+      "SkillName": "WordPress",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed under Frameworks & Libraries and Tools."
+    },
+    {
+      "SkillName": "Bootstrap",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed under Web Development and Frameworks."
+    },
+    {
+      "SkillName": "Ionic",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed among frameworks and tools."
+    },
+    {
+      "SkillName": "Ant Design",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed under Frameworks & Libraries and Design & UI/UX."
+    },
+    {
+      "SkillName": "RESTful APIs",
+      "SkillLevel": "Medium",
+      "Evidence": "Intern Web-App role explicitly mentions RESTful APIs."
+    },
+    {
+      "SkillName": "SEO/Search Arbitrage",
+      "SkillLevel": "Medium",
+      "Evidence": "Graphic Designer in Search Arbitrage; Networking & SEO listed."
+    },
+    {
+      "SkillName": "Project/Team Management",
+      "SkillLevel": "Medium",
+      "Evidence": "Team Leader AIESEC; Project Management listed."
+    }
+  ],
+  "KeywordCoverage": {
+    "KeywordsDetected": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "PHP",
+      "CakePHP",
+      "HTML",
+      "CSS",
+      "SQL",
+      "MySQL",
+      "PostgreSQL",
+      "Firebase",
+      "RESTful APIs",
+      "Git",
+      "GitHub",
+      "Agile",
+      "Bootstrap",
+      "Ant Design",
+      "WordPress",
+      "Ionic",
+      "Unity",
+      "C#",
+      "C++",
+      "Adobe Creative Suite",
+      "Figma",
+      "SEO",
+      "Search Arbitrage"
+    ],
+    "KeywordsMissing": [
+      "TypeScript",
+      "Docker",
+      "Kubernetes",
+      "AWS",
+      "Azure",
+      "GCP",
+      "CI/CD",
+      "Unit Testing",
+      "Integration Testing",
+      "Jest",
+      "Cypress",
+      "TDD",
+      "Microservices",
+      "GraphQL",
+      "Redux",
+      "Next.js",
+      "Tailwind CSS",
+      "SASS/SCSS",
+      "Vite",
+      "Webpack",
+      "OAuth",
+      "JWT",
+      "Linux",
+      "Nginx",
+      "MongoDB",
+      "Postman",
+      "Swagger/OpenAPI",
+      "Performance Monitoring",
+      "Prisma",
+      "TypeORM"
+    ],
+    "Density": 52,
+    "Context": "Strong presence of front-end/back-end web keywords (JS/Node/React/PHP/SQL), design tools, and REST; limited DevOps, testing, cloud, and modern JS ecosystem terms."
+  },
+  "Languages": [
+    {
+      "Language": "Albanian",
+      "Proficiency": "Native",
+      "Evidence": "Albanian *****."
+    },
+    {
+      "Language": "English",
+      "Proficiency": "Advanced",
+      "Evidence": "English ***** and international/remote collaboration noted."
+    },
+    {
+      "Language": "Italian",
+      "Proficiency": "Advanced",
+      "Evidence": "Italian ****."
+    },
+    {
+      "Language": "Turkish",
+      "Proficiency": "Basic",
+      "Evidence": "Turkish *."
+    }
+  ],
+  "Scores": {
+    "GeneralScore": 72,
+    "ATSCompatibility": 70,
+    "ClarityScore": 75,
+    "FormattingScore": 70,
+    "KeywordDensity": 52,
+    "EnglishProficiency": 90,
+    "SeniorityMatch": 65,
+    "SkillCoverage": 68,
+    "AchievementsQuantification": 40,
+    "SoftSkillsCoverage": 70
+  },
+  "Relevance": {
+    "TitleMatch": 80,
+    "ResponsibilityMatch": 70,
+    "OverallFit": "Medium"
+  },
+  "ClarityAndFormatting": {
+    "ClarityScore": 75,
+    "FormattingScore": 70,
+    "SpellingErrors": 4
+  },
+  "Summary": "Full-stack web developer with ~5 years of experience including internships and junior roles, combining hands-on development (JavaScript, Node.js, React, PHP/CakePHP, SQL/Firebase) with strong design skills (Adobe, Figma). Built and shipped a responsive site (autotrego.com), supported back-end APIs, and collaborated in cross-functional environments; leadership and teaching experience complement technical breadth. Looking to deepen modern JS tooling, testing, and cloud/DevOps to grow into a solid mid-level full-stack role.",
+  "Strengths": [
+    "Balanced full-stack foundation across front-end and back-end",
+    "Real project delivery (autotrego.com) and collaborative experience",
+    "Strong design/UI background aiding developer–designer handoff",
+    "Leadership and mentoring exposure (AIESEC, Assistant Teacher)",
+    "Good English and multi-language communication"
+  ],
+  "AreasToImprove": [
+    "Quantify impact with metrics (performance, conversion, load times)",
+    "Strengthen automated testing and CI/CD practices",
+    "Consolidate stack focus (e.g., TypeScript + React + Node) and modern tooling"
+  ],
+  "Tips": [
+    "Add 3–5 quantified achievements (e.g., improved LCP by X%, reduced bundle size by Y%).",
+    "Include a projects section with links (GitHub, live demos) highlighting React/Node and API work.",
+    "List concrete tools for testing (Jest, Playwright/Cypress) and CI (GitHub Actions).",
+    "Add cloud basics (AWS/Azure) and containerization (Docker) for ATS and role alignment.",
+    "Refine keywords: TypeScript, REST/Swagger, Auth (JWT/OAuth), deployment pipeline."
+  ],
+  "CleanedResumeText": "DONALDO ORUCI | donaldoruci@gmail.com | Tirana, Albania\n\nTITLE\nFull-Stack Web Developer\n\nPROFESSIONAL EXPERIENCE\nWeb Developer — autotrego.com | Remote | Jul 2024 – Sep 2024\n• Built and maintained autotrego.com end-to-end, from backend setup to responsive front-end implementation.\n• Focused on performance and usability, ensuring a clean, efficient web application.\n\nGraphic Designer / Video Editor (Search Arbitrage) — ROI ADS LLC | Remote, USA | Aug 2023 – Sep 2024\n• Created visually engaging assets for search arbitrage campaigns; optimized media for web performance.\n• Collaborated with IT teams to integrate designs into web platforms and streamline design-to-code workflows.\n\nWeb Developer Junior (Full-Stack) — Freelancer | Jun 2021 – Nov 2022\n• Worked alongside a senior developer on multiple projects, contributing to front-end and back-end tasks.\n• Practiced coding standards, debugging, and optimization for web applications.\n\nTeam Leader — AIESEC Albania | Oct 2021 – Nov 2022\n• Led a diverse team to plan and deliver leadership/cross-cultural projects; delegated tasks and ensured delivery.\n\nAssistant Teacher — ICT Academy | Sep 2020 – Mar 2021\n• Taught entry-level programming: Unity, Game Development, C#, C++, MIT App Inventor, and Web (HTML/CSS/JS, Node.js, SQL).\n\nIntern, Web App (Back-End) — IMB SHPK | Jul 2020 – Sep 2020\n• Built dynamic web solutions using Node.js, Firebase, and RESTful APIs.\n\nWeb Developer Intern (Full-Stack) — Almotech.co | Jul 2019 – Dec 2019\n• Developed responsive websites/web apps using HTML, CSS, JavaScript, and React; exposure to back-end tasks.\n\nACHIEVEMENTS & ACTIVITIES\n• NASA International Space Apps Challenge 2022 — Participated in global hackathon.\n• AIESEC Workshop 2019 — Emotional Intelligence training.\n• Full Academic/Talent Scholarship (POLIS University) — 3 consecutive years.\n• OSCAL 2018–2019 — Delegate at Open Source Conference Albania.\n• Film & Media — Scenic design roles (incl. collaboration with cinematographer Jorg Widmer) and props support.\n• Music — Band leader and performer (self-taught guitar/bass), live shows and recorded demos.\n\nSKILLS\nProgramming: JavaScript, Node.js, PHP, C#, C++, Java, SQL (MySQL, PostgreSQL)\nFront-End: HTML, CSS, React, Bootstrap, Ant Design, Ionic, WordPress\nBack-End & APIs: Node.js/Express.js, RESTful APIs, Firebase\nTools: Git, GitHub, Adobe Creative Suite, Figma, Cisco Packet Tracer, Slack, Canva\nPractices: Agile, Design-to-Code Workflows, SEO, Market Research, Search Arbitrage\n\nLANGUAGES\n• Albanian: Native\n• English: Advanced (C1)\n• Italian: Advanced\n• Turkish: Basic\n\nEDUCATION\nB.Sc. in Computer Science — POLIS University, Tirana, Albania | 2021 – 2024 (180 ECTS)\nVocational High School for ICT — Hermann Gmeiner, Tirana, Albania | 2017 – 2021"
+}

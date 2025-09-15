@@ -1,0 +1,173 @@
+{
+  "GeneralInfo": {
+    "CandidateId": "PabloGuillermoGorositoQAManualJunior",
+    "Fullname": "PABLO GUILLERMO GOROSITO",
+    "TitleDetected": "Software Developer",
+    "TitlePredicted": "Junior QA / Frontend Trainee",
+    "SeniorityLevel": "Junior",
+    "YearsExperience": 10,
+    "RelevantYears": 0,
+    "IndustryMatch": "Low",
+    "TrajectoryPattern": "Variable",
+    "MainIndustry": "Customer Service / Safety / Logistics",
+    "EnglishLevel": null,
+    "OtherLanguages": [
+      {
+        "Language": "Spanish",
+        "Proficiency": "Native",
+        "Evidence": "Languages: Spanish."
+      }
+    ],
+    "Location": "Barcelona, Spain"
+  },
+  "SkillMatrix": [
+    {
+      "SkillName": "Manual QA (Foundations)",
+      "SkillLevel": "Low",
+      "Evidence": "Course: Manual QA Testing – Coderhouse."
+    },
+    {
+      "SkillName": "Frontend Basics (React/HTML/CSS)",
+      "SkillLevel": "Low",
+      "Evidence": "Frontend React Development Career – Coderhouse; listed as Software Developer with project links."
+    },
+    {
+      "SkillName": "Customer Service",
+      "SkillLevel": "High",
+      "Evidence": "Citizen Services at I.C.S.; operator at La Casa de las Baterías."
+    },
+    {
+      "SkillName": "Scheduling & Coordination",
+      "SkillLevel": "Medium",
+      "Evidence": "Coordinated appointment scheduling at I.C.S Atención Primaria."
+    },
+    {
+      "SkillName": "Safety & Risk Prevention",
+      "SkillLevel": "High",
+      "Evidence": "Lifeguard roles at Aqualia and Aunar Group focused on prevention and user safety."
+    },
+    {
+      "SkillName": "Logistics & Last-Mile Operations",
+      "SkillLevel": "Medium",
+      "Evidence": "Stuart delivery rider ensuring punctual package distribution."
+    },
+    {
+      "SkillName": "Vehicle Preparation & Inspection",
+      "SkillLevel": "Medium",
+      "Evidence": "Moove Cars: cleaning, inspections, damage reporting, and organization."
+    },
+    {
+      "SkillName": "Technical Troubleshooting",
+      "SkillLevel": "Medium",
+      "Evidence": "La Casa de las Baterías: diagnosing and solving technical failures."
+    },
+    {
+      "SkillName": "PC Maintenance",
+      "SkillLevel": "Medium",
+      "Evidence": "Advanced and Basic PC Maintenance – NASA Computación."
+    },
+    {
+      "SkillName": "Electromechanical Basics",
+      "SkillLevel": "Medium",
+      "Evidence": "Secondary education specialized in Electromechanical Equipment and Installations."
+    }
+  ],
+  "KeywordCoverage": {
+    "KeywordsDetected": [
+      "Manual QA",
+      "QA Testing",
+      "Frontend",
+      "React",
+      "HTML",
+      "CSS",
+      "Customer Service",
+      "Scheduling",
+      "Safety",
+      "Lifeguard",
+      "Logistics",
+      "Vehicle Maintenance",
+      "Inspection",
+      "Troubleshooting",
+      "Electromechanical"
+    ],
+    "KeywordsMissing": [
+      "JavaScript",
+      "TypeScript",
+      "Git",
+      "GitHub",
+      "Jira",
+      "Agile",
+      "Scrum",
+      "Postman",
+      "API Testing",
+      "Selenium",
+      "Playwright",
+      "Cypress",
+      "Test Cases",
+      "Defect Tracking",
+      "CI/CD",
+      "Unit Testing",
+      "Accessibility",
+      "Responsive Design",
+      "SQL",
+      "REST",
+      "Docker",
+      "Kubernetes",
+      "Cloud",
+      "Version Control",
+      "OpenAPI/Swagger"
+    ],
+    "Density": 34,
+    "Context": "Resume focuses on service, safety, logistics, and maintenance with introductory QA/frontend training; technical software/testing keywords are sparse and mostly appear in the training section."
+  },
+  "Languages": [
+    {
+      "Language": "Spanish",
+      "Proficiency": "Native",
+      "Evidence": "Languages: Spanish."
+    }
+  ],
+  "Scores": {
+    "GeneralScore": 62,
+    "ATSCompatibility": 58,
+    "ClarityScore": 70,
+    "FormattingScore": 60,
+    "KeywordDensity": 34,
+    "EnglishProficiency": 0,
+    "SeniorityMatch": 55,
+    "SkillCoverage": 52,
+    "AchievementsQuantification": 30,
+    "SoftSkillsCoverage": 72
+  },
+  "Relevance": {
+    "TitleMatch": 60,
+    "ResponsibilityMatch": 50,
+    "OverallFit": "Medium"
+  },
+  "ClarityAndFormatting": {
+    "ClarityScore": 70,
+    "FormattingScore": 60,
+    "SpellingErrors": 1
+  },
+  "Summary": "Service-oriented professional transitioning to technology with 10 years of experience across citizen services, safety, logistics, and technical operations; recently completed training in Manual QA and Frontend React (Coderhouse). Brings strong customer focus, scheduling and coordination skills, safety discipline, and hands-on troubleshooting. Seeking a junior QA/manual testing or trainee frontend role to apply transferable strengths while building practical experience with modern tools and workflows.",
+  "Strengths": [
+    "Strong customer service and coordination background",
+    "Safety mindset and reliability from lifeguard roles",
+    "Hands-on technical troubleshooting experience",
+    "Discipline and accountability in operational environments",
+    "Motivation to learn with recent QA/frontend coursework"
+  ],
+  "AreasToImprove": [
+    "Build a portfolio with 2–3 concrete QA or React projects",
+    "Adopt core tooling and workflows (Git, Jira, Agile, Postman, basic SQL)",
+    "Practice test design and automation basics (test cases, defect reports, Selenium/Playwright)"
+  ],
+  "Tips": [
+    "Create a GitHub portfolio: one Manual QA project (test plan, cases, bug reports) and one React app with README and screenshots.",
+    "Add specific tooling to the CV (Git/GitHub, Postman, SQL basics, Jira) and list simple measurable outcomes (e.g., reduced rework by X%).",
+    "Include a brief Tech Stack section and a Skills section grouped by QA, Frontend, and Operations.",
+    "Obtain an entry-level certification or complete a capstone (e.g., ISTQB Foundation or a QA portfolio project).",
+    "Link live demos for any frontend exercises and include accessibility/responsiveness notes."
+  ],
+  "CleanedResumeText": "PABLO GUILLERMO GOROSITO | Barcelona, 08013, Spain | Nationality: Italian | Email: pablo.92pgg@gmail.com | Driving License: AM, A1, A2, A, B\nLanguages: Spanish (Native)\n\nTITLE\nJunior QA / Frontend Trainee\n\nPROFESSIONAL EXPERIENCE\nI.C.S Atención Primaria — Citizen Services | Barcelona | Dec 2023 – Feb 2024\n• Coordinated and scheduled appointments to optimize user experience.\n\nAunar Group 2009 SL — Lifeguard | Barcelona | Apr 2023 – Sep 2023\n• Ensured prevention and safety for users in aquatic facilities (pools and water parks).\n\nMoove Cars — Car Yard Assistant | Barcelona | Feb 2023 – Apr 2023\n• Managed drivers and vehicle maintenance; prepared, cleaned, and inspected vehicles prior to delivery.\n• Organized parking/space to maximize efficiency and reported damages to preserve fleet value.\n\nStuart — Delivery Rider | Barcelona | Jan 2022 – Nov 2022\n• Performed last-mile logistics by motorcycle, ensuring punctual deliveries.\n\nAqualia — Lifeguard | Madrid | Jun 2018 – Sep 2021\n• Responsible for user safety, accident prevention, and pool maintenance.\n\nLa Casa de las Baterías — Operator | Rosario | Mar 2013 – May 2017\n• Customer service and technical advice for battery installation/maintenance; diagnosed and solved failures.\n\nEDUCATION\nColegio Salesiano San José Nº 2043 — Secondary Education in Electromechanical Equipment and Installations | Rosario (2009)\nColegio Salesiano San José Nº 8013 — Certificate of Secondary Education Equivalence (General Basic Education, Pre-Professional focus) | Rosario (2006)\n\nCOURSES & TRAINING\n• Manual QA Testing — Coderhouse\n• Frontend React Development Career — Coderhouse (Dec 2022 – Jul 2023)\n• Advanced PC Maintenance — NASA Computación\n• Basic PC Maintenance — NASA Computación\n• Construction Carpentry — Centro de Formación Profesional Nº 2\n• Lifeguard Training — Instituto de Actividades Deportivas (IAD) (Apr 2013 – Sep 2015)\n\nSKILLS\nQA Foundations: test case design basics, defect reporting basics (coursework).\nFrontend Basics: React fundamentals, HTML, CSS (coursework).\nOperations: customer service, scheduling, safety procedures, logistics, vehicle inspection, troubleshooting.\n\nNOTES\nLinks and phone intentionally omitted from this export; can be added to an application as needed."
+}

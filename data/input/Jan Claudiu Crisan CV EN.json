@@ -1,0 +1,221 @@
+{
+  "GeneralInfo": {
+    "CandidateId": "JanClaudiuCrisanJavaBackendSpringEnglishC1",
+    "Fullname": "Jan-Claudiu Crisan",
+    "TitleDetected": "Java Developer; Cash Register Sales and Developer",
+    "TitlePredicted": "Java Backend Developer (Spring)",
+    "SeniorityLevel": "Mid",
+    "YearsExperience": 4,
+    "RelevantYears": 4,
+    "IndustryMatch": "High",
+    "TrajectoryPattern": "Stable",
+    "MainIndustry": "Software Development (POS/Financial/Enterprise)",
+    "EnglishLevel": "Advanced (C1)",
+    "OtherLanguages": [
+      {
+        "Language": "Romanian",
+        "Proficiency": "Native",
+        "Evidence": "Mother tongue(s): Romanian."
+      }
+    ],
+    "Location": "Arad, Romania"
+  },
+  "SkillMatrix": [
+    {
+      "SkillName": "Java 8",
+      "SkillLevel": "High",
+      "Evidence": "Roles list Java 8 as primary language in both positions."
+    },
+    {
+      "SkillName": "Spring Boot",
+      "SkillLevel": "High",
+      "Evidence": "Used in application development and maintenance; listed explicitly."
+    },
+    {
+      "SkillName": "Spring MVC",
+      "SkillLevel": "High",
+      "Evidence": "Utilized for REST API development at Nagarro."
+    },
+    {
+      "SkillName": "Spring Data",
+      "SkillLevel": "High",
+      "Evidence": "Part of the stack used for building and maintaining APIs."
+    },
+    {
+      "SkillName": "Spring Security",
+      "SkillLevel": "High",
+      "Evidence": "Implemented security solutions on projects."
+    },
+    {
+      "SkillName": "REST APIs",
+      "SkillLevel": "High",
+      "Evidence": "Designed and maintained efficient REST APIs in Java."
+    },
+    {
+      "SkillName": "Liquibase",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed among skills at Nagarro."
+    },
+    {
+      "SkillName": "Hibernate",
+      "SkillLevel": "Medium",
+      "Evidence": "Used in DEM SERVICE with Spring Boot and MySQL."
+    },
+    {
+      "SkillName": "MySQL",
+      "SkillLevel": "Medium",
+      "Evidence": "Used at DEM SERVICE for POS solution."
+    },
+    {
+      "SkillName": "SQL (general)",
+      "SkillLevel": "Medium",
+      "Evidence": "Work with relational databases (MySQL) and data access frameworks."
+    },
+    {
+      "SkillName": "Maven",
+      "SkillLevel": "High",
+      "Evidence": "Used for build management at Nagarro."
+    },
+    {
+      "SkillName": "Docker",
+      "SkillLevel": "Medium",
+      "Evidence": "Utilized for application development/maintenance at Nagarro."
+    },
+    {
+      "SkillName": "Git / Bitbucket",
+      "SkillLevel": "High",
+      "Evidence": "Version control and collaboration tools listed across roles."
+    },
+    {
+      "SkillName": "Mockito",
+      "SkillLevel": "Medium",
+      "Evidence": "Listed in skills for testing at Nagarro."
+    },
+    {
+      "SkillName": "Kotlin",
+      "SkillLevel": "Medium",
+      "Evidence": "Used at DEM SERVICE alongside Java and Spring Boot."
+    },
+    {
+      "SkillName": "Code Reviews & Best Practices",
+      "SkillLevel": "High",
+      "Evidence": "Conducted code reviews and adhered to best practices."
+    },
+    {
+      "SkillName": "POS Systems Development",
+      "SkillLevel": "Medium",
+      "Evidence": "Contributed to complete software solution for point-of-sale systems."
+    },
+    {
+      "SkillName": "Communication & Teamwork",
+      "SkillLevel": "High",
+      "Evidence": "Collaborated with team of 5 developers and a Product Owner."
+    },
+    {
+      "SkillName": "Microsoft Office / ECDL",
+      "SkillLevel": "Medium",
+      "Evidence": "ECDL modules completed; Office tools listed."
+    },
+    {
+      "SkillName": "Data Structures & Algorithms (Java)",
+      "SkillLevel": "Medium",
+      "Evidence": "Explicit reference to 'DATA STRUCTURES AND ALGORITHMS WITH JAVA'."
+    }
+  ],
+  "KeywordCoverage": {
+    "KeywordsDetected": [
+      "Java",
+      "Java 8",
+      "Spring Boot",
+      "Spring MVC",
+      "Spring Data",
+      "Spring Security",
+      "REST APIs",
+      "Liquibase",
+      "Maven",
+      "Docker",
+      "Git",
+      "Bitbucket",
+      "Mockito",
+      "Hibernate",
+      "MySQL",
+      "Kotlin",
+      "POS",
+      "Code Reviews",
+      "Best Practices"
+    ],
+    "KeywordsMissing": [
+      "JUnit",
+      "Spring Cloud",
+      "OpenAPI/Swagger",
+      "CI/CD",
+      "Kubernetes",
+      "Cloud (AWS/Azure/GCP)",
+      "Microservices",
+      "RabbitMQ/Kafka",
+      "ELK/Prometheus/Grafana",
+      "OAuth2/JWT",
+      "SonarQube",
+      "Testcontainers",
+      "Container Orchestration",
+      "Terraform"
+    ],
+    "Density": 57,
+    "Context": "Resume emphasizes Java/Spring backend development with REST APIs, database tooling, VCS, and Docker; fewer mentions of cloud, microservices, testing frameworks, and observability."
+  },
+  "Languages": [
+    {
+      "Language": "Romanian",
+      "Proficiency": "Native",
+      "Evidence": "Mother tongue(s): Romanian."
+    },
+    {
+      "Language": "English",
+      "Proficiency": "Advanced",
+      "Evidence": "English C1 across listening, reading, interaction, production, and writing."
+    }
+  ],
+  "Scores": {
+    "GeneralScore": 78,
+    "ATSCompatibility": 80,
+    "ClarityScore": 72,
+    "FormattingScore": 68,
+    "KeywordDensity": 57,
+    "EnglishProficiency": 85,
+    "SeniorityMatch": 70,
+    "SkillCoverage": 76,
+    "AchievementsQuantification": 40,
+    "SoftSkillsCoverage": 75
+  },
+  "Relevance": {
+    "TitleMatch": 88,
+    "ResponsibilityMatch": 82,
+    "OverallFit": "High"
+  },
+  "ClarityAndFormatting": {
+    "ClarityScore": 72,
+    "FormattingScore": 68,
+    "SpellingErrors": 3
+  },
+  "Summary": "Java backend developer with approximately 4 years of experience building and maintaining RESTful applications using Spring Boot/MVC/Data/Security, Hibernate, and MySQL. Delivered security implementations, code reviews, and best practices within small agile teams; contributed to POS system development and API-centric projects. Comfortable with Docker, Maven, Git/Bitbucket, and unit testing frameworks like Mockito; looking to grow in cloud, CI/CD, and microservices ecosystems.",
+  "Strengths": [
+    "Solid Java/Spring backend foundation with security and REST APIs",
+    "Hands-on experience with relational databases and ORM (MySQL/Hibernate)",
+    "Good collaboration in small agile teams with code review culture",
+    "Exposure to Docker and modern build tooling (Maven)",
+    "Strong English proficiency (C1)"
+  ],
+  "AreasToImprove": [
+    "Add cloud and CI/CD tooling experience (e.g., AWS/Azure, pipelines)",
+    "Strengthen automated testing with JUnit, Testcontainers, coverage metrics",
+    "Gain experience with microservices patterns, messaging, and observability"
+  ],
+  "Tips": [
+    "Quantify impact (e.g., reduced response time by X%, improved reliability, decreased defects).",
+    "Add a Tech Stack per role including versions and tools (e.g., Spring Boot 2.x, JUnit5, OpenAPI, Docker).",
+    "Include CI/CD exposure (GitHub Actions/GitLab CI/Jenkins) and container orchestration (Kubernetes).",
+    "Document API practices (Swagger/OpenAPI) and security (OAuth2/JWT, Spring Security config).",
+    "Highlight any performance tuning (profiling, caching) and database migration practices (Liquibase flyway)."
+  ],
+  "CleanedResumeText": "JAN-CLAUDIU CRISAN | Arad, Romania | crisan.janclaudiu@yahoo.com \nNationality: Romanian | Date of Birth: 1997-05-28\n\nTITLE\nJava Backend Developer (Spring)\n\nSUMMARY\nJava developer with ~4 years of experience building RESTful applications using Spring Boot/MVC/Data/Security, Hibernate, and MySQL. Strong collaboration in agile teams, code reviews, and best practices. Interested in expanding skills in cloud, CI/CD, and microservices.\n\nWORK EXPERIENCE\nJava Developer — Nagarro | Arad, Romania | 2022-05-10 – 2023-06-15\n• Built and maintained REST APIs using Spring MVC, Spring Boot, Spring Data, and Spring Security.\n• Implemented security solutions, conducted code reviews, and followed best practices.\n• Used Liquibase, Maven, Docker, Git/Bitbucket, and Mockito.\n• Collaborated with a team of 5 developers and a Product Owner.\n\nCash Register Sales and Developer — DEM SERVICE | Arad, Romania | 2019-03-03 – 2021-10-01\n• Contributed to a full POS software solution and cash register programming.\n• Implemented CRUD features and device–web interface communication; fixed bugs and improved quality.\n• Participated in distribution and sales, developing relationship and negotiation skills.\n• Stack: Java 8, Kotlin, Spring Boot, MySQL, Hibernate, Git.\n\nEDUCATION AND TRAINING\nBachelor's Degree in Software Engineering — Universitea \"Aurel Vlaicu\" Arad | 2018-10-10 – 2022-06-01 | EQF level 7\n\nLANGUAGES\n• Romanian: Native\n• English: C1 (listening, reading, interaction, production, writing)\n\nDIGITAL SKILLS\n• Java, Spring (Boot, MVC, Data, Security)\n• REST APIs, Hibernate, MySQL, Liquibase\n• Maven, Docker, Git/Bitbucket, Mockito\n• Microsoft Office (Word, Excel, PowerPoint); ECDL Modules 1–7\n• Data Structures and Algorithms with Java"
+}

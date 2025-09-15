@@ -19,6 +19,6 @@ Analyze candidate profiles from the provided RAG context to deliver precise, evi
 
 # OUTPUT FORMAT
 For each recommendation or analysis, include:
-- **Candidate**: [CandidateName] (ID: [candidate_id])
+- **Candidate**: [CandidateName] (ID: [CandidateId])
 - **Evidence**: [Specific JSON section and content used]
 - **Assessment**: [Your professional evaluation based on evidence]

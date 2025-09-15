@@ -122,12 +122,38 @@ JSONL instruction pairs for LLM fine-tuning with conversational format.
 - **System Prompt**: Defines AI assistant role as senior technical recruiter
 - **Human Prompt**: Template with retrieval context and query structure
 
+## Docker Infrastructure
+
+The project includes Docker Compose configurations for running supporting services.
+
+### Running Services (from `infra/docker/`)
+
+**Qdrant Vector Database:**
+```bash
+docker compose -f docker-compose.qdrant.yml up -d
+```
+
+**Ollama LLM Service:**
+```bash
+docker compose -f docker-compose.ollama.yml up -d
+```
+
+**Running Both Services:**
+```bash
+docker compose -f docker-compose.qdrant.yml up -d
+docker compose -f docker-compose.ollama.yml up -d
+```
+
+### Service Details
+
+- **Qdrant**: Vector database running on port `6333` (configurable via `QDRANT_HTTP_PORT`)
+- **Ollama**: LLM service running on port `11434` (configurable via `OLLAMA_PORT`) with `llama3:8b` model pre-loaded
+
 ## What's Coming Next
 
 - **Python RAG API** using LangChain
 - **C# RAG API** using Semantic Kernel  
 - **Performance comparison** between both implementations
-- **Docker infrastructure** for easy deployment
 - **Cross-platform scripts** for running all services
 
 ## Development Philosophy

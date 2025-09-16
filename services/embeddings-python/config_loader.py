@@ -11,6 +11,7 @@ CONFIG_DATA = "data"
 CONFIG_DATA_ROOT = "root"
 CONFIG_EMBEDDINGS_INSTRUCTIONS = "embeddings_instructions"
 
+
 def load_config() -> dict:
     cfg_path = Path(CONFIG_PATH)
     
@@ -31,9 +32,11 @@ def load_config() -> dict:
     
     return config
 
+
 def get_embedding_host_port(cfg: dict) -> tuple[str, int]:
     svc = cfg[CONFIG_EMBEDDINGS_SERVICE]
     return str(svc[CONFIG_HOST]), int(svc[CONFIG_PORT])
+
 
 def get_instruction_file(cfg: dict, filename: str | None = None) -> Path:
     if filename:

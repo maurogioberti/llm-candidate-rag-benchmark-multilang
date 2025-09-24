@@ -1,6 +1,6 @@
 import requests
 from typing import List, Dict, Any, Tuple
-from src.core.application.protocols.embeddings_protocol import EmbeddingsClient
+from ...application.protocols.embeddings_protocol import EmbeddingsClient
 
 ENDPOINT_EMBED = "/embed"
 ENDPOINT_INSTRUCTION_PAIRS = "/instruction-pairs"

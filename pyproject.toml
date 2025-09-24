@@ -23,8 +23,8 @@ dependencies = [
   "torch>=2.1.0",
 
   "httpx>=0.27.0",
-  "pytest>=8.2.0"
-
+  "requests>=2.31.0",
+  "pytest>=8.2.0",
   "pyyaml>=6.0.1",
 ]
 
@@ -41,4 +41,4 @@ package-dir = {"" = "src/python"}
 [tool.setuptools.packages.find]
 where = ["src/python"]
 include = ["api*", "core*"]
-exclude = []
+exclude = ["__pycache__*", "*.pyc"]

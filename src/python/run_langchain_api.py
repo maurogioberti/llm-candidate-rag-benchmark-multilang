@@ -6,9 +6,6 @@ DEFAULT_PORT = 8000
 DEFAULT_RELOAD = True
 CONFIG_PYTHON_API = "python_api"
 CONFIG_PORT = "port"
-ENV_PORT = "PORT"
-ENV_RELOAD = "RELOAD"
-ENV_APP_MODE = "APP_MODE"
 
 
 def _build_index() -> None:

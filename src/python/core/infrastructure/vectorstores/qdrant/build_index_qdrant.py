@@ -1,5 +1,5 @@
 from typing import Dict, Iterable, List, Tuple, Any
-from src.core.infrastructure.qdrant_rest import QdrantREST
+from .qdrant_rest import QdrantREST
 
 
 def ensure_and_upsert(

@@ -5,6 +5,9 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 
 from ...domain.entities.candidate_record import CandidateRecord
+from ...infrastructure.shared.config_loader import get_config
+
+SCHEMA_FILE = "candidate_record.schema.json"
 
 
 class SchemaValidationService:
@@ -12,7 +15,9 @@ class SchemaValidationService:
         if schema_path:
             self.schema_path = Path(schema_path)
         else:
-            self.schema_path = Path(__file__).parent.parent.parent.parent.parent / "data" / "schema" / "candidate_record.schema.json"
+            cfg = get_config()
+            schema_dir = cfg.raw["data"]["schema"]
+            self.schema_path = cfg.get_data_root() / schema_dir / SCHEMA_FILE
         
         self._schema = self._load_schema()
 

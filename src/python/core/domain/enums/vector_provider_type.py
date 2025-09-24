@@ -1,9 +1,12 @@
 from enum import Enum
 
+PROVIDER_NATIVE = "NATIVE"
+PROVIDER_QDRANT = "QDRANT"
+DEFAULT_PROVIDER = PROVIDER_QDRANT
 
 class VectorProviderType(Enum):
-    NATIVE = "NATIVE"
-    QDRANT = "QDRANT"
+    NATIVE = PROVIDER_NATIVE
+    QDRANT = PROVIDER_QDRANT
 
     @classmethod
     def from_string(cls, value: str) -> 'VectorProviderType':

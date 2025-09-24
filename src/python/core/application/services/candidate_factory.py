@@ -7,6 +7,7 @@ from ...domain.entities.candidate_record import (
     CandidateRecord, GeneralInfo, Skill, KeywordCoverage, Language,
     Scores, Relevance, ClarityAndFormatting
 )
+from ...domain.entities.candidate import Candidate
 from ...domain.enums.seniority_level import SeniorityLevel as SeniorityLevelEnum
 from ...domain.enums.language_proficiency import LanguageProficiency as LanguageProficiencyEnum
 from ...domain.enums.overall_fit_level import OverallFitLevel as OverallFitLevelEnum
@@ -53,6 +54,19 @@ class CandidateFactory:
             data = json.load(f)
 
         return self.from_json(data)
+    
+    def create_candidate(self, candidate_record: CandidateRecord, candidate_id: str, raw_data: Optional[Dict[str, Any]] = None) -> Candidate:
+        return Candidate.from_candidate_record(candidate_record, candidate_id, raw_data)
+    
+    def from_json_to_candidate(self, data: Dict[str, Any], candidate_id: str) -> Candidate:
+        candidate_record = self.from_json(data)
+        return self.create_candidate(candidate_record, candidate_id, data)
+    
+    def from_json_file_to_candidate(self, file_path: Union[str, Path], candidate_id: str) -> Candidate:
+        candidate_record = self.from_json_file(file_path)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            raw_data = json.load(f)
+        return self.create_candidate(candidate_record, candidate_id, raw_data)
     
     def to_json(self, resume_result: CandidateRecord) -> Dict[str, Any]:
         if self.validate_schema:

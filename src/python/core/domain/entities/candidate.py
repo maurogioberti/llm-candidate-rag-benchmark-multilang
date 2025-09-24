@@ -41,32 +41,61 @@ KEYWORD_PATTERNS = [
 
 
 @dataclass
-class CandidateRecord:
+class Candidate:
+    candidate_record: CandidateRecord
     candidate_id: str
     raw: Dict[str, Any]
-    summary: str
     
-    schema_version: Optional[str] = None
-    generated_at: Optional[str] = None
-    source: Optional[str] = None
+    @classmethod
+    def from_candidate_record(cls, candidate_record: CandidateRecord, candidate_id: str, raw_data: Optional[Dict[str, Any]] = None) -> 'Candidate':
+        if raw_data is None:
+            raw_data = candidate_record.to_dict()
+        return cls(
+            candidate_record=candidate_record,
+            candidate_id=candidate_id,
+            raw=raw_data
+        )
     
-    general_info: Optional[Any] = None
-    skill_matrix: List[Any] = field(default_factory=list)
-    keyword_coverage: Optional[Any] = None
-    languages: List[Any] = field(default_factory=list)
-    scores: Optional[Any] = None
-    relevance: Optional[Any] = None
-    clarity_and_formatting: Optional[Any] = None
+    @property
+    def summary(self) -> str:
+        return self.candidate_record.Summary
     
-    strengths: List[str] = field(default_factory=list)
-    areas_to_improve: List[str] = field(default_factory=list)
-    tips: List[str] = field(default_factory=list)
-    cleaned_resume_text: Optional[str] = None
+    @property
+    def general_info(self):
+        return self.candidate_record.GeneralInfo
+    
+    @property
+    def skill_matrix(self):
+        return self.candidate_record.SkillMatrix or []
+    
+    @property
+    def scores(self):
+        return self.candidate_record.Scores
+    
+    @property
+    def languages(self):
+        return self.candidate_record.Languages or []
+    
+    @property
+    def strengths(self):
+        return self.candidate_record.Strengths or []
+    
+    @property
+    def areas_to_improve(self):
+        return self.candidate_record.AreasToImprove or []
+    
+    @property
+    def tips(self):
+        return self.candidate_record.Tips or []
+    
+    @property
+    def cleaned_resume_text(self):
+        return self.candidate_record.CleanedResumeText
 
     @property
     def prepared(self) -> bool:
-        general_score = self.scores.GeneralScore if self.scores else 0
-        seniority_level = self.general_info.SeniorityLevel if self.general_info else None
+        general_score = self.candidate_record.Scores.GeneralScore if self.candidate_record.Scores else 0
+        seniority_level = self.candidate_record.GeneralInfo.SeniorityLevel if self.candidate_record.GeneralInfo else None
         
         return (general_score and general_score >= MIN_PREPARED_SCORE) or \
                (seniority_level in [
@@ -86,20 +115,20 @@ class CandidateRecord:
         return ENGLISH_LEVEL_MAP.get(self.english_level.upper(), 0)
 
     def _detect_english_level(self) -> str:
-        if self.languages:
+        if self.candidate_record.Languages:
             english_language = next(
-                (lang for lang in self.languages 
+                (lang for lang in self.candidate_record.Languages 
                  if lang.Language and lang.Language.lower() == "english"), 
                 None
             )
             if english_language and english_language.Proficiency:
                 return english_language.Proficiency.value if hasattr(english_language.Proficiency, 'value') else str(english_language.Proficiency)
         
-        if self.general_info and self.general_info.EnglishLevel:
-            return self.general_info.EnglishLevel
+        if self.candidate_record.GeneralInfo and self.candidate_record.GeneralInfo.EnglishLevel:
+            return self.candidate_record.GeneralInfo.EnglishLevel
             
-        if self.cleaned_resume_text:
-            return self._extract_english_level_from_text(self.cleaned_resume_text)
+        if self.candidate_record.CleanedResumeText:
+            return self._extract_english_level_from_text(self.candidate_record.CleanedResumeText)
         
         return "UNKNOWN"
 
@@ -126,12 +155,12 @@ class CandidateRecord:
         
         title_hint = self._get_title_hint()
         
-        candidate_summary = f"[Candidate] {self.candidate_id} {title_hint}\nSummary:\n{self.summary}"
+        candidate_summary = f"[Candidate] {self.candidate_id} {title_hint}\nSummary:\n{self.candidate_record.Summary}"
         blocks.append(candidate_summary)
         
-        if self.skill_matrix:
+        if self.candidate_record.SkillMatrix:
             skills_summary = ", ".join([
-                skill.SkillName for skill in self.skill_matrix 
+                skill.SkillName for skill in self.candidate_record.SkillMatrix 
                 if skill.SkillName
             ])
             blocks.append(f"Skills: {skills_summary}")
@@ -145,11 +174,11 @@ class CandidateRecord:
         return blocks
 
     def _get_title_hint(self) -> str:
-        if not self.general_info:
+        if not self.candidate_record.GeneralInfo:
             return ""
             
-        title_detected = self.general_info.TitleDetected or ""
-        title_predicted = self.general_info.TitlePredicted or ""
+        title_detected = self.candidate_record.GeneralInfo.TitleDetected or ""
+        title_predicted = self.candidate_record.GeneralInfo.TitlePredicted or ""
         combined_titles = f"{title_detected} {title_predicted}".lower()
         
         if any(keyword in combined_titles for keyword in BACKEND_TITLE_KEYWORDS):
@@ -160,7 +189,7 @@ class CandidateRecord:
         return ""
 
     def _get_derived_keywords(self) -> set[str]:
-        combined_text = f"{self.cleaned_resume_text or ''} {self.summary}"
+        combined_text = f"{self.candidate_record.CleanedResumeText or ''} {self.candidate_record.Summary}"
         derived_keywords = set()
         
         for regex_pattern, keyword_name in KEYWORD_PATTERNS:
@@ -176,8 +205,8 @@ class CandidateRecord:
             "prepared": self.prepared,
             "english_level": self.english_level,
             "english_level_num": self.english_level_num,
-            "general_score": self.scores.GeneralScore if self.scores else 0,
-            "seniority_level": self.general_info.SeniorityLevel.value if self.general_info and self.general_info.SeniorityLevel else "Unknown",
-            "skills_count": len(self.skill_matrix),
-            "years_experience": self.general_info.YearsExperience if self.general_info else 0
+            "general_score": self.candidate_record.Scores.GeneralScore if self.candidate_record.Scores else 0,
+            "seniority_level": self.candidate_record.GeneralInfo.SeniorityLevel.value if self.candidate_record.GeneralInfo and self.candidate_record.GeneralInfo.SeniorityLevel else "Unknown",
+            "skills_count": len(self.candidate_record.SkillMatrix) if self.candidate_record.SkillMatrix else 0,
+            "years_experience": self.candidate_record.GeneralInfo.YearsExperience if self.candidate_record.GeneralInfo else 0
         }

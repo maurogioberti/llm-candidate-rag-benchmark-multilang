@@ -66,6 +66,7 @@ TestResults/
 
 # IDE configuration
 .vscode/
+.vs/
 .idea/
 *.iml
 

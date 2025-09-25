@@ -46,8 +46,11 @@ async def index():
         candidates = candidate_service.load_candidates_from_directory(input_dir)
         info = await build_index_use_case.execute(candidates)
         
-        return {"indexed": info.dict()}
+        result = {"indexed": info.dict()}
+        return result
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"{ERROR_PREFIX}{e}")
 
 

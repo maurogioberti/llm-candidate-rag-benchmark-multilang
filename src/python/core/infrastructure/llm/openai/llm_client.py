@@ -86,4 +86,8 @@ class OpenAILlmClient:
             {"role": ROLE_USER, "content": full_user_message}
         ]
         
-        return self.generate_response(messages)
+        try:
+            response = self.generate_response(messages)
+            return response
+        except Exception as e:
+            raise

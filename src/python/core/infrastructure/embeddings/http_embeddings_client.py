@@ -36,7 +36,8 @@ class HttpEmbeddingsClient:
     
     def embed_query(self, text: str) -> List[float]:
         vectors = self.embed_documents([text])
-        return vectors[0]
+        embedding = vectors[0]
+        return embedding
     
     def get_instruction_pairs(self, path: str = None) -> List[Tuple[str, Dict[str, Any]]]:
         url = f"{self.base_url}{ENDPOINT_INSTRUCTION_PAIRS}"

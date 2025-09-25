@@ -28,10 +28,19 @@ class ChromaVectorStore:
             **result
         }
     
-    def add_documents(self, documents: List[Document]) -> List[str]:
+    def add_documents(self, documents: List[str], embeddings: List[List[float]] = None, metadata: List[Dict[str, Any]] = None) -> List[str]:
         if not self._chroma_vectorstore:
             self._ensure_vectorstore()
-        return self._chroma_vectorstore.add_documents(documents)
+        
+        from langchain_core.documents import Document
+        langchain_docs = []
+        
+        for i, doc_text in enumerate(documents):
+            doc_metadata = metadata[i] if metadata and i < len(metadata) else {}
+            langchain_docs.append(Document(page_content=doc_text, metadata=doc_metadata))
+        
+        result = self._chroma_vectorstore.add_documents(langchain_docs)
+        return result
     
     def similarity_search(
         self, 
@@ -72,7 +81,6 @@ class ChromaVectorStore:
                     DEFAULT_QUERY, k=limit, filter=filter_metadata
                 )
         except Exception as e:
-            print(f"Warning: Vector search failed, using fallback: {e}")
             results = []
         
         formatted_results = []
@@ -80,6 +88,17 @@ class ChromaVectorStore:
             formatted_results.append((doc.page_content, doc.metadata, score))
         
         return formatted_results
+    
+    def count(self) -> int:
+        if not self._chroma_vectorstore:
+            self._ensure_vectorstore()
+        
+        try:
+            collection = self._chroma_vectorstore._collection
+            count = collection.count()
+            return count
+        except Exception as e:
+            return 0
     
     def _ensure_vectorstore(self):
         from .chroma_utils import load_existing_chroma

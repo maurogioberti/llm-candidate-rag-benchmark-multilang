@@ -1,17 +1,42 @@
+import copy
 import json
-from typing import Dict, Any, Optional, List, Union
+import re
 from datetime import datetime
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
-from ...domain.entities.candidate_record import (
-    CandidateRecord, GeneralInfo, Skill, KeywordCoverage, Language,
-    Scores, Relevance, ClarityAndFormatting
-)
 from ...domain.entities.candidate import Candidate
-from ...domain.enums.seniority_level import SeniorityLevel as SeniorityLevelEnum
+from ...domain.entities.candidate_record import (
+    CandidateRecord, ClarityAndFormatting, GeneralInfo, KeywordCoverage,
+    Language, Relevance, Scores, Skill
+)
 from ...domain.enums.language_proficiency import LanguageProficiency as LanguageProficiencyEnum
 from ...domain.enums.overall_fit_level import OverallFitLevel as OverallFitLevelEnum
+from ...domain.enums.seniority_level import SeniorityLevel as SeniorityLevelEnum
 from .schema_validation_service import SchemaValidationService
+
+
+DEFAULT_SCHEMA_VERSION = "1.0"
+DEFAULT_SUMMARY = ""
+EMPTY_STRING = ""
+DEFAULT_GROUP = 1
+
+PROFICIENCY_VALUES = [
+    "A1", "A2", "B1", "B2", "C1", "C2",
+    "Basic", "Conversational", "Fluent", "Native", "Advanced"
+]
+
+SENIORITY_VALUES = ["Junior", "Mid", "Senior", "Lead", "Principal", "Staff"]
+
+PROFICIENCY_PATTERNS = [
+    r'\(([A-Z]\d)\)',
+    r'\b([A-Z]\d)\b',
+    r'\b(Basic|Conversational|Fluent|Native|Advanced)\b',
+]
+
+SENIORITY_PATTERNS = [
+    r'\b(Junior|Mid|Senior|Lead|Principal|Staff)\b',
+]
 
 
 class CandidateFactory:
@@ -23,13 +48,14 @@ class CandidateFactory:
     
     def from_json(self, data: Dict[str, Any]) -> CandidateRecord:
         if self.validate_schema:
-            if not self.validator.validate_json(data):
-                errors = self.validator.get_validation_errors(data)
+            filtered_data = self._filter_comment_fields(data)
+            if not self.validator.validate_json(filtered_data):
+                errors = self.validator.get_validation_errors(filtered_data)
                 raise ValueError(f"JSON data doesn't match schema: {errors}")
         
         return CandidateRecord(
-            Summary=data.get('Summary', ''),
-            schemaVersion=data.get('schemaVersion', '1.0'),
+            Summary=data.get('Summary', DEFAULT_SUMMARY),
+            schemaVersion=data.get('schemaVersion', DEFAULT_SCHEMA_VERSION),
             generatedAt=self._parse_datetime(data.get('generatedAt')),
             source=data.get('source'),
             GeneralInfo=self._parse_general_info(data.get('GeneralInfo')),
@@ -120,7 +146,7 @@ class CandidateFactory:
 
         return [
             Skill(
-                SkillName=skill.get('SkillName', ''),
+                SkillName=skill.get('SkillName', EMPTY_STRING),
                 SkillLevel=skill.get('SkillLevel'),
                 Years=skill.get('Years'),
                 Evidence=skill.get('Evidence')
@@ -199,4 +225,98 @@ class CandidateFactory:
         try:
             return enum_class(value)
         except (ValueError, TypeError):
+            if isinstance(value, str):
+                enum_values = [e.value for e in enum_class if e.value is not None]
+                
+                for enum_value in enum_values:
+                    if enum_value.lower() in value.lower():
+                        try:
+                            return enum_class(enum_value)
+                        except (ValueError, TypeError):
+                            continue
+                
+                for pattern in PROFICIENCY_PATTERNS:
+                    match = re.search(pattern, value, re.IGNORECASE)
+                    if match:
+                        extracted = match.group(DEFAULT_GROUP)
+                        try:
+                            return enum_class(extracted)
+                        except (ValueError, TypeError):
+                            continue
+            
             return None
+    
+    def _filter_comment_fields(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        filtered_data = copy.deepcopy(data)
+        
+        if 'Scores' in filtered_data and isinstance(filtered_data['Scores'], dict):
+            scores = filtered_data['Scores']
+            comment_fields = [key for key in scores.keys() if key.endswith('Comment')]
+            for field in comment_fields:
+                del scores[field]
+        
+        if 'Languages' in filtered_data and isinstance(filtered_data['Languages'], list):
+            for lang in filtered_data['Languages']:
+                if isinstance(lang, dict) and 'Proficiency' in lang:
+                    proficiency = lang['Proficiency']
+                    if isinstance(proficiency, str):
+                        normalized = self._normalize_proficiency(proficiency)
+                        if normalized:
+                            lang['Proficiency'] = normalized
+        
+        if 'GeneralInfo' in filtered_data and isinstance(filtered_data['GeneralInfo'], dict):
+            general_info = filtered_data['GeneralInfo']
+            
+            if 'SeniorityLevel' in general_info and isinstance(general_info['SeniorityLevel'], str):
+                normalized = self._normalize_seniority_level(general_info['SeniorityLevel'])
+                if normalized:
+                    general_info['SeniorityLevel'] = normalized
+            
+            if 'OtherLanguages' in general_info and isinstance(general_info['OtherLanguages'], list):
+                for lang in general_info['OtherLanguages']:
+                    if isinstance(lang, dict) and 'Proficiency' in lang:
+                        proficiency = lang['Proficiency']
+                        if isinstance(proficiency, str):
+                            normalized = self._normalize_proficiency(proficiency)
+                            if normalized:
+                                lang['Proficiency'] = normalized
+        
+        return filtered_data
+    
+    def _normalize_proficiency(self, value: str) -> Optional[str]:
+        if not value:
+            return None
+        
+        value = value.strip()
+        
+        for valid_value in PROFICIENCY_VALUES:
+            if value.lower() == valid_value.lower():
+                return valid_value
+        
+        for pattern in PROFICIENCY_PATTERNS:
+            match = re.search(pattern, value, re.IGNORECASE)
+            if match:
+                extracted = match.group(DEFAULT_GROUP)
+                if extracted in PROFICIENCY_VALUES:
+                    return extracted
+        
+        return None
+    
+    def _normalize_seniority_level(self, value: str) -> Optional[str]:
+        if not value:
+            return None
+        
+        value = value.strip()
+        
+        for valid_value in SENIORITY_VALUES:
+            if value.lower() == valid_value.lower():
+                return valid_value
+        
+        for pattern in SENIORITY_PATTERNS:
+            match = re.search(pattern, value, re.IGNORECASE)
+            if match:
+                extracted = match.group(DEFAULT_GROUP)
+                if extracted in SENIORITY_VALUES:
+                    return extracted
+        
+        return None

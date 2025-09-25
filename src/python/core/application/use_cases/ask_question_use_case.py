@@ -36,20 +36,31 @@ class AskQuestionUseCase:
     async def execute(self, request: ChatRequestDto) -> ChatResult:
         query_embedding = self.embeddings_client.embed_query(request.question)
         metadata_filter = self._build_metadata_filter(request.filters)
+        
         search_results = self.vector_store.search(
             query_embedding=query_embedding,
             limit=DEFAULT_LIMIT,
             filter_metadata=metadata_filter
         )
+        
+        if not search_results:
+            return ChatResult(
+                answer="No candidates found matching the specified criteria.",
+                sources=[]
+            )
+        
         context = self._build_context(search_results)
         sources = self._extract_sources(search_results)
         
         human_prompt = self._get_human_prompt(context, request.question)
+        system_prompt = self._get_system_prompt()
+        
         answer = self.llm_client.generate_chat_completion(
-            system_prompt=self._get_system_prompt(),
+            system_prompt=system_prompt,
             user_message=human_prompt,
             context=context
         )
+        
         return ChatResult(
             answer=answer,
             sources=sources
@@ -58,14 +69,26 @@ class AskQuestionUseCase:
     def _build_metadata_filter(self, filters):
         if not filters:
             return None
-        metadata_filter = {}
+            
+        conditions = []
+        
         if filters.prepared is not None:
-            metadata_filter[PREPARED_KEY] = filters.prepared
+            conditions.append({PREPARED_KEY: filters.prepared})
+            
         if filters.english_min:
-            metadata_filter[ENGLISH_LEVEL_NUM_MIN_KEY] = ENGLISH_LEVEL_MAP.get(filters.english_min.upper(), 0)
+            conditions.append({ENGLISH_LEVEL_NUM_MIN_KEY: ENGLISH_LEVEL_MAP.get(filters.english_min.upper(), 0)})
+            
         if filters.candidate_ids:
-            metadata_filter[CANDIDATE_ID_KEY] = {IN_OPERATOR: filters.candidate_ids}
-        return metadata_filter if metadata_filter else None
+            conditions.append({CANDIDATE_ID_KEY: {"$in": filters.candidate_ids}})
+        
+        if not conditions:
+            return None
+        
+        if len(conditions) == 1:
+            return conditions[0]
+        
+        # For multiple conditions, Chroma expects them to be combined with $and
+        return {"$and": conditions}
     
     def _build_context(self, search_results: List) -> str:
         context_parts = []

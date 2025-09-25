@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Incluye recursivamente todo ../data/ y muestra las subcarpetas directamente -->
+    <None Include="..\..\data\**\*"
+          Link="%(RecursiveDir)%(Filename)%(Extension)"
+          Exclude="..\..\data\**\*.tmp;..\..\data\**\*.bak;..\..\data\**\.DS_Store;..\..\data\**\*.lock" />
+  </ItemGroup>
+
+</Project>

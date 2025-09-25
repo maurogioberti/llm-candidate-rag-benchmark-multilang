@@ -77,6 +77,7 @@ secrets.yaml
 
 # OS / generated data
 *.DS_Store
+data/qdrant/
 data/vectors/
 data/chroma/
 data/faiss/

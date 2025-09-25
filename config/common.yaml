@@ -16,8 +16,10 @@ vector_storage: # Vector Storage Configuration to use with both APIs
   collection_name: "candidates"
 
 llm_provider: # LLM Provider Configuration to use with both APIs
-  provider: "llama"   # OpenAI | Llama (Make sure previously have this model installed in ollama)
-  model: "llama3:8b"             # OpenAI: gpt-4, gpt-3.5-turbo | Llama: llama3:8b, gpt-oss, deepseek-r1:7b
+  provider: "ollama"   # OpenAI |Ollama (Make sure previously have this model installed in Ollama)
+  model: "llama3:8b"             # OpenAI: gpt-4, gpt-3.5-turbo | Ollama: llama3:8b, gpt-oss, deepseek-r1:7b
+  ollama:
+    base_url: "http://localhost:11434"
   openai: # Supported by both APIs. Prefer open models for local setup/benchmarking
     api_key: ""                   # prefer env var OPENAI_API_KEY
     base_url: ""                  # prefer env var OPENAI_BASE_URL

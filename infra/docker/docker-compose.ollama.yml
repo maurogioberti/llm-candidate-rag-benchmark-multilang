@@ -1,4 +1,6 @@
+name: llm-candidate-rag
 version: "3.9"
+
 services:
   ollama:
     image: ollama/ollama:latest
@@ -10,6 +12,12 @@ services:
     # Default image llama3:8b in volume cache
     command: ["/bin/sh","-c","ollama serve & sleep 2 && ollama pull llama3:8b && tail -f /dev/null"]
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:11434/api/tags >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
 volumes:
   ollama:

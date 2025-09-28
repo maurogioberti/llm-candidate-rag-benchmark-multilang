@@ -1,6 +1,6 @@
-using Rag.Candidates.Api.Api.Endpoints;
+using Rag.Candidates.Api.Endpoints;
 
-namespace Rag.Candidates.Api.Api.Extensions;
+namespace Rag.Candidates.Api.Extensions;
 
 public static class WebApplicationExtensions
 {

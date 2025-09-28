@@ -1,8 +1,8 @@
-using Rag.Candidates.Api.Api.Contracts.Request;
-using Rag.Candidates.Api.Api.Contracts.Response;
+using Rag.Candidates.Api.Contracts.Request;
+using Rag.Candidates.Api.Contracts.Response;
 using Rag.Candidates.Api.Core.Application.UseCases;
 
-namespace Rag.Candidates.Api.Api.Endpoints;
+namespace Rag.Candidates.Api.Endpoints;
 
 public static class ChatEndpoints
 {

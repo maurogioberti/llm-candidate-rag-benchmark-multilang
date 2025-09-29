@@ -40,13 +40,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILlmFineTuningService, LlmFineTuningService>();
         services.AddSingleton<IInstructionPairsService, InstructionPairsService>();
         services.AddSingleton<ICandidateFactory, CandidateFactory>();
-        services.AddSingleton<LlmProviderFactory>();
-        services.AddSingleton<ILlmClient>(provider =>
-        {
-            var factory = provider.GetRequiredService<LlmProviderFactory>();
-            return factory.CreateLlmClient(provider);
-        });
-
+        services.AddLlmProviders();
         services.AddVectorStorage();
 
         return services;
@@ -85,6 +79,18 @@ public static class ServiceCollectionExtensions
         {
             var vectorStoreProvider = provider.GetRequiredService<VectorStoreProvider>();
             return vectorStoreProvider.CreateVectorStore(provider);
+        });
+
+        return services;
+    }
+
+    private static IServiceCollection AddLlmProviders(this IServiceCollection services)
+    {
+        services.AddSingleton<LlmProviderFactory>();
+        services.AddSingleton<ILlmClient>(provider =>
+        {
+            var factory = provider.GetRequiredService<LlmProviderFactory>();
+            return factory.CreateLlmClient(provider);
         });
 
         return services;

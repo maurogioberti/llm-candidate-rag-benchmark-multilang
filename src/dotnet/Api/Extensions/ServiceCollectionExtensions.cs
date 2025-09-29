@@ -3,6 +3,7 @@ using Rag.Candidates.Api.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Infrastructure.Embeddings;
+using Rag.Candidates.Core.Infrastructure.Shared.VectorStorage;
 
 namespace Rag.Candidates.Api.Extensions;
 
@@ -34,6 +35,8 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient();
         services.AddSingleton<IEmbeddingsClient, HttpEmbeddingsClient>();
 
+        services.AddVectorStorage();
+
         return services;
     }
 
@@ -58,6 +61,19 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddLogging(o => o.AddConsole());
+
+        return services;
+    }
+
+    private static IServiceCollection AddVectorStorage(this IServiceCollection services)
+    {
+        services.AddSingleton<VectorStoreFactoryRegistry>();
+        services.AddSingleton<VectorStoreProvider>();
+        services.AddSingleton<IVectorStore>(provider =>
+        {
+            var vectorStoreProvider = provider.GetRequiredService<VectorStoreProvider>();
+            return vectorStoreProvider.CreateVectorStore(provider);
+        });
 
         return services;
     }

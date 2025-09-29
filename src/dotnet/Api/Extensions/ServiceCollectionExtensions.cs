@@ -1,5 +1,5 @@
 using Microsoft.OpenApi.Models;
-using Rag.Candidates.Api.Core.Application.UseCases;
+using Rag.Candidates.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;

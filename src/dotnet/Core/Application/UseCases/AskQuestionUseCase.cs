@@ -1,6 +1,6 @@
-namespace Rag.Candidates.Api.Core.Application.UseCases;
+namespace Rag.Candidates.Core.Application.UseCases;
 
-public class AskQuestionUseCase
+public sealed class AskQuestionUseCase
 {
-
+    // TODO: Implement AskQuestionUseCase
 }

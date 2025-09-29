@@ -1,6 +1,6 @@
 using Rag.Candidates.Api.Contracts.Request;
 using Rag.Candidates.Api.Contracts.Response;
-using Rag.Candidates.Api.Core.Application.UseCases;
+using Rag.Candidates.Core.Application.UseCases;
 
 namespace Rag.Candidates.Api.Endpoints;
 
@@ -18,9 +18,12 @@ public static class ChatEndpoints
 
         app.MapPost(IndexEndpoint, async (BuildIndexUseCase buildIndex, ILoggerFactory lf) =>
         {
-            await Task.CompletedTask;
+            var result = await buildIndex.ExecuteAsync();
 
-            var response = new IndexedResponse(new IndexedData(Candidates: "", Chunks: ""));
+            var response = new IndexedResponse(new IndexedData(
+                Candidates: result.Candidates.ToString(), 
+                Chunks: result.Chunks.ToString()
+            ));
 
             return Results.Json(response);
         });

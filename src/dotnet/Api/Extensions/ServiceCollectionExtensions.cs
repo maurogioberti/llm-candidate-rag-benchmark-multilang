@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IResourceLoader, ResourceLoader>();
         services.AddSingleton<ILlmFineTuningService, LlmFineTuningService>();
         services.AddSingleton<IInstructionPairsService, InstructionPairsService>();
+        services.AddSingleton<ISchemaValidationService, SchemaValidationService>();
         services.AddSingleton<ICandidateFactory, CandidateFactory>();
         services.AddLlmProviders();
         services.AddVectorStorage();

@@ -1,13 +1,15 @@
-using System.Text.Json;
-using System.Text.RegularExpressions;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Domain.Entities;
 using Rag.Candidates.Core.Domain.Enums;
+using System.Text.Json;
 
 namespace Rag.Candidates.Core.Application.Services;
 
 public sealed class CandidateFactory : ICandidateFactory
 {
+    private readonly ISchemaValidationService _validationService;
+    private readonly JsonSerializerOptions _jsonOptions;
+
     private const string DefaultSchemaVersion = "1.0";
     private const string DefaultSummary = "";
     private const string JsonDataDoesNotMatchSchema = "JSON data doesn't match schema: {0}";
@@ -17,13 +19,32 @@ public sealed class CandidateFactory : ICandidateFactory
     private readonly string[] _proficiencyValues = ["A1", "A2", "B1", "B2", "C1", "C2", "Basic", "Conversational", "Fluent", "Native", "Advanced"];
     private readonly string[] _seniorityValues = ["Junior", "Mid", "Senior", "Lead", "Principal", "Staff"];
 
-    public CandidateRecord FromJson(string jsonData)
+    public CandidateFactory(ISchemaValidationService validationService)
     {
-        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonData) ?? new();
+        _validationService = validationService;
+        _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true,
+            WriteIndented = true
+        };
+    }
+
+    public CandidateRecord FromJson(string jsonData, bool validate = true)
+    {
+        if (validate)
+        {
+            var validationResult = _validationService.ValidateAsync(jsonData);
+            if (!validationResult.IsValid)
+            {
+                throw new ArgumentException($"JSON validation failed: {string.Join(", ", validationResult.Errors)}");
+            }
+        }
+
+        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonData, _jsonOptions) ?? new();
         return CreateCandidateRecord(data);
     }
 
-    public CandidateRecord FromJsonFile(string filePath)
+    public CandidateRecord FromJsonFile(string filePath, bool validate = true)
     {
         if (!File.Exists(filePath))
         {
@@ -31,7 +52,7 @@ public sealed class CandidateFactory : ICandidateFactory
         }
 
         var jsonData = File.ReadAllText(filePath);
-        return FromJson(jsonData);
+        return FromJson(jsonData, validate);
     }
 
     public Candidate CreateCandidate(CandidateRecord candidateRecord, string candidateId, Dictionary<string, object>? rawData = null)
@@ -98,22 +119,22 @@ public sealed class CandidateFactory : ICandidateFactory
 
     private static Dictionary<string, object>? GetObjectValue(Dictionary<string, object> data, string key)
     {
-        return data.TryGetValue(key, out var value) && value is JsonElement element 
-            ? JsonSerializer.Deserialize<Dictionary<string, object>>(element.GetRawText()) 
+        return data.TryGetValue(key, out var value) && value is JsonElement element
+            ? JsonSerializer.Deserialize<Dictionary<string, object>>(element.GetRawText())
             : null;
     }
 
     private static object[]? GetArrayValue(Dictionary<string, object> data, string key)
     {
-        return data.TryGetValue(key, out var value) && value is JsonElement element 
-            ? JsonSerializer.Deserialize<object[]>(element.GetRawText()) 
+        return data.TryGetValue(key, out var value) && value is JsonElement element
+            ? JsonSerializer.Deserialize<object[]>(element.GetRawText())
             : null;
     }
 
     private static string[]? GetStringArrayValue(Dictionary<string, object> data, string key)
     {
-        return data.TryGetValue(key, out var value) && value is JsonElement element 
-            ? JsonSerializer.Deserialize<string[]>(element.GetRawText()) 
+        return data.TryGetValue(key, out var value) && value is JsonElement element
+            ? JsonSerializer.Deserialize<string[]>(element.GetRawText())
             : null;
     }
 
@@ -313,7 +334,8 @@ public sealed class CandidateFactory : ICandidateFactory
 
     private ClarityAndFormatting? ParseClarityAndFormatting(Dictionary<string, object>? data)
     {
-        if (data == null) return null;
+        if (data == null)
+            return null;
 
         return new ClarityAndFormatting
         {

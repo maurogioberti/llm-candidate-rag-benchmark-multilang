@@ -43,7 +43,7 @@ public class Candidate
         
         if (CandidateRecord.SkillMatrix?.Length > 0)
         {
-            var skillsSummary = string.Join(", ", CandidateRecord.SkillMatrix
+            var skillsSummary = string.Join(Separator, CandidateRecord.SkillMatrix
                 .Where(s => !string.IsNullOrEmpty(s.Name))
                 .Select(s => s.Name!));
             blocks.Add($"Skills: {skillsSummary}");
@@ -52,10 +52,10 @@ public class Candidate
         var derivedKeywords = GetDerivedKeywords();
         if (derivedKeywords.Length > 0)
         {
-            blocks.Add($"DerivedKeywords: {string.Join(", ", derivedKeywords.OrderBy(k => k))}");
+            blocks.Add($"DerivedKeywords: {string.Join(Separator, derivedKeywords.OrderBy(k => k))}");
         }
         
-        blocks.Add(System.Text.Json.JsonSerializer.Serialize(Raw, new System.Text.Json.JsonSerializerOptions { WriteIndented = false }));
+        blocks.Add(JsonSerializer.Serialize(Raw, new JsonSerializerOptions { WriteIndented = false }));
         
         return blocks.ToArray();
     }

@@ -30,11 +30,22 @@ public static class ChatEndpoints
 
         app.MapPost(ChatEndpoint, async (ChatRequest req, AskQuestionUseCase askQuestion, ILoggerFactory lf) =>
         {
-            await Task.CompletedTask;
+            var request = new Core.Application.DTOs.ChatRequestDto
+            {
+                Question = req.Question,
+                Filters = req.Filters != null ? new Core.Application.DTOs.ChatFilters
+                {
+                    Prepared = req.Filters.Prepared,
+                    EnglishMin = req.Filters.EnglishMin,
+                    CandidateIds = req.Filters.CandidateIds
+                } : null
+            };
+
+            var result = await askQuestion.ExecuteAsync(request);
 
             var response = new ChatResponse(
-                Answer: "",
-                Sources: ""
+                Answer: result.Answer,
+                Sources: string.Join("\n", result.Sources.Select(s => $"{s.CandidateId}: {s.Content}"))
             );
 
             return Results.Json(response);

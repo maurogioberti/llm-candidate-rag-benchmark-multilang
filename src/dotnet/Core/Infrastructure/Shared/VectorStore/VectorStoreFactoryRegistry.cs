@@ -13,7 +13,7 @@ public class VectorStoreFactoryRegistry
         _factories = new Dictionary<VectorStoreProviderType, Func<VectorStorageSettings, QdrantSettings, IVectorStoreFactory>>
         {
             [VectorStoreProviderType.Native] = (vector, qdrant) => new NativeVectorStoreFactory(vector),
-            [VectorStoreProviderType.Qdrant] = (vector, qdrant) => new QdrantVectorStoreFactory(vector, qdrant)
+            [VectorStoreProviderType.Qdrant] = (vector, qdrant) => new QdrantVectorStoreFactory()
         };
     }
 

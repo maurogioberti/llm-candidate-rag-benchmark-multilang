@@ -1,10 +1,9 @@
 using Rag.Candidates.Core.Application.Interfaces;
-using Rag.Candidates.Core.Domain.Configuration;
 using Rag.Candidates.Core.Infrastructure.VectorStores.Qdrant;
 
 namespace Rag.Candidates.Core.Infrastructure.Shared.VectorStorage.VectorStoreFactories;
 
-public class QdrantVectorStoreFactory(VectorStorageSettings vectorSettings, QdrantSettings qdrantSettings) : IVectorStoreFactory
+public class QdrantVectorStoreFactory : IVectorStoreFactory
 {
     public IVectorStore CreateVectorStore(IServiceProvider serviceProvider)
     {

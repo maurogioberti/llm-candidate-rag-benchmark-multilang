@@ -1,4 +1,8 @@
-# LLM Candidate RAG Benchmark - Multi-Language
+# LLM C## Current Implementation Status
+
+🟢 **Embeddings Service** - Ready  
+🟢 **Python API** - Ready  
+🟢 **C# API** - Readyate RAG Benchmark - Multi-Language
 
 A benchmarking project to compare RAG (Retrieval-Augmented Generation) implementations for candidate matching using two different tech stacks:
 
@@ -9,7 +13,7 @@ A benchmarking project to compare RAG (Retrieval-Augmented Generation) implement
 
 🟢 **Embeddings Service** - Ready  
 🔶 **Python API** - Coming Soon  
-🔶 **C# API** - Coming Soon  
+� **C# API** - Ready  
 
 ## Architecture Overview
 
@@ -71,26 +75,67 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
    source .venv/bin/activate
    ```
 
-2. **Start the embeddings service:**
+2. **Install dependencies:**
    ```bash
-   py -m services.embeddings-python.run_server
+   pip install -e .
    ```
 
-   The service will start on the host/port configured in `config/common.yaml` under `EmbeddingsService` section.
+3. **Start the embeddings service:**
+   
+   **Opción 1: Desde la raíz del proyecto (recomendado)**
+   ```bash
+   python run_embeddings_server.py
+   ```
+   
+   **Opción 2: Usando el módulo del servicio**
+   ```bash
+   python -m services.embeddings-python.run_embeddings_server
+   ```
+
+   The service will start on the host/port configured in `config/common.yaml` under `embeddings_service` section.
+
+### Running the APIs
+
+#### C# API (Semantic Kernel)
+
+1. **Prerequisites:**
+   - .NET 8.0+ SDK
+   - Running embeddings service (see above)
+
+2. **Start the C# API:**
+   ```bash
+   dotnet run --project src/dotnet/Rag.Candidates.Api.csproj
+   ```
+
+   The API will start on the host/port configured in `config/common.yaml` under `dotnet_api` section.
+
+#### Python API (LangChain)
+
+1. **Prerequisites:**
+   - Python 3.10+ with virtual environment
+   - Running embeddings service and vector database (Qdrant)
+   - Installed dependencies (`pip install -e .`)
+
+2. **Start the Python API:**
+   ```bash
+   python src/python/langchain_api.py serve
+   ```
+
+   The API will start on the host/port configured in `config/common.yaml` under `python_api` section.
 
 ### Configuration
 
 The service reads configuration from `config/common.yaml`. Required sections:
 
 ```yaml
-EmbeddingsService:
-  Host: "0.0.0.0"
-  Port: 8080
-  InstructionFile: "embeddings.jsonl"
+embeddings_service:
+  host: "0.0.0.0"
+  port: 8080
+  instruction_file: "embeddings.jsonl"
 
-Data:
-  Root: "./data"
-  EmbInstructions: "instructions"
+data:
+  root: "./data"
+  embeddings_instructions: "instructions"
 ```
 
 ## Data Structure
@@ -152,7 +197,6 @@ docker compose -f docker-compose.ollama.yml up -d
 ## What's Coming Next
 
 - **Python RAG API** using LangChain
-- **C# RAG API** using Semantic Kernel  
 - **Performance comparison** between both implementations
 - **Cross-platform scripts** for running all services
 
@@ -162,4 +206,4 @@ This project follows **KISS principles** for microservices - simple, focused, an
 
 ---
 
-**Status**: 🚧 Early Development - Embeddings service functional, APIs in progress
+**Status**: � All core services functional - Ready for benchmarking

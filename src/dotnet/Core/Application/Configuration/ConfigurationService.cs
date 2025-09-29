@@ -1,11 +1,14 @@
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
-using Rag.Candidates.Core.Domain.Configuration;
 
 namespace Rag.Candidates.Core.Application.Configuration;
 
 public class ConfigurationService
 {
+    private const string ConfigDirectory = "config";
+    private const string CommonYamlFile = "common.yaml";
+    private const string LocalYamlFile = "common.local.yaml";
+
     private readonly IDeserializer _deserializer;
 
     public ConfigurationService()
@@ -15,11 +18,8 @@ public class ConfigurationService
             .Build();
     }
 
-    public Settings LoadSettings()
+    public Domain.Configuration.Settings LoadSettings()
     {
-        const string ConfigDirectory = "config";
-        const string CommonYamlFile = "common.yaml";
-        const string LocalYamlFile = "common.local.yaml";
 
         var baseDirectory = PathHelper.GetBaseDirectory();
         var commonYamlPath = Path.Combine(baseDirectory, ConfigDirectory, CommonYamlFile);
@@ -29,9 +29,9 @@ public class ConfigurationService
         return settings;
     }
 
-    private Settings LoadFromFile(string filePath)
+    private Domain.Configuration.Settings LoadFromFile(string filePath)
     {
         var yamlContent = File.ReadAllText(filePath);
-        return _deserializer.Deserialize<Settings>(yamlContent);
+        return _deserializer.Deserialize<Domain.Configuration.Settings>(yamlContent);
     }
 }

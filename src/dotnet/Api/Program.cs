@@ -4,6 +4,7 @@ using Rag.Candidates.Core.Domain.Configuration;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddConfiguration(builder.Configuration);
+builder.Services.AddInfrastructure();
 builder.Services.AddApplication();
 builder.Services.AddPresentation();
 

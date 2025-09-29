@@ -1,7 +1,8 @@
 using Microsoft.OpenApi.Models;
 using Rag.Candidates.Api.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
-using Rag.Candidates.Core.Domain.Configuration;
+using Rag.Candidates.Core.Application.Interfaces;
+using Rag.Candidates.Core.Infrastructure.Embeddings;
 
 namespace Rag.Candidates.Api.Extensions;
 
@@ -24,6 +25,14 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(settings.LlmProvider);
         services.AddSingleton(settings.Qdrant);
         services.AddSingleton(settings.Data);
+
+        return services;
+    }
+
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    {
+        services.AddHttpClient();
+        services.AddSingleton<IEmbeddingsClient, HttpEmbeddingsClient>();
 
         return services;
     }

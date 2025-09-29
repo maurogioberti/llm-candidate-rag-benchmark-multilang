@@ -8,7 +8,7 @@ public static class PathHelper
     {
         var currentDirectory = Directory.GetCurrentDirectory();
         var directory = new DirectoryInfo(currentDirectory);
-        directory = directory.Parent;
+        directory = directory.Parent?.Parent;
         return directory?.FullName!;
     }
 

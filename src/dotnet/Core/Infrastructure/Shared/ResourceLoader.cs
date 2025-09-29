@@ -72,7 +72,7 @@ public sealed class ResourceLoader : IResourceLoader
         var lines = content.Split(NewLineChar, StringSplitOptions.RemoveEmptyEntries);
         var records = new List<LlmInstructionRecord>();
 
-        for (int i = 0; i < lines.Length; i++)
+        for (var i = 0; i < lines.Length; i++)
         {
             var line = lines[i].Trim();
             if (string.IsNullOrWhiteSpace(line))

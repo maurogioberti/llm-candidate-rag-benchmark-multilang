@@ -31,27 +31,27 @@ public sealed class VectorCollection
         int limit,
         Dictionary<string, object>? filter = null)
     {
-        var candidates = _items.Values.AsParallel();
-        var totalCandidates = candidates.Count();
-
+        var candidates = _items.Values.AsEnumerable();
+        
         if (filter != null)
         {
             candidates = candidates.Where(item => MatchesFilter(item.Metadata, filter));
         }
 
-        var results = candidates
+        var results = new List<(string Document, Dictionary<string, object> Metadata, float Score)>(limit);
+        var scoredItems = candidates
+            .AsParallel()
             .Select(item => new
             {
                 item.Document,
                 item.Metadata,
-                Score = L2Distance(queryVector, item.Vector)
+                Score = CosineSimilarity(queryVector, item.Vector)
             })
-            .OrderBy(x => x.Score)
+            .OrderByDescending(x => x.Score)
             .Take(limit)
-            .Select(x => (x.Document, x.Metadata, x.Score))
             .ToArray();
 
-        return results;
+        return scoredItems.Select(x => (x.Document, x.Metadata, x.Score)).ToArray();
     }
 
     private static bool MatchesFilter(Dictionary<string, object> metadata, Dictionary<string, object> filter)
@@ -83,18 +83,26 @@ public sealed class VectorCollection
         return true;
     }
 
-    private static float L2Distance(float[] a, float[] b)
+    private static readonly float ZeroSimilarity = 0f;
+    
+    private static float CosineSimilarity(float[] a, float[] b)
     {
-        if (a.Length != b.Length) return float.MaxValue;
+        if (a.Length != b.Length) return ZeroSimilarity;
 
-        float sum = 0f;
-        for (int i = 0; i < a.Length; i++)
+        float dotProduct = ZeroSimilarity;
+        float normA = ZeroSimilarity;
+        float normB = ZeroSimilarity;
+
+        for (var i = 0; i < a.Length; i++)
         {
-            var diff = a[i] - b[i];
-            sum += diff * diff;
+            dotProduct += a[i] * b[i];
+            normA += a[i] * a[i];
+            normB += b[i] * b[i];
         }
 
-        return (float)Math.Sqrt(sum);
+        if (normA == ZeroSimilarity || normB == ZeroSimilarity) return ZeroSimilarity;
+
+        return dotProduct / (float)(Math.Sqrt(normA) * Math.Sqrt(normB));
     }
 
     private record VectorItem(string Id, float[] Vector, string Document, Dictionary<string, object> Metadata);

@@ -3,6 +3,7 @@ using Rag.Candidates.Api.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Infrastructure.Embeddings;
+using Rag.Candidates.Core.Infrastructure.Shared;
 using Rag.Candidates.Core.Infrastructure.Shared.VectorStorage;
 
 namespace Rag.Candidates.Api.Extensions;
@@ -34,6 +35,15 @@ public static class ServiceCollectionExtensions
     {
         services.AddHttpClient();
         services.AddSingleton<IEmbeddingsClient, HttpEmbeddingsClient>();
+        services.AddSingleton<IResourceLoader, ResourceLoader>();
+        services.AddSingleton<ILlmFineTuningService, LlmFineTuningService>();
+        services.AddSingleton<IInstructionPairsService, InstructionPairsService>();
+        services.AddSingleton<LlmProviderFactory>();
+        services.AddSingleton<ILlmClient>(provider =>
+        {
+            var factory = provider.GetRequiredService<LlmProviderFactory>();
+            return factory.CreateLlmClient(provider);
+        });
 
         services.AddVectorStorage();
 

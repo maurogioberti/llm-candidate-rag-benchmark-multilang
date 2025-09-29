@@ -15,7 +15,7 @@ public class GeneralInfo
     public string? TrajectoryPattern { get; set; }
     public string? MainIndustry { get; set; }
     public string? EnglishLevel { get; set; }
-    public string[]? OtherLanguages { get; set; }
+    public IReadOnlyList<Language>? OtherLanguages { get; set; }
     public string? Location { get; set; }
     public string? RemoteWork { get; set; }
     public string? Availability { get; set; }

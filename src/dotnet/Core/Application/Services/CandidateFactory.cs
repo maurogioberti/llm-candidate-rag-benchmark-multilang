@@ -31,16 +31,20 @@ public sealed class CandidateFactory : ICandidateFactory
 
     public CandidateRecord FromJson(string jsonData, bool validate = true)
     {
+        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonData, _jsonOptions) ?? new();
+        
         if (validate)
         {
-            var validationResult = _validationService.ValidateAsync(jsonData);
+            var filteredData = FilterCommentFields(data);
+            var filteredJson = JsonSerializer.Serialize(filteredData, _jsonOptions);
+            
+            var validationResult = _validationService.ValidateAsync(filteredJson);
             if (!validationResult.IsValid)
             {
                 throw new ArgumentException($"JSON validation failed: {string.Join(", ", validationResult.Errors)}");
             }
         }
 
-        var data = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonData, _jsonOptions) ?? new();
         return CreateCandidateRecord(data);
     }
 
@@ -138,6 +142,38 @@ public sealed class CandidateFactory : ICandidateFactory
             : null;
     }
 
+    private IReadOnlyList<Language>? ParseOtherLanguages(Dictionary<string, object> data)
+    {
+        if (!data.TryGetValue("OtherLanguages", out var value) || value is not JsonElement element)
+            return null;
+
+        if (element.ValueKind != JsonValueKind.Array)
+            return null;
+
+        var languages = new List<Language>();
+        foreach (var langElement in element.EnumerateArray())
+        {
+            if (langElement.ValueKind == JsonValueKind.Object)
+            {
+                var language = new Language
+                {
+                    Name = GetStringValueFromElement(langElement, "Language"),
+                    Proficiency = ParseLanguageProficiency(GetStringValueFromElement(langElement, "Proficiency")),
+                    Evidence = GetStringValueFromElement(langElement, "Evidence")
+                };
+                languages.Add(language);
+            }
+        }
+        return languages;
+    }
+
+    private static string? GetStringValueFromElement(JsonElement element, string propertyName)
+    {
+        return element.TryGetProperty(propertyName, out var prop) &&
+               prop.ValueKind == JsonValueKind.String ? prop.GetString() : null;
+    }
+
+
     private static DateTime? ParseDateTime(string? value)
     {
         if (string.IsNullOrEmpty(value))
@@ -172,7 +208,7 @@ public sealed class CandidateFactory : ICandidateFactory
             TrajectoryPattern = GetStringValue(data, "TrajectoryPattern"),
             MainIndustry = GetStringValue(data, "MainIndustry"),
             EnglishLevel = GetStringValue(data, "EnglishLevel"),
-            OtherLanguages = GetStringArrayValue(data, "OtherLanguages"),
+            OtherLanguages = ParseOtherLanguages(data),
             Location = GetStringValue(data, "Location"),
             RemoteWork = GetStringValue(data, "RemoteWork"),
             Availability = GetStringValue(data, "Availability"),
@@ -193,10 +229,19 @@ public sealed class CandidateFactory : ICandidateFactory
         };
     }
 
-    private static SeniorityLevel? ParseSeniorityLevel(string? value)
+    private SeniorityLevel? ParseSeniorityLevel(string? value)
     {
-        if (string.IsNullOrEmpty(value)) return null;
-        return Enum.TryParse<SeniorityLevel>(value, true, out var result) ? result : null;
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        if (Enum.TryParse<SeniorityLevel>(value, true, out var result))
+            return result;
+        
+        var normalized = NormalizeSeniorityLevel(value);
+        if (normalized != null && Enum.TryParse<SeniorityLevel>(normalized, true, out result))
+            return result;
+        
+        return null;
     }
 
     private Skill[]? ParseSkillMatrix(object[]? data)
@@ -289,10 +334,19 @@ public sealed class CandidateFactory : ICandidateFactory
         return languages.ToArray();
     }
 
-    private static LanguageProficiency? ParseLanguageProficiency(string? value)
+    private LanguageProficiency? ParseLanguageProficiency(string? value)
     {
-        if (string.IsNullOrEmpty(value)) return null;
-        return Enum.TryParse<LanguageProficiency>(value, true, out var result) ? result : null;
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        if (Enum.TryParse<LanguageProficiency>(value, true, out var result))
+            return result;
+        
+        var normalized = NormalizeProficiency(value);
+        if (normalized != null && Enum.TryParse<LanguageProficiency>(normalized, true, out result))
+            return result;
+        
+        return null;
     }
 
     private Scores? ParseScores(Dictionary<string, object>? data)
@@ -310,10 +364,22 @@ public sealed class CandidateFactory : ICandidateFactory
         };
     }
 
-    private static OverallFitLevel? ParseOverallFitLevel(string? value)
+    private OverallFitLevel? ParseOverallFitLevel(string? value)
     {
-        if (string.IsNullOrEmpty(value)) return null;
-        return Enum.TryParse<OverallFitLevel>(value, true, out var result) ? result : null;
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        if (Enum.TryParse<OverallFitLevel>(value, true, out var result))
+            return result;
+        
+        var enumValues = Enum.GetValues<OverallFitLevel>();
+        foreach (var enumValue in enumValues)
+        {
+            if (string.Equals(value, enumValue.ToString(), StringComparison.OrdinalIgnoreCase))
+                return enumValue;
+        }
+        
+        return null;
     }
 
     private Relevance? ParseRelevance(Dictionary<string, object>? data)
@@ -345,5 +411,204 @@ public sealed class CandidateFactory : ICandidateFactory
             ClarityIssues = GetStringArrayValue(data, "ClarityIssues"),
             Suggestions = GetStringArrayValue(data, "Suggestions")
         };
+    }
+
+    private Dictionary<string, object> FilterCommentFields(Dictionary<string, object> data)
+    {
+        var filteredData = new Dictionary<string, object>(data);
+        
+        if (filteredData.TryGetValue("Scores", out var scoresValue))
+        {
+            Dictionary<string, object>? scoresData = null;
+            
+            if (scoresValue is JsonElement scoresElement)
+            {
+                scoresData = JsonSerializer.Deserialize<Dictionary<string, object>>(scoresElement.GetRawText());
+            }
+            else if (scoresValue is Dictionary<string, object> scoresDict)
+            {
+                scoresData = new Dictionary<string, object>(scoresDict);
+            }
+            
+            if (scoresData != null)
+            {
+                var commentFields = scoresData.Keys.Where(key => key.EndsWith("Comment")).ToList();
+                foreach (var field in commentFields)
+                {
+                    scoresData.Remove(field);
+                }
+                filteredData["Scores"] = scoresData;
+            }
+        }
+        
+        if (filteredData.TryGetValue("Languages", out var languagesValue))
+        {
+            if (languagesValue is JsonElement languagesElement && languagesElement.ValueKind == JsonValueKind.Array)
+            {
+                var languagesList = new List<object>();
+                foreach (var langElement in languagesElement.EnumerateArray())
+                {
+                    if (langElement.ValueKind == JsonValueKind.Object)
+                    {
+                        var langData = JsonSerializer.Deserialize<Dictionary<string, object>>(langElement.GetRawText());
+                        if (langData != null)
+                        {
+                            NormalizeProficiencyInLanguage(langData);
+                            languagesList.Add(langData);
+                        }
+                    }
+                }
+                filteredData["Languages"] = languagesList.ToArray();
+            }
+        }
+        
+        if (filteredData.TryGetValue("GeneralInfo", out var generalInfoValue))
+        {
+            Dictionary<string, object>? generalInfoData = null;
+            
+            if (generalInfoValue is JsonElement generalInfoElement)
+            {
+                generalInfoData = JsonSerializer.Deserialize<Dictionary<string, object>>(generalInfoElement.GetRawText());
+            }
+            else if (generalInfoValue is Dictionary<string, object> generalInfoDict)
+            {
+                generalInfoData = new Dictionary<string, object>(generalInfoDict);
+            }
+            
+            if (generalInfoData != null)
+            {
+                if (generalInfoData.TryGetValue("SeniorityLevel", out var seniorityValue) && seniorityValue is string seniorityStr)
+                {
+                    var normalizedSeniority = NormalizeSeniorityLevel(seniorityStr);
+                    if (normalizedSeniority != null)
+                    {
+                        generalInfoData["SeniorityLevel"] = normalizedSeniority;
+                    }
+                }
+                
+                if (generalInfoData.TryGetValue("OtherLanguages", out var otherLanguagesValue))
+                {
+                    if (otherLanguagesValue is JsonElement otherLanguagesElement && otherLanguagesElement.ValueKind == JsonValueKind.Array)
+                    {
+                        var otherLanguagesList = new List<object>();
+                        foreach (var langElement in otherLanguagesElement.EnumerateArray())
+                        {
+                            if (langElement.ValueKind == JsonValueKind.Object)
+                            {
+                                var langData = JsonSerializer.Deserialize<Dictionary<string, object>>(langElement.GetRawText());
+                                if (langData != null)
+                                {
+                                    NormalizeProficiencyInLanguage(langData);
+                                    otherLanguagesList.Add(langData);
+                                }
+                            }
+                        }
+                        generalInfoData["OtherLanguages"] = otherLanguagesList.ToArray();
+                    }
+                }
+                
+                filteredData["GeneralInfo"] = generalInfoData;
+            }
+        }
+        
+        return filteredData;
+    }
+    
+    private void NormalizeProficiencyInLanguage(Dictionary<string, object> langData)
+    {
+        if (langData.TryGetValue("Proficiency", out var proficiencyValue))
+        {
+            string? proficiencyStr = null;
+            if (proficiencyValue is string str)
+            {
+                proficiencyStr = str;
+            }
+            else if (proficiencyValue is JsonElement element && element.ValueKind == JsonValueKind.String)
+            {
+                proficiencyStr = element.GetString();
+            }
+            
+            if (proficiencyStr != null)
+            {
+                var normalized = NormalizeProficiency(proficiencyStr);
+                if (normalized != null)
+                {
+                    langData["Proficiency"] = normalized;
+                }
+            }
+        }
+    }
+    
+    private string? NormalizeProficiency(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        value = value.Trim();
+        
+        foreach (var validValue in _proficiencyValues)
+        {
+            if (string.Equals(value, validValue, StringComparison.OrdinalIgnoreCase))
+            {
+                return validValue;
+            }
+        }
+        
+        var patterns = new[]
+        {
+            @"\(([A-Z]\d)\)",
+            @"\b([A-Z]\d)\b",
+            @"\b(Basic|Conversational|Fluent|Native|Advanced)\b"
+        };
+        
+        foreach (var pattern in patterns)
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(value, pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            if (match.Success && match.Groups.Count > 1)
+            {
+                var extracted = match.Groups[1].Value;
+                foreach (var validValue in _proficiencyValues)
+                {
+                    if (string.Equals(extracted, validValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return extracted;
+                    }
+                }
+            }
+        }
+        
+        return null;
+    }
+    
+    private string? NormalizeSeniorityLevel(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+        
+        value = value.Trim();
+        
+        foreach (var validValue in _seniorityValues)
+        {
+            if (string.Equals(value, validValue, StringComparison.OrdinalIgnoreCase))
+            {
+                return validValue;
+            }
+        }
+        
+        var pattern = @"\b(Junior|Mid|Senior|Lead|Principal|Staff)\b";
+        var match = System.Text.RegularExpressions.Regex.Match(value, pattern, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        if (match.Success && match.Groups.Count > 1)
+        {
+            var extracted = match.Groups[1].Value;
+            foreach (var validValue in _seniorityValues)
+            {
+                if (string.Equals(extracted, validValue, StringComparison.OrdinalIgnoreCase))
+                {
+                    return validValue;
+                }
+            }
+        }
+        
+        return null;
     }
 }

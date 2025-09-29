@@ -19,8 +19,6 @@ public sealed class QdrantVectorStore : IVectorStore
     private const string DistanceMetric = "Cosine";
     private const string EmptyResponseMessage = "Empty response from Qdrant";
 
-    private const string ClientName = "qdrant";
-
     private const string CollectionsPathTemplate = "/collections/{0}";
     private const string PointsPathTemplate = "/collections/{0}/points";
     private const string PointsSearchPathTemplate = "/collections/{0}/points/search";
@@ -34,11 +32,13 @@ public sealed class QdrantVectorStore : IVectorStore
     private const string DeletedLog = "Deleted point {Id} from {Collection}";
 
     private const string OperatorGte = "$gte";
+    private const string OperatorIn = "$in";
+    private const string AndOperator = "$and";
     private const string DocumentKey = "document";
 
     public QdrantVectorStore(IHttpClientFactory httpFactory, ILogger<QdrantVectorStore>? logger = null)
     {
-        _http = httpFactory.CreateClient(ClientName);
+        _http = httpFactory.CreateClient(nameof(QdrantVectorStore));
         _logger = logger;
     }
 
@@ -106,12 +106,23 @@ public sealed class QdrantVectorStore : IVectorStore
         {
             Vector = queryVector,
             Limit = limit,
+            WithPayload = true,
+            WithVector = false,
             Filter = filter != null ? BuildFilter(filter) : null
         };
+
+        var jsonBody = JsonSerializer.Serialize(body, JsonOpts);
+        _logger?.LogInformation("Qdrant Search Request: {JsonBody}", jsonBody);
 
         var resp = await _http.PostAsJsonAsync(
             string.Format(PointsSearchPathTemplate, Uri.EscapeDataString(collection)),
             body, JsonOpts, ct);
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            var errorContent = await resp.Content.ReadAsStringAsync(ct);
+            _logger?.LogError("Qdrant Search Error: {StatusCode} - {ErrorContent}", resp.StatusCode, errorContent);
+        }
 
         resp.EnsureSuccessStatusCode();
 
@@ -177,42 +188,71 @@ public sealed class QdrantVectorStore : IVectorStore
         return dict;
     }
 
-    private static FilterDto BuildFilter(Dictionary<string, object> filter)
+    private static object BuildFilter(Dictionary<string, object> filter)
     {
-        var must = new List<ConditionDto>();
-
-        foreach (var (key, value) in filter)
+        if (filter.Count == 1 && filter.TryGetValue(AndOperator, out var andValue) && andValue is List<object> andList)
         {
+            var must = new List<object>();
+            foreach (var condition in andList)
+            {
+                if (condition is Dictionary<string, object> conditionDict)
+                {
+                    must.Add(ConvertConditionToQdrant(conditionDict));
+                }
+            }
+            return new { must };
+        }
+        
+        if (filter.Count > 1)
+        {
+            var must = new List<object>();
+            foreach (var kvp in filter)
+            {
+                must.Add(ConvertConditionToQdrant(new Dictionary<string, object> { { kvp.Key, kvp.Value } }));
+            }
+            return new { must };
+        }
+        
+        return ConvertConditionToQdrant(filter);
+    }
+
+    private static object ConvertConditionToQdrant(Dictionary<string, object> condition)
+    {
+        if (condition.Count == 1)
+        {
+            var kvp = condition.First();
+            var key = kvp.Key;
+            var value = kvp.Value;
+
             if (value is Dictionary<string, object> ops)
             {
-                if (ops.TryGetValue(OperatorGte, out var gte) && gte is IConvertible)
+                if (ops.TryGetValue(OperatorGte, out var gte))
                 {
-                    must.Add(new ConditionDto
+                    return new
                     {
-                        Field = new FieldConditionDto
-                        {
-                            Key = key,
-                            Range = new RangeDto { Gte = Convert.ToDouble(gte) }
-                        }
-                    });
+                        key = key,
+                        range = new { gte = gte }
+                    };
+                }
+                if (ops.TryGetValue(OperatorIn, out var inValues))
+                {
+                    return new
+                    {
+                        key = key,
+                        match = new { any = inValues }
+                    };
                 }
             }
             else
             {
-                must.Add(new ConditionDto
+                return new
                 {
-                    Field = new FieldConditionDto
-                    {
-                        Key = key,
-                        Match = new MatchDto
-                        {
-                            Value = value
-                        }
-                    }
-                });
+                    key = key,
+                    match = new { value = value }
+                };
             }
         }
 
-        return new FilterDto { Must = must };
+        return condition;
     }
 }

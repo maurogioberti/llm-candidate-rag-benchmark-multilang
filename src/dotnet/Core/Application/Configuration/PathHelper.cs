@@ -38,7 +38,7 @@ public static class PathHelper
         return GetDataPath(dataSettings, dataSettings.Input);
     }
 
-    public static string GetSchemaPath(DataSettings dataSettings, string schemaFileName = "ai_resume_result.schema.json")
+    public static string GetSchemaPath(DataSettings dataSettings, string schemaFileName = "candidate_record.schema.json")
     {
         return GetDataPath(dataSettings, dataSettings.Schema, schemaFileName);
     }

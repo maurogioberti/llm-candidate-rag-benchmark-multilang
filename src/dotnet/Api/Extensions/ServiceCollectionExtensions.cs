@@ -3,9 +3,13 @@ using Rag.Candidates.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;
+using Rag.Candidates.Core.Domain.Configuration;
 using Rag.Candidates.Core.Infrastructure.Embeddings;
+using Rag.Candidates.Core.Infrastructure.Llm.OpenAI;
+using Rag.Candidates.Core.Infrastructure.Llm.Ollama;
 using Rag.Candidates.Core.Infrastructure.Shared;
 using Rag.Candidates.Core.Infrastructure.Shared.VectorStorage;
+using Rag.Candidates.Core.Infrastructure.VectorStores.Qdrant;
 
 namespace Rag.Candidates.Api.Extensions;
 
@@ -14,6 +18,8 @@ public static class ServiceCollectionExtensions
     public const string SwaggerVersion = "v1";
     public const string SwaggerTitle = "Candidate RAG (Semantic Kernel)";
     public const string SwaggerApiVersion = "1.0.0";
+    
+    private static readonly TimeSpan OllamaTimeout = TimeSpan.FromMinutes(5);
 
     public static IServiceCollection AddConfiguration(this IServiceCollection services, IConfiguration configuration)
     {
@@ -34,7 +40,30 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddInfrastructure(this IServiceCollection services)
     {
-        services.AddHttpClient();
+        services.AddHttpClient(nameof(QdrantVectorStore), client =>
+        {
+            var settings = services.BuildServiceProvider().GetRequiredService<QdrantSettings>();
+            client.BaseAddress = new Uri(settings.Url);
+        });
+        services.AddHttpClient(nameof(HttpEmbeddingsClient), client =>
+        {
+            var settings = services.BuildServiceProvider().GetRequiredService<EmbeddingsServiceSettings>();
+            client.BaseAddress = new Uri(settings.Url);
+        });
+        services.AddHttpClient(nameof(OpenAILlmClient), client =>
+        {
+            var settings = services.BuildServiceProvider().GetRequiredService<LlmProviderSettings>();
+            if (settings.OpenAi?.BaseUrl != null)
+                client.BaseAddress = new Uri(settings.OpenAi.BaseUrl);
+        });
+        services.AddHttpClient(nameof(OllamaLlmClient), client =>
+        {
+            var settings = services.BuildServiceProvider().GetRequiredService<LlmProviderSettings>();
+            if (settings.Ollama?.BaseUrl != null)
+                client.BaseAddress = new Uri(settings.Ollama.BaseUrl);
+            client.Timeout = OllamaTimeout;
+        });
+
         services.AddSingleton<IEmbeddingsClient, HttpEmbeddingsClient>();
         services.AddSingleton<IResourceLoader, ResourceLoader>();
         services.AddSingleton<ILlmFineTuningService, LlmFineTuningService>();

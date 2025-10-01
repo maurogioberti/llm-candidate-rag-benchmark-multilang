@@ -1,0 +1,115 @@
+{
+  "hr_evaluation_prompts": [
+    {
+      "id": "senior-dotnet",
+      "question": "Who is the best candidate for a senior .NET position with microservices experience?",
+      "expected_criteria": [
+        ".NET experience",
+        "Microservices experience",
+        "Senior level",
+        "Candidate ranking"
+      ]
+    },
+    {
+      "id": "fintech-experience",
+      "question": "Which candidates have more than 5 years of fintech experience?",
+      "expected_criteria": [
+        "Fintech experience",
+        "More than 5 years",
+        "Specific candidate list"
+      ]
+    },
+    {
+      "id": "diversity-senior-women",
+      "question": "Give me a ranking of women with senior profiles in Data Science",
+      "expected_criteria": [
+        "Female gender",
+        "Senior level",
+        "Data Science",
+        "Ordered ranking"
+      ]
+    },
+    {
+      "id": "cloud-certifications",
+      "question": "Which candidates have cloud certifications (AWS, Azure, GCP)?",
+      "expected_criteria": [
+        "Cloud certifications",
+        "AWS, Azure, GCP",
+        "Candidate list"
+      ]
+    },
+    {
+      "id": "english-fluency",
+      "question": "Who has the best English level and international experience?",
+      "expected_criteria": [
+        "English level",
+        "International experience",
+        "Competency ranking"
+      ]
+    },
+    {
+      "id": "python-data-science",
+      "question": "What are the top 3 candidates for a Data Science position with Python?",
+      "expected_criteria": [
+        "Data Science",
+        "Python",
+        "Top 3 ranking",
+        "Selection justification"
+      ]
+    },
+    {
+      "id": "devops-kubernetes",
+      "question": "Are there candidates with DevOps and Kubernetes experience for a migration project?",
+      "expected_criteria": [
+        "DevOps",
+        "Kubernetes",
+        "Migration",
+        "Specific candidates"
+      ]
+    },
+    {
+      "id": "startup-experience",
+      "question": "Which candidates have experience working in startups and can handle dynamic environments?",
+      "expected_criteria": [
+        "Startup experience",
+        "Dynamic environments",
+        "Adaptability",
+        "Candidate list"
+      ]
+    },
+    {
+      "id": "leadership-technical",
+      "question": "Who can lead a technical team of 5-8 developers?",
+      "expected_criteria": [
+        "Technical leadership",
+        "Teams of 5-8 people",
+        "Management experience",
+        "Candidate ranking"
+      ]
+    },
+    {
+      "id": "remote-work",
+      "question": "Which candidates have successful remote work experience?",
+      "expected_criteria": [
+        "Remote work",
+        "Successful experience",
+        "Autonomy",
+        "Communication"
+      ]
+    }
+  ],
+  "evaluation_criteria": {
+    "accuracy": "Is the response accurate and relevant?",
+    "completeness": "Does it include all expected criteria?",
+    "clarity": "Is it clear and easy to understand?",
+    "actionability": "Does it provide actionable information for HR?",
+    "ranking_quality": "Is the ranking/ordering logical and justified?"
+  },
+  "scoring_scale": {
+    "0-2": "Very poor - Does not answer the question",
+    "3-4": "Poor - Partial or incorrect response",
+    "5-6": "Acceptable - Basic but incomplete response",
+    "7-8": "Good - Complete and accurate response",
+    "9-10": "Excellent - Exceptional and detailed response"
+  }
+}

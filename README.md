@@ -1,8 +1,4 @@
-# LLM C## Current Implementation Status
-
-🟢 **Embeddings Service** - Ready  
-🟢 **Python API** - Ready  
-🟢 **C# API** - Readyate RAG Benchmark - Multi-Language
+# LLM Candidate RAG Benchmark - Multi-Language
 
 A benchmarking project to compare RAG (Retrieval-Augmented Generation) implementations for candidate matching using two different tech stacks:
 
@@ -12,8 +8,9 @@ A benchmarking project to compare RAG (Retrieval-Augmented Generation) implement
 ## Current Implementation Status
 
 🟢 **Embeddings Service** - Ready  
-🔶 **Python API** - Coming Soon  
-� **C# API** - Ready  
+🟢 **Python API** - Ready  
+🟢 **C# API** - Ready  
+🟢 **Benchmark Suite** - Ready  
 
 ## Architecture Overview
 
@@ -194,11 +191,29 @@ docker compose -f docker-compose.ollama.yml up -d
 - **Qdrant**: Vector database running on port `6333` (configurable via `QDRANT_HTTP_PORT`)
 - **Ollama**: LLM service running on port `11434` (configurable via `OLLAMA_PORT`) with `llama3:8b` model pre-loaded
 
-## What's Coming Next
+## Benchmarking
 
-- **Python RAG API** using LangChain
-- **Performance comparison** between both implementations
-- **Cross-platform scripts** for running all services
+We've built a comprehensive benchmark suite to compare .NET vs Python performance and quality:
+
+### Quick Start
+```powershell
+# Windows - Run all benchmarks
+.\benchmarks\run-benchmarks.ps1 both
+
+# Linux/macOS - Run all benchmarks  
+./benchmarks/run-benchmarks.sh both
+```
+
+### What's Included
+- **K6 Performance Tests**: Smoke, load, and stress testing
+- **LLM-as-a-Judge**: Quality evaluation with HR prompts
+- **Cross-platform scripts**: PowerShell (Windows) and Bash (Linux/macOS)
+
+### Prerequisites
+- **K6**: `winget install k6` (Windows) or `brew install k6` (macOS)
+- **Python**: `pip install aiohttp`
+
+📖 **Full documentation**: See [`benchmarks/README.md`](benchmarks/README.md) for detailed instructions and configuration options.
 
 ## Development Philosophy
 

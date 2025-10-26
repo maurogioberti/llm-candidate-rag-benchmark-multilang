@@ -1,6 +1,7 @@
+
 import uvicorn
-from .embedding_server import app
-from .config_loader import load_config, get_embedding_host_port
+from services.embeddings_python.embeddings_api import app
+from services.embeddings_python.config_loader import load_config, get_embedding_host_port
 
 
 if __name__ == "__main__":

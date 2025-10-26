@@ -21,7 +21,7 @@ llm-candidate-rag-benchmark-multilang/
 ├── data/
 │   ├── input/                 # Raw candidate data (JSON profiles)
 │   ├── instructions/          # Training datasets
-│   │   └── embedings.jsonl    # Synthetic candidate matching examples
+│   │   └── embeddings.jsonl    # Synthetic candidate matching examples
 │   ├── prompts/               # LLM prompt templates
 │   │   ├── chat_system.txt    # System prompt for recruiter AI
 │   │   └── chat_human.txt     # Human prompt with context template
@@ -79,32 +79,14 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 
 3. **Start the embeddings service:**
    
-   **Opción 1: Desde la raíz del proyecto (recomendado)**
+   **From Project Root (recommended)**
    ```bash
-   python run_embeddings_server.py
-   ```
-   
-   **Opción 2: Usando el módulo del servicio**
-   ```bash
-   python -m services.embeddings-python.run_embeddings_server
+   python -m services.embeddings_python.serve
    ```
 
    The service will start on the host/port configured in `config/common.yaml` under `embeddings_service` section.
 
 ### Running the APIs
-
-#### C# API (Semantic Kernel)
-
-1. **Prerequisites:**
-   - .NET 8.0+ SDK
-   - Running embeddings service (see above)
-
-2. **Start the C# API:**
-   ```bash
-   dotnet run --project src/dotnet/Rag.Candidates.Api.csproj
-   ```
-
-   The API will start on the host/port configured in `config/common.yaml` under `dotnet_api` section.
 
 #### Python API (LangChain)
 
@@ -115,10 +97,23 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 
 2. **Start the Python API:**
    ```bash
-   python src/python/langchain_api.py serve
+   python -m src.python.langchain_api
    ```
 
    The API will start on the host/port configured in `config/common.yaml` under `python_api` section.
+
+#### .NET API (Semantic Kernel)
+
+1. **What you need:**
+   - .NET 8.0+ SDK installed
+   - Make sure the embeddings service is running (see above)
+
+2. **How to run the .NET API:**
+   ```bash
+   dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
+   ```
+
+   The API will start on the host/port you set in `config/common.yaml` under the `dotnet_api` section.
 
 ### Configuration
 
@@ -146,7 +141,7 @@ Processed JSON files with structured candidate information including:
 
 ### Training Data (`data/instructions/`)
 
-**Embeddings Instructions (`embedings.jsonl`)**  
+**Embeddings Instructions (`embeddings.jsonl`)**  
 JSONL instruction pairs for embeddings training:
 
 ```json

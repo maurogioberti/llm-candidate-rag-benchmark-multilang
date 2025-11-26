@@ -33,7 +33,19 @@ llm-candidate-rag-benchmark-multilang/
 │       ├── embeddings_utils.py # Utility functions
 │       └── run_server.py      # Service entry point
 ├── src/
-│   └── python/                # Python RAG implementation (coming soon)
+│   └── python/                # Python RAG implementation
+├── benchmarks/
+│   ├── evaluator/             # LLM-as-a-Judge evaluation framework
+│   │   ├── config.py          # Configuration loader (reads common.yaml)
+│   │   ├── judge.py           # Main evaluation orchestrator
+│   │   ├── http_client.py     # HTTP client for chatbot endpoints
+│   │   ├── scoring.py         # Scoring strategies (OpenAI, Ollama, Heuristic)
+│   │   └── README.md          # Evaluator documentation
+│   ├── quality-prompts.json   # HR evaluation prompts for judge
+│   ├── results/               # Evaluation reports and JSON results
+│   ├── run-benchmarks.ps1     # PowerShell benchmark runner
+│   ├── run-benchmarks.sh      # Bash benchmark runner
+│   └── k6/                    # K6 load testing scripts
 ├── pyproject.toml             # Python project configuration
 └── README.md
 ```
@@ -190,7 +202,51 @@ docker compose -f docker-compose.ollama.yml up -d
 
 We've built a comprehensive benchmark suite to compare .NET vs Python performance and quality:
 
-### Quick Start
+### LLM-as-a-Judge Evaluator
+
+Automated quality evaluation of .NET vs Python responses using LLM judging with fallback to heuristics.
+
+**Features:**
+- Reads configuration from `config/common.yaml` (same as APIs)
+- Three judge providers:
+  - **Ollama**: Local LLM evaluation (default, requires Ollama running)
+  - **OpenAI**: GPT-based evaluation (requires OPENAI_API_KEY)
+  - **Heuristic**: Rule-based scoring (no external LLM needed)
+- Evaluates both implementations against 10 HR evaluation prompts
+- Generates Markdown report and JSON results
+- Automatic fallback to heuristic if primary provider fails
+
+**Quick Start:**
+```powershell
+python .\benchmarks\evaluator\judge.py
+```
+
+**Configuration:**
+The judge automatically reads from `config/common.yaml`. Ensure these sections are configured:
+
+```yaml
+python_api:
+  port: 8000
+
+dotnet_api:
+  urls: "http://localhost:5000"
+
+llm_provider:
+  provider: "ollama"           # or "openai" or "heuristic"
+  model: "llama3:8b"
+  ollama:
+    base_url: "http://localhost:11434"
+  openai:
+    api_key: ""                # or use OPENAI_API_KEY env var
+```
+
+**Output:**
+- `benchmarks/results/evaluation_report.md` - Human-readable comparison report
+- `benchmarks/results/evaluation_results.json` - Detailed scores and comments
+
+### Performance Tests (K6)
+
+**Quick Start:**
 ```powershell
 # Windows - Run all benchmarks
 .\benchmarks\run-benchmarks.ps1 both
@@ -199,14 +255,12 @@ We've built a comprehensive benchmark suite to compare .NET vs Python performanc
 ./benchmarks/run-benchmarks.sh both
 ```
 
-### What's Included
+**What's Included:**
 - **K6 Performance Tests**: Smoke, load, and stress testing
-- **LLM-as-a-Judge**: Quality evaluation with HR prompts
 - **Cross-platform scripts**: PowerShell (Windows) and Bash (Linux/macOS)
 
-### Prerequisites
+**Prerequisites:**
 - **K6**: `winget install k6` (Windows) or `brew install k6` (macOS)
-- **Python**: `pip install aiohttp`
 
 📖 **Full documentation**: See [`benchmarks/README.md`](benchmarks/README.md) for detailed instructions and configuration options.
 

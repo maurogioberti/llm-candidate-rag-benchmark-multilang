@@ -6,7 +6,9 @@ from ...shared.config_loader import get_config
 DEFAULT_SIZE = 384
 DEFAULT_DISTANCE = "Cosine"
 DEFAULT_TIMEOUT = 60.0
-DEFAULT_LIMIT = 10
+DEFAULT_LIMIT = 6
+DEFAULT_HNSW_EF = 128
+DEFAULT_HNSW_M = 16
 COLLECTION_ENDPOINT = "/collections"
 POINTS_ENDPOINT = "/points"
 SEARCH_ENDPOINT = "/search"
@@ -32,7 +34,16 @@ class QdrantREST:
             return
         if r.status_code != 404:
             r.raise_for_status()
-        payload = {"vectors": {"size": size, "distance": distance}}
+        payload = {
+            "vectors": {
+                "size": size,
+                "distance": distance,
+                "hnsw_config": {
+                    "m": DEFAULT_HNSW_M,
+                    "ef_construct": DEFAULT_HNSW_EF
+                }
+            }
+        }
         r = self.http.put(f"{COLLECTION_ENDPOINT}/{name}", json=payload)
         r.raise_for_status()
 
@@ -87,14 +98,31 @@ class QdrantREST:
             "limit": limit,
             "with_payload": with_payload,
             "with_vector": with_vector,
+            "params": {
+                "hnsw_ef": DEFAULT_HNSW_EF
+            }
         }
         if qfilter:
             body["filter"] = qfilter
+        
+        # Diagnostic logging for benchmarking
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[QDRANT_SEARCH] Collection: {collection}, Limit: {limit}, Filter: {qfilter}")
+        
         r = self.http.post(f"{COLLECTION_ENDPOINT}/{collection}{POINTS_ENDPOINT}{SEARCH_ENDPOINT}", json=body)
         if r.status_code >= 400:
             raise RuntimeError(f"Qdrant search error: {r.status_code} {r.text}")
         data = r.json()
-        return data.get(RESULT_KEY, [])
+        results = data.get(RESULT_KEY, [])
+        
+        # Diagnostic logging for benchmarking
+        if results:
+            logger.info(f"[QDRANT_RESULTS] Count: {len(results)}, Top score: {results[0].get('score', 0):.4f}")
+            for idx, result in enumerate(results[:3]):  # Log top 3
+                logger.info(f"[QDRANT_RESULT_{idx}] ID: {result.get('id')}, Score: {result.get('score', 0):.4f}")
+        
+        return results
 
     def count(self, collection: str) -> int:
         r = self.http.get(f"{COLLECTION_ENDPOINT}/{collection}")

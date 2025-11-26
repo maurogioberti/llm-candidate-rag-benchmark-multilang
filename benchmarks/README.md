@@ -6,12 +6,19 @@ This benchmark suite compares performance and quality of two chatbot implementat
 
 ```
 benchmarks/
+├── evaluator/                   # LLM Judge Evaluator module
+│   ├── config.py               # Configuration management
+│   ├── http_client.py          # HTTP communication
+│   ├── judge.py                # Core evaluation logic
+│   ├── scoring.py              # Scoring strategies
+│   └── README.md               # Detailed evaluator documentation
 ├── k6/                          # K6 scripts for performance testing
 │   ├── smoke-test.js           # Basic functionality test
 │   ├── load-test.js            # Load test
 │   └── stress-test.js          # Stress test
 ├── quality-prompts.json        # HR prompts for quality evaluation
-├── llm-judge-evaluator.py      # LLM-as-a-Judge evaluator
+├── llm-judge-evaluator.py      # Legacy evaluator (deprecated - use run_evaluation.py)
+├── run_evaluation.py           # New: Entry point for evaluator
 ├── run-benchmarks.ps1          # PowerShell script for Windows
 ├── run-benchmarks.sh           # Bash script for Linux/macOS
 └── results/                    # Benchmark results
@@ -62,11 +69,19 @@ pip install aiohttp asyncio
 ./benchmarks/run-benchmarks.sh python
 ```
 
-### Quality evaluation
+### Quality Evaluation
+
 ```bash
-cd benchmarks
-python llm-judge-evaluator.py
+# From benchmarks/ directory
+python run_evaluation.py
+
+# With custom judge provider
+export JUDGE_PROVIDER=openai
+export OPENAI_API_KEY=your_key_here
+python run_evaluation.py
 ```
+
+See [`evaluator/README.md`](evaluator/README.md) for detailed documentation.
 
 ## Performance Tests (K6)
 

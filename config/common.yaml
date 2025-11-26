@@ -12,12 +12,12 @@ embeddings_service: # Shared embeddings server used by both APIs (HuggingFaceEmb
   instruction_file: "embeddings.jsonl"
 
 vector_storage: # Vector Storage Configuration to use with both APIs
-  type: "qdrant"                 # qdrant: common for both apis | native: sk= vector storage lc=chroma
+  type: "native"                  # qdrant: common for both apis | native: sk=vector_storage;lc=chroma
   collection_name: "candidates"
 
 llm_provider: # LLM Provider Configuration to use with both APIs
   provider: "ollama"   # OpenAI |Ollama (Make sure previously have this model installed in Ollama)
-  model: "llama3:8b"             # OpenAI: gpt-4, gpt-3.5-turbo | Ollama: llama3:8b, gpt-oss, deepseek-r1:7b
+  model: "llama3:8b"   # OpenAI: gpt-4, gpt-3.5-turbo | Ollama: llama3:8b, gpt-oss, deepseek-r1:7b
   ollama:
     base_url: "http://localhost:11434"
   openai: # Supported by both APIs. Prefer open models for local setup/benchmarking
@@ -25,7 +25,7 @@ llm_provider: # LLM Provider Configuration to use with both APIs
     base_url: ""                  # prefer env var OPENAI_BASE_URL
 
 qdrant: # Qdrant Vector Database Configuration if VectorStorage.Type equals 'qdrant'
-  url: "http://localhost:6333"   # QDRANT HTTP URL
+  url: "http://localhost:6333"    # QDRANT HTTP URL
 
 data:
   root: "./data"

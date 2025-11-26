@@ -9,4 +9,7 @@ internal sealed class VectorParamsDto
     
     [JsonPropertyName("distance")] 
     public string Distance { get; set; } = "Cosine";
+    
+    [JsonPropertyName("hnsw_config")]
+    public HnswConfigDto? HnswConfig { get; set; }
 }

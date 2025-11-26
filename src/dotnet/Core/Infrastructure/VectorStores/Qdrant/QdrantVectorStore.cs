@@ -15,8 +15,10 @@ public sealed class QdrantVectorStore : IVectorStore
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
-    private const int VectorSize = 1536;
+    private const int VectorSize = 384;
     private const string DistanceMetric = "Cosine";
+    private const int DefaultHnswEf = 128;
+    private const int DefaultHnswM = 16;
     private const string EmptyResponseMessage = "Empty response from Qdrant";
 
     private const string CollectionsPathTemplate = "/collections/{0}";
@@ -57,7 +59,16 @@ public sealed class QdrantVectorStore : IVectorStore
 
         var req = new CreateCollectionRequest
         {
-            Vectors = new VectorParamsDto { Size = VectorSize, Distance = DistanceMetric }
+            Vectors = new VectorParamsDto 
+            { 
+                Size = VectorSize, 
+                Distance = DistanceMetric,
+                HnswConfig = new HnswConfigDto
+                {
+                    M = DefaultHnswM,
+                    EfConstruct = DefaultHnswEf
+                }
+            }
         };
 
         var put = await _http.PutAsJsonAsync(string.Format(CollectionsPathTemplate, Uri.EscapeDataString(name)), req, JsonOpts, ct);
@@ -108,11 +119,13 @@ public sealed class QdrantVectorStore : IVectorStore
             Limit = limit,
             WithPayload = true,
             WithVector = false,
-            Filter = filter != null ? BuildFilter(filter) : null
+            Filter = filter != null ? BuildFilter(filter) : null,
+            Params = new SearchParams { HnswEf = DefaultHnswEf }
         };
 
         var jsonBody = JsonSerializer.Serialize(body, JsonOpts);
-        _logger?.LogInformation("Qdrant Search Request: {JsonBody}", jsonBody);
+        _logger?.LogInformation("[QDRANT_SEARCH] Collection: {Collection}, Limit: {Limit}, Filter: {Filter}",
+            collection, limit, filter != null ? JsonSerializer.Serialize(filter) : "null");
 
         var resp = await _http.PostAsJsonAsync(
             string.Format(PointsSearchPathTemplate, Uri.EscapeDataString(collection)),
@@ -139,8 +152,25 @@ public sealed class QdrantVectorStore : IVectorStore
             return (doc, meta, r.Score);
         }).ToArray();
 
-        _logger?.LogInformation(SearchReturnedLog,
-            results.Length, results.Length > 0 ? results[0].Score : 0f);
+        // Diagnostic logging for benchmarking
+        if (results.Length > 0)
+        {
+            _logger?.LogInformation("[QDRANT_RESULTS] Count: {Count}, Top score: {TopScore:F4}",
+                results.Length, results[0].Score);
+            
+            for (int i = 0; i < Math.Min(3, results.Length); i++)
+            {
+                var candidateId = results[i].meta.TryGetValue("candidate_id", out var cid) ? cid?.ToString() : "N/A";
+                var section = results[i].meta.TryGetValue("type", out var typ) ? typ?.ToString() : "N/A";
+                var contentPreview = results[i].doc.Length > 100 ? results[i].doc.Substring(0, 100) + "..." : results[i].doc;
+                _logger?.LogInformation("[DOTNET_RETRIEVAL_{Index}] CandidateID: {CandidateId}, Section: {Section}, Score: {Score:F4}, Content: \"{Content}\"",
+                    i, candidateId, section, results[i].Score, contentPreview);
+            }
+
+            var avgScore = results.Average(r => r.Score);
+            _logger?.LogInformation("[DOTNET_CONTEXT] Total chunks retrieved: {Count}, Avg score: {AvgScore:F4}",
+                results.Length, avgScore);
+        }
 
         return results;
     }

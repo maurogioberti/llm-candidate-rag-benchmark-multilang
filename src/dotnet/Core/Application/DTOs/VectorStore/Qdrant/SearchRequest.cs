@@ -18,4 +18,7 @@ internal sealed class SearchRequest
     
     [JsonPropertyName("filter")] 
     public object? Filter { get; set; }
+    
+    [JsonPropertyName("params")]
+    public SearchParams? Params { get; set; }
 }

@@ -43,6 +43,9 @@ class QdrantVectorStore:
     ) -> List[tuple[str, Dict[str, Any], float]]:
         try:
             from .qdrant_rest import QdrantREST
+            import logging
+            logger = logging.getLogger(__name__)
+            
             qdrant = QdrantREST()
             
             results = qdrant.search(
@@ -53,17 +56,25 @@ class QdrantVectorStore:
             )
             
             formatted_results = []
-            for result in results:
+            for idx, result in enumerate(results):
                 payload = result.get("payload", {})
                 content = payload.get("document", "")
                 metadata = {k: v for k, v in payload.items() if k != "document"}
                 score = result.get("score", 0.0)
                 
+                # Diagnostic logging for benchmarking
+                if idx < 3:  # Log top 3 results
+                    logger.info(f"[PYTHON_RETRIEVAL_{idx}] CandidateID: {metadata.get('candidate_id', 'N/A')}, Section: {metadata.get('type', 'N/A')}, Score: {score:.4f}, Content: \"{content[:100]}...\"")
+                
                 formatted_results.append((content, metadata, score))
+            
+            logger.info(f"[PYTHON_CONTEXT] Total chunks retrieved: {len(formatted_results)}, Avg score: {sum(r[2] for r in formatted_results) / len(formatted_results) if formatted_results else 0:.4f}")
             
             return formatted_results
             
         except Exception as e:
+            import logging
+            logging.getLogger(__name__).error(f"[PYTHON_ERROR] Search failed: {str(e)}")
             return []
     
     def count(self) -> int:

@@ -12,7 +12,7 @@ from ...infrastructure.shared.config_loader import get_config
 from ..services.candidate_factory import CandidateFactory
 
 INPUT_SUBDIR = "input"
-EMBEDDING_INSTRUCTION_FILE = "embedings.jsonl"
+EMBEDDING_INSTRUCTION_FILE = "embeddings.jsonl"
 LLM_INSTRUCTION_FILE = "llm.jsonl"
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 60

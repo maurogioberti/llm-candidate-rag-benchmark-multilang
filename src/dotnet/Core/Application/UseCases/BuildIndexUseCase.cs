@@ -17,6 +17,7 @@ public sealed class BuildIndexUseCase
     private readonly string _collection;
     private readonly VectorMetadataConfig _metadataConfig;
     private readonly VectorMetadataBuilder _metadataBuilder;
+    private readonly SkillDocumentBuilder _skillDocumentBuilder;
 
     private const string LlmPrefix = "[LLMInstruction]";
     private const string ProviderSemanticKernel = "Semantic Kernel";
@@ -43,6 +44,7 @@ public sealed class BuildIndexUseCase
         
         _metadataConfig = VectorMetadataConfig.Default;
         _metadataBuilder = new VectorMetadataBuilder(_metadataConfig);
+        _skillDocumentBuilder = new SkillDocumentBuilder(_metadataConfig);
     }
 
     public async Task<IndexInfo> ExecuteAsync(CancellationToken ct = default)
@@ -74,6 +76,19 @@ public sealed class BuildIndexUseCase
                 {
                     documents.Add(block);
                     metadata.Add(enrichedMetadata);
+                }
+                
+                var skillDocuments = _skillDocumentBuilder.BuildSkillDocuments(
+                    candidate: candidate.Record,
+                    candidateId: candidate.CandidateId,
+                    seniorityLevel: candidate.GeneralInfo?.SeniorityLevel ?? "unknown",
+                    yearsExperience: candidate.GeneralInfo?.YearsExperience ?? 0
+                );
+                
+                foreach (var (content, skillMetadata) in skillDocuments)
+                {
+                    documents.Add(content);
+                    metadata.Add(skillMetadata);
                 }
             }
             catch (Exception ex)

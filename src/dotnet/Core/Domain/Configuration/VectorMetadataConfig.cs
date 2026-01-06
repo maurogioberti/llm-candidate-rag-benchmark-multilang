@@ -11,6 +11,8 @@ public sealed class VectorMetadataConfig
     public string FieldRelevantYears { get; init; } = "relevant_years";
     public string FieldMainIndustry { get; init; } = "main_industry";
     public string FieldPrimarySkills { get; init; } = "primary_skills";
+    public string FieldSkillName { get; init; } = "skill_name";
+    public string FieldSkillLevel { get; init; } = "skill_level";
 
     public string TypeCandidate { get; init; } = "candidate";
     public string TypeSkill { get; init; } = "skill";

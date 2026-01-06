@@ -13,7 +13,9 @@ class VectorMetadataConfig:
     FIELD_RELEVANT_YEARS: str = "relevant_years"
     FIELD_MAIN_INDUSTRY: str = "main_industry"
     FIELD_PRIMARY_SKILLS: str = "primary_skills"
-    
+    FIELD_SKILL_NAME: str = "skill_name"
+    FIELD_SKILL_LEVEL: str = "skill_level"
+
     TYPE_CANDIDATE: str = "candidate"
     TYPE_SKILL: str = "skill"
     TYPE_LLM_INSTRUCTION: str = "llm_instruction"

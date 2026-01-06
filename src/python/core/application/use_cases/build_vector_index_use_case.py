@@ -15,6 +15,7 @@ from ...infrastructure.shared.vector_provider_factory import VectorProviderFacto
 from ...infrastructure.shared.config_loader import get_config
 from ..services.candidate_factory import CandidateFactory
 from ..services.vector_metadata_builder import VectorMetadataBuilder
+from ..services.skill_document_builder import SkillDocumentBuilder
 
 # File and directory constants
 INPUT_SUBDIR = "input"
@@ -54,6 +55,7 @@ INPUT_DIR = cfg.get_input_dir()
 
 METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
 METADATA_BUILDER = VectorMetadataBuilder(METADATA_CONFIG)
+SKILL_DOCUMENT_BUILDER = SkillDocumentBuilder(METADATA_CONFIG)
 
 __all__ = ["to_documents", "load_candidate_records", "build_index", "build_index_from_records"]
 
@@ -93,10 +95,14 @@ def _candidate_to_documents(candidate: CandidateRecord) -> list:
     
     candidate_id = UNKNOWN_VALUE
     english_level = UNKNOWN_VALUE
+    seniority_level = UNKNOWN_VALUE
+    years_experience = 0
     
     if candidate.GeneralInfo:
         candidate_id = candidate.GeneralInfo.CandidateId or UNKNOWN_VALUE
         english_level = candidate.GeneralInfo.EnglishLevel or UNKNOWN_VALUE
+        seniority_level = candidate.GeneralInfo.SeniorityLevel or UNKNOWN_VALUE
+        years_experience = candidate.GeneralInfo.YearsExperience if candidate.GeneralInfo.YearsExperience is not None else 0
     
     metadata = METADATA_BUILDER.build_candidate_metadata(
         candidate=candidate,
@@ -136,6 +142,15 @@ def _candidate_to_documents(candidate: CandidateRecord) -> list:
                 page_content=block,
                 metadata=metadata
             ))
+    
+    skill_documents = SKILL_DOCUMENT_BUILDER.build_skill_documents(
+        candidate=candidate,
+        candidate_id=candidate_id,
+        seniority_level=seniority_level,
+        years_experience=years_experience
+    )
+    
+    documents.extend(skill_documents)
     
     return documents
 

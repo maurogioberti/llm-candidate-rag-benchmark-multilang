@@ -4,31 +4,41 @@ from typing import List
 from langchain_core.documents import Document
 
 from ...domain.entities.candidate_record import CandidateRecord
+from ...domain.configuration.vector_metadata_config import (
+    VectorMetadataConfig,
+    DEFAULT_VECTOR_METADATA_CONFIG
+)
 from ...infrastructure.embeddings.huggingface.embedding_client import load_embeddings
 from ...infrastructure.embeddings.http_embeddings_client import HttpEmbeddingsClient
 from ...infrastructure.llm.llm import load_llm_instruction_records
 from ...infrastructure.shared.vector_provider_factory import VectorProviderFactory
 from ...infrastructure.shared.config_loader import get_config
 from ..services.candidate_factory import CandidateFactory
+from ..services.vector_metadata_builder import VectorMetadataBuilder
 
+# File and directory constants
 INPUT_SUBDIR = "input"
 EMBEDDING_INSTRUCTION_FILE = "embeddings.jsonl"
 LLM_INSTRUCTION_FILE = "llm.jsonl"
+JSON_FILE_PATTERN = "*.json"
+
+# Text chunking configuration
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 60
+
+# English level mapping
 ENGLISH_LEVEL_MAP = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
+DEFAULT_UNKNOWN_LEVEL = "UNK"
+
+# LLM instruction field names
 FIELD_INSTRUCTION = "instruction"
 FIELD_INPUT = "input"
 FIELD_OUTPUT = "output"
 FIELD_ROW_ID = "_row_id"
+
+# Text formatting
 LLM_PREFIX = "[LLMInstruction]"
 UNKNOWN_VALUE = "unknown"
-TYPE_KEY = "type"
-TYPE_CANDIDATE = "candidate"
-TYPE_LLM_INSTRUCTION = "llm_instruction"
-CANDIDATE_ID_KEY = "candidate_id"
-ENGLISH_LEVEL_KEY = "english_level"
-ENGLISH_LEVEL_NUM_KEY = "english_level_num"
 SUMMARY_PREFIX = "Summary: "
 STRENGTHS_PREFIX = "Strengths: "
 AREAS_TO_IMPROVE_PREFIX = "Areas to Improve: "
@@ -36,13 +46,14 @@ SKILLS_PREFIX = "Skills: "
 SKILL_LEVEL_FORMAT = " ({})"
 EVIDENCE_FORMAT = ": {}"
 SEMICOLON_SEPARATOR = "; "
-JSON_FILE_PATTERN = "*.json"
 EMPTY_STRING = ""
-DEFAULT_UNKNOWN_LEVEL = "UNK"
 
 cfg = get_config()
 DATA_DIR = cfg.get_data_root()
 INPUT_DIR = cfg.get_input_dir()
+
+METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
+METADATA_BUILDER = VectorMetadataBuilder(METADATA_CONFIG)
 
 __all__ = ["to_documents", "load_candidate_records", "build_index", "build_index_from_records"]
 
@@ -87,6 +98,13 @@ def _candidate_to_documents(candidate: CandidateRecord) -> list:
         candidate_id = candidate.GeneralInfo.CandidateId or UNKNOWN_VALUE
         english_level = candidate.GeneralInfo.EnglishLevel or UNKNOWN_VALUE
     
+    metadata = METADATA_BUILDER.build_candidate_metadata(
+        candidate=candidate,
+        candidate_id=candidate_id,
+        english_level=english_level,
+        english_level_num=_english_to_num(english_level)
+    )
+    
     text_blocks = []
     
     if candidate.Summary:
@@ -116,12 +134,7 @@ def _candidate_to_documents(candidate: CandidateRecord) -> list:
         if block.strip():
             documents.append(Document(
                 page_content=block,
-                metadata={
-                    TYPE_KEY: TYPE_CANDIDATE,
-                    CANDIDATE_ID_KEY: candidate_id,
-                    ENGLISH_LEVEL_KEY: english_level,
-                    ENGLISH_LEVEL_NUM_KEY: _english_to_num(english_level),
-                }
+                metadata=metadata
             ))
     
     return documents
@@ -174,7 +187,10 @@ def _load_and_split_llm_instruction_docs(path: Path) -> list:
     docs = []
     for r in records:
         content = f"{LLM_PREFIX} Instruction: {r.get(FIELD_INSTRUCTION, EMPTY_STRING)}\nInput:\n{json.dumps(r.get(FIELD_INPUT, EMPTY_STRING), ensure_ascii=False)}\nOutput:\n{json.dumps(r.get(FIELD_OUTPUT, EMPTY_STRING), ensure_ascii=False)}"
-        meta = {TYPE_KEY: TYPE_LLM_INSTRUCTION, FIELD_ROW_ID: r.get(FIELD_ROW_ID)}
+        meta = {
+            METADATA_CONFIG.FIELD_TYPE: METADATA_CONFIG.TYPE_LLM_INSTRUCTION,
+            FIELD_ROW_ID: r.get(FIELD_ROW_ID)
+        }
         docs.append(Document(page_content=content, metadata=meta))
     return _split_documents(docs)
 

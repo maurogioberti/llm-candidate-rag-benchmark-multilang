@@ -11,23 +11,22 @@ public sealed class AskQuestionUseCase
     private readonly ILlmClient _llmClient;
     private readonly IResourceLoader _resourceLoader;
     private readonly string _collection;
+    private readonly VectorMetadataConfig _metadataConfig;
 
     private const int DefaultLimit = 6;
-    private const string PreparedKey = "prepared";
-    private const string EnglishLevelNumMinKey = "english_level_num_min";
-    private const string CandidateIdKey = "candidate_id";
     private const string InOperator = "$in";
     private const string AndOperator = "$and";
     private const string GteOperator = "$gte";
     private const string ContextSeparator = "\n\n";
     private const string NewLine = "\n";
     private const string UnknownValue = "unknown";
-    private const string TypeKey = "type";
     private const int DefaultContentLimit = 200;
     private const string ContentSuffix = "...";
     private const string ChatSystemFile = "chat_system.md";
     private const string ChatHumanFile = "chat_human.md";
     private const string NoCandidatesFoundMessage = "No candidates found matching the specified criteria.";
+    private const string PreparedKey = "prepared";
+    private const string EnglishLevelNumMinKey = "english_level_num_min";
 
     public AskQuestionUseCase(
         IEmbeddingsClient embeddingsClient,
@@ -41,6 +40,8 @@ public sealed class AskQuestionUseCase
         _llmClient = llmClient;
         _resourceLoader = resourceLoader;
         _collection = vectorSettings.CollectionName;
+        
+        _metadataConfig = VectorMetadataConfig.Default;
     }
 
     public async Task<ChatResult> ExecuteAsync(ChatRequestDto request, CancellationToken ct = default)
@@ -100,7 +101,7 @@ public sealed class AskQuestionUseCase
 
         if (filters.CandidateIds?.Length > 0)
         {
-            conditions.Add(new Dictionary<string, object> { [CandidateIdKey] = new Dictionary<string, object> { [InOperator] = filters.CandidateIds } });
+            conditions.Add(new Dictionary<string, object> { [_metadataConfig.FieldCandidateId] = new Dictionary<string, object> { [InOperator] = filters.CandidateIds } });
         }
 
         if (conditions.Count == 0)
@@ -118,12 +119,12 @@ public sealed class AskQuestionUseCase
         return string.Join(ContextSeparator, contextParts);
     }
 
-    private static ChatSource[] ExtractSources((string Document, Dictionary<string, object> Metadata, float Score)[] searchResults)
+    private ChatSource[] ExtractSources((string Document, Dictionary<string, object> Metadata, float Score)[] searchResults)
     {
         return searchResults.Select(result =>
         {
-            var candidateId = result.Metadata.TryGetValue(CandidateIdKey, out var id) ? id.ToString() ?? UnknownValue : UnknownValue;
-            var section = result.Metadata.TryGetValue(TypeKey, out var type) ? type.ToString() ?? UnknownValue : UnknownValue;
+            var candidateId = result.Metadata.TryGetValue(_metadataConfig.FieldCandidateId, out var id) ? id.ToString() ?? UnknownValue : UnknownValue;
+            var section = result.Metadata.TryGetValue(_metadataConfig.FieldType, out var type) ? type.ToString() ?? UnknownValue : UnknownValue;
             var content = result.Document.Length > DefaultContentLimit 
                 ? result.Document[..DefaultContentLimit] + ContentSuffix 
                 : result.Document;

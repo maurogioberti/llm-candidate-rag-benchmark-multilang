@@ -4,22 +4,24 @@ from ..dtos.chat_result import ChatResult, ChatSource
 from ..protocols.embeddings_protocol import EmbeddingsClient
 from ..protocols.vector_store_protocol import VectorStore
 from ..protocols.llm_protocol import LlmClient
+from ...domain.configuration.vector_metadata_config import DEFAULT_VECTOR_METADATA_CONFIG
 from ...infrastructure.shared.config_loader import get_config
 from ...infrastructure.shared.prompt_loader import load_prompt
 
+METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
+
 DEFAULT_LIMIT = 6
-PREPARED_KEY = "prepared"
-ENGLISH_LEVEL_NUM_MIN_KEY = "english_level_num_min"
-CANDIDATE_ID_KEY = "candidate_id"
 IN_OPERATOR = "$in"
 CONTEXT_SEPARATOR = "\n\n"
 UNKNOWN_VALUE = "unknown"
-TYPE_KEY = "type"
 DEFAULT_CONTENT_LIMIT = 200
 CONTENT_SUFFIX = "..."
 CHAT_SYSTEM_FILE = "chat_system.md"
 CHAT_HUMAN_FILE = "chat_human.md"
 ENGLISH_LEVEL_MAP = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
+
+PREPARED_KEY = "prepared"
+ENGLISH_LEVEL_NUM_MIN_KEY = "english_level_num_min"
 
 
 class AskQuestionUseCase:
@@ -79,7 +81,7 @@ class AskQuestionUseCase:
             conditions.append({ENGLISH_LEVEL_NUM_MIN_KEY: ENGLISH_LEVEL_MAP.get(filters.english_min.upper(), 0)})
             
         if filters.candidate_ids:
-            conditions.append({CANDIDATE_ID_KEY: {"$in": filters.candidate_ids}})
+            conditions.append({METADATA_CONFIG.FIELD_CANDIDATE_ID: {IN_OPERATOR: filters.candidate_ids}})
         
         if not conditions:
             return None
@@ -100,8 +102,8 @@ class AskQuestionUseCase:
         sources = []
         for document, metadata, score in search_results:
             sources.append(ChatSource(
-                candidate_id=metadata.get(CANDIDATE_ID_KEY, UNKNOWN_VALUE),
-                section=metadata.get(TYPE_KEY, UNKNOWN_VALUE),
+                candidate_id=metadata.get(METADATA_CONFIG.FIELD_CANDIDATE_ID, UNKNOWN_VALUE),
+                section=metadata.get(METADATA_CONFIG.FIELD_TYPE, UNKNOWN_VALUE),
                 content=document[:DEFAULT_CONTENT_LIMIT] + CONTENT_SUFFIX if len(document) > DEFAULT_CONTENT_LIMIT else document,
                 score=score
             ))

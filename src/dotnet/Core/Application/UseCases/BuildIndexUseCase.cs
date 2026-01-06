@@ -1,5 +1,6 @@
 using Rag.Candidates.Core.Application.DTOs;
 using Rag.Candidates.Core.Application.Interfaces;
+using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
 using System.Text.Json;
 
@@ -14,17 +15,14 @@ public sealed class BuildIndexUseCase
     private readonly ICandidateFactory _candidateFactory;
     private readonly IInstructionPairsService _instructionPairsService;
     private readonly string _collection;
+    private readonly VectorMetadataConfig _metadataConfig;
+    private readonly VectorMetadataBuilder _metadataBuilder;
 
-    private const string TypeKey = "type";
-    private const string TypeCandidate = "candidate";
-    private const string TypeLlmInstruction = "llm_instruction";
-    private const string CandidateIdKey = "candidate_id";
-    private const string PreparedKey = "prepared";
-    private const string EnglishLevelKey = "english_level";
-    private const string EnglishLevelNumKey = "english_level_num";
-    private const string RowIdKey = "_row_id";
     private const string LlmPrefix = "[LLMInstruction]";
     private const string ProviderSemanticKernel = "Semantic Kernel";
+    private const string PreparedKey = "prepared";
+    private const string RowIdKey = "_row_id";
+    private const string InstructionPairType = "instruction_pair";
 
     public BuildIndexUseCase(
         IEmbeddingsClient embeddingsClient,
@@ -42,6 +40,9 @@ public sealed class BuildIndexUseCase
         _candidateFactory = candidateFactory;
         _instructionPairsService = instructionPairsService;
         _collection = vectorSettings.CollectionName;
+        
+        _metadataConfig = VectorMetadataConfig.Default;
+        _metadataBuilder = new VectorMetadataBuilder(_metadataConfig);
     }
 
     public async Task<IndexInfo> ExecuteAsync(CancellationToken ct = default)
@@ -60,17 +61,19 @@ public sealed class BuildIndexUseCase
                 var candidate = _candidateFactory.FromJsonToCandidate(candidateJson, Path.GetFileNameWithoutExtension("candidate"));
                 var textBlocks = candidate.ToTextBlocks();
 
+                var enrichedMetadata = _metadataBuilder.BuildCandidateMetadata(
+                    candidate: candidate.Record,
+                    candidateId: candidate.CandidateId,
+                    englishLevel: candidate.GeneralInfo?.EnglishLevel ?? "unknown",
+                    englishLevelNum: EnglishLevelToNum(candidate.GeneralInfo?.EnglishLevel)
+                );
+                
+                enrichedMetadata[PreparedKey] = candidate.Prepared;
+
                 foreach (var block in textBlocks)
                 {
                     documents.Add(block);
-                    metadata.Add(new Dictionary<string, object>
-                    {
-                        [TypeKey] = TypeCandidate,
-                        [CandidateIdKey] = candidate.CandidateId,
-                        [PreparedKey] = candidate.Prepared,
-                        [EnglishLevelKey] = candidate.GeneralInfo?.EnglishLevel ?? "unknown",
-                        [EnglishLevelNumKey] = EnglishLevelToNum(candidate.GeneralInfo?.EnglishLevel)
-                    });
+                    metadata.Add(enrichedMetadata);
                 }
             }
             catch (Exception ex)
@@ -87,7 +90,7 @@ public sealed class BuildIndexUseCase
             documents.Add(content);
             metadata.Add(new Dictionary<string, object>
             {
-                [TypeKey] = TypeLlmInstruction,
+                [_metadataConfig.FieldType] = _metadataConfig.TypeLlmInstruction,
                 [RowIdKey] = instruction.RowId
             });
         }
@@ -99,7 +102,7 @@ public sealed class BuildIndexUseCase
             documents.Add(text);
             var instructionMetadata = new Dictionary<string, object>(meta)
             {
-                [TypeKey] = "instruction_pair"
+                [_metadataConfig.FieldType] = InstructionPairType
             };
             metadata.Add(instructionMetadata);
         }

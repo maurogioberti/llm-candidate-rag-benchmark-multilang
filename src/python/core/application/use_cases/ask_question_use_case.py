@@ -12,6 +12,8 @@ from ..services.candidate_aggregator import CandidateAggregator
 from ..services.metadata_filter_builder import MetadataFilterBuilder
 from ..services.candidate_ranker import CandidateRanker
 from ...domain.configuration.ranking_weights import RankingWeights
+from ...domain.entities.llm_response_schema import LlmResponseSchema, SelectedCandidate
+import json
 
 METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
 
@@ -89,15 +91,22 @@ class AskQuestionUseCase:
         human_prompt = self._get_human_prompt(context, request.question)
         system_prompt = self._get_system_prompt()
         
-        answer = self.llm_client.generate_chat_completion(
+        llm_output = self.llm_client.generate_chat_completion(
             system_prompt=system_prompt,
             user_message=human_prompt,
             context=context
         )
         
+        parsed_response = self._parse_and_validate_llm_output(llm_output)
+        
+        answer = self._format_final_answer(parsed_response)
+        
+        metadata = self._build_response_metadata(parsed_response)
+        
         return ChatResult(
             answer=answer,
-            sources=sources
+            sources=sources,
+            metadata=metadata
         )
     
     def _build_metadata_filter(self, filters, parsed_query):
@@ -170,3 +179,64 @@ class AskQuestionUseCase:
     def _get_human_prompt(self, context: str, question: str) -> str:
         human_template = load_prompt(CHAT_HUMAN_FILE)
         return human_template.format(context=context, input=question)
+    
+    def _parse_and_validate_llm_output(self, llm_output: str) -> LlmResponseSchema:
+        try:
+            json_start = llm_output.find('{')
+            json_end = llm_output.rfind('}') + 1
+            
+            if json_start == -1 or json_end == 0:
+                raise ValueError("No JSON object found in LLM output")
+            
+            json_str = llm_output[json_start:json_end]
+            data = json.loads(json_str)
+            
+            if "justification" not in data:
+                raise ValueError("Missing required field: justification")
+            
+            selected_candidate = None
+            if data.get("selected_candidate") is not None:
+                candidate_data = data["selected_candidate"]
+                
+                if "fullname" not in candidate_data or "candidate_id" not in candidate_data or "rank" not in candidate_data:
+                    raise ValueError("selected_candidate must contain fullname, candidate_id, and rank")
+                
+                selected_candidate = SelectedCandidate(
+                    fullname=candidate_data["fullname"],
+                    candidate_id=candidate_data["candidate_id"],
+                    rank=candidate_data["rank"]
+                )
+            
+            return LlmResponseSchema(
+                selected_candidate=selected_candidate,
+                justification=data["justification"]
+            )
+        
+        except (json.JSONDecodeError, ValueError, KeyError) as e:
+            raise ValueError(f"Failed to parse LLM output as valid JSON schema: {str(e)}")
+    
+    def _format_final_answer(self, parsed_response: LlmResponseSchema) -> str:
+        if parsed_response.selected_candidate is None:
+            return f"No candidate selected.\n\n{parsed_response.justification}"
+        
+        return (
+            f"Selected Candidate: {parsed_response.selected_candidate.fullname} "
+            f"(ID: {parsed_response.selected_candidate.candidate_id}, Rank: {parsed_response.selected_candidate.rank})\n\n"
+            f"Justification: {parsed_response.justification}"
+        )
+    
+    def _build_response_metadata(self, parsed_response: LlmResponseSchema) -> dict:
+        metadata = {
+            "justification": parsed_response.justification
+        }
+        
+        if parsed_response.selected_candidate is not None:
+            metadata["selected_candidate"] = {
+                "fullname": parsed_response.selected_candidate.fullname,
+                "candidate_id": parsed_response.selected_candidate.candidate_id,
+                "rank": parsed_response.selected_candidate.rank
+            }
+        else:
+            metadata["selected_candidate"] = None
+        
+        return metadata

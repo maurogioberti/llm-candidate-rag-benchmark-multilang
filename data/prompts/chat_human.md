@@ -1,10 +1,6 @@
-# RETRIEVAL CONTEXT CONFIGURATION
-When the query involves backend development or .NET/C# technologies, prioritize retrieval of candidates with experience in:
-**Primary Technologies**: .NET, C#, ASP.NET Core, Entity Framework, SQL Server, Azure
-**Secondary Technologies**: Web APIs, Microservices, Docker, CI/CD, Cloud platforms
+# RANKED CANDIDATE LIST
+The following candidates have been algorithmically filtered and ranked. The ranking is deterministic and final.
 
-# CONTEXTUAL INFORMATION
-The following candidate profiles have been retrieved from the RAG system:
 ```
 {context}
 ```
@@ -14,22 +10,11 @@ The following candidate profiles have been retrieved from the RAG system:
 {input}
 ```
 
-# ANALYSIS REQUIREMENTS
-Provide a comprehensive response that:
-1. **Directly addresses** the specific question asked
-2. **Ranks candidates** by relevance to the query (if applicable)
-3. **Cites evidence** from specific JSON sections
-4. **Explains reasoning** for recommendations
-5. **Identifies gaps** if no candidates meet the criteria
+# INSTRUCTIONS
+1. Identify the candidate at **rank 1** (highest ranked)
+2. Extract their **fullname** and **candidate_id** exactly as shown
+3. Verify rank 1 satisfies the user query requirements
+4. Explain why rank 1 matches the query
+5. If rank 1 is explicitly disqualified by the query, return null and explain why
 
-# RESPONSE FORMAT
-**Summary**: [Brief overview of findings]
-
-**Recommended Candidates**:
-- **[CandidateName]** (ID: [CandidateId])
-  - **Relevance**: [Why they match the query]
-  - **Evidence**: [Specific JSON section(s) and content]
-  - **Strengths**: [Key matching qualifications]
-  - **Considerations**: [Any limitations or notes]
-
-**Additional Notes**: [Any important observations or recommendations]
+Respond ONLY with valid JSON. No other text, markdown, or commentary.

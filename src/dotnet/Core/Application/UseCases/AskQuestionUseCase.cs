@@ -4,6 +4,8 @@ using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
 using Semantic.Kernel.Api.Core.Application.Services;
 using Semantic.Kernel.Api.Core.Domain.Configuration;
+using Semantic.Kernel.Api.Core.Domain.Entities;
+using System.Text.Json;
 
 namespace Rag.Candidates.Core.Application.UseCases;
 
@@ -107,12 +109,19 @@ public sealed class AskQuestionUseCase
         var systemPrompt = await GetSystemPrompt(ct);
         var humanPrompt = await GetHumanPrompt(context, request.Question, ct);
 
-        var answer = await _llmClient.GenerateChatCompletionAsync(systemPrompt, humanPrompt, context, ct);
+        var llmOutput = await _llmClient.GenerateChatCompletionAsync(systemPrompt, humanPrompt, context, ct);
+        
+        var parsedResponse = ParseAndValidateLlmOutput(llmOutput);
+        
+        var answer = FormatFinalAnswer(parsedResponse);
+        
+        var metadata = BuildResponseMetadata(parsedResponse);
 
         return new ChatResult
         {
             Answer = answer,
-            Sources = sources
+            Sources = sources,
+            Metadata = metadata
         };
     }
 
@@ -252,5 +261,96 @@ public sealed class AskQuestionUseCase
             "ADVANCED" => 5,
             _ => 0
         };
+    }
+    
+    private LlmResponseSchema ParseAndValidateLlmOutput(string llmOutput)
+    {
+        try
+        {
+            var jsonStart = llmOutput.IndexOf('{');
+            var jsonEnd = llmOutput.LastIndexOf('}');
+            
+            if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart)
+            {
+                throw new InvalidOperationException("No JSON object found in LLM output");
+            }
+            
+            var jsonStr = llmOutput.Substring(jsonStart, jsonEnd - jsonStart + 1);
+            var jsonDoc = JsonDocument.Parse(jsonStr);
+            var root = jsonDoc.RootElement;
+            
+            if (!root.TryGetProperty("justification", out _))
+            {
+                throw new InvalidOperationException("Missing required field: justification");
+            }
+            
+            var justification = root.GetProperty("justification").GetString() ?? string.Empty;
+            
+            SelectedCandidate? selectedCandidate = null;
+            
+            if (root.TryGetProperty("selected_candidate", out var candidateElement) && 
+                candidateElement.ValueKind != JsonValueKind.Null)
+            {
+                if (!candidateElement.TryGetProperty("fullname", out _) ||
+                    !candidateElement.TryGetProperty("candidate_id", out _) ||
+                    !candidateElement.TryGetProperty("rank", out _))
+                {
+                    throw new InvalidOperationException("selected_candidate must contain fullname, candidate_id, and rank");
+                }
+                
+                selectedCandidate = new SelectedCandidate
+                {
+                    Fullname = candidateElement.GetProperty("fullname").GetString() ?? string.Empty,
+                    CandidateId = candidateElement.GetProperty("candidate_id").GetString() ?? string.Empty,
+                    Rank = candidateElement.GetProperty("rank").GetInt32()
+                };
+            }
+            
+            return new LlmResponseSchema
+            {
+                SelectedCandidate = selectedCandidate,
+                Justification = justification
+            };
+        }
+        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
+        {
+            throw new InvalidOperationException($"Failed to parse LLM output as valid JSON schema: {ex.Message}", ex);
+        }
+    }
+    
+    private string FormatFinalAnswer(LlmResponseSchema parsedResponse)
+    {
+        if (parsedResponse.SelectedCandidate is null)
+        {
+            return $"No candidate selected.\n\n{parsedResponse.Justification}";
+        }
+        
+        return $"Selected Candidate: {parsedResponse.SelectedCandidate.Fullname} " +
+               $"(ID: {parsedResponse.SelectedCandidate.CandidateId}, Rank: {parsedResponse.SelectedCandidate.Rank})\n\n" +
+               $"Justification: {parsedResponse.Justification}";
+    }
+    
+    private Dictionary<string, object> BuildResponseMetadata(LlmResponseSchema parsedResponse)
+    {
+        var metadata = new Dictionary<string, object>
+        {
+            ["justification"] = parsedResponse.Justification
+        };
+        
+        if (parsedResponse.SelectedCandidate is not null)
+        {
+            metadata["selected_candidate"] = new Dictionary<string, object>
+            {
+                ["fullname"] = parsedResponse.SelectedCandidate.Fullname,
+                ["candidate_id"] = parsedResponse.SelectedCandidate.CandidateId,
+                ["rank"] = parsedResponse.SelectedCandidate.Rank
+            };
+        }
+        else
+        {
+            metadata["selected_candidate"] = null!;
+        }
+        
+        return metadata;
     }
 }

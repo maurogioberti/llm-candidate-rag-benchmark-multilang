@@ -1,5 +1,6 @@
 using Rag.Candidates.Core.Application.DTOs;
 using Rag.Candidates.Core.Application.Interfaces;
+using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
 
 namespace Rag.Candidates.Core.Application.UseCases;
@@ -12,6 +13,9 @@ public sealed class AskQuestionUseCase
     private readonly IResourceLoader _resourceLoader;
     private readonly string _collection;
     private readonly VectorMetadataConfig _metadataConfig;
+    private readonly QueryParser _queryParser;
+    private readonly CandidateAggregator _candidateAggregator;
+    private readonly MetadataFilterBuilder _filterBuilder;
 
     private const int DefaultLimit = 6;
     private const string InOperator = "$in";
@@ -42,12 +46,24 @@ public sealed class AskQuestionUseCase
         _collection = vectorSettings.CollectionName;
         
         _metadataConfig = VectorMetadataConfig.Default;
+        _queryParser = new QueryParser();
+        _candidateAggregator = new CandidateAggregator(_metadataConfig.FieldCandidateId);
+        _filterBuilder = new MetadataFilterBuilder(
+            candidateIdField: _metadataConfig.FieldCandidateId,
+            seniorityField: _metadataConfig.FieldSeniorityLevel,
+            yearsExperienceField: _metadataConfig.FieldYearsExperience,
+            skillNameField: _metadataConfig.FieldSkillName,
+            typeField: _metadataConfig.FieldType,
+            typeSkill: _metadataConfig.TypeSkill
+        );
     }
 
     public async Task<ChatResult> ExecuteAsync(ChatRequestDto request, CancellationToken ct = default)
     {
+        var parsedQuery = _queryParser.Parse(request.Question);
+        
         var queryEmbedding = await _embeddingsClient.EmbedAsync([request.Question], ct);
-        var metadataFilter = BuildMetadataFilter(request.Filters);
+        var metadataFilter = BuildMetadataFilter(request.Filters, parsedQuery);
 
         var searchResults = await _vectorStore.SearchAsync(
             collection: _collection,
@@ -66,8 +82,21 @@ public sealed class AskQuestionUseCase
             };
         }
 
-        var context = BuildContext(searchResults);
-        var sources = ExtractSources(searchResults);
+        var searchResultsList = searchResults.Select(r => (r.Document, r.Metadata, (double)r.Score)).ToList();
+        var aggregatedCandidates = _candidateAggregator.Aggregate(searchResultsList);
+        var filteredCandidates = _filterBuilder.FilterAggregatedCandidates(aggregatedCandidates, parsedQuery);
+
+        if (filteredCandidates.Count == 0)
+        {
+            return new ChatResult
+            {
+                Answer = NoCandidatesFoundMessage,
+                Sources = Array.Empty<ChatSource>()
+            };
+        }
+
+        var context = BuildContextFromCandidates(filteredCandidates);
+        var sources = ExtractSourcesFromCandidates(filteredCandidates);
 
         var systemPrompt = await GetSystemPrompt(ct);
         var humanPrompt = await GetHumanPrompt(context, request.Question, ct);
@@ -81,27 +110,36 @@ public sealed class AskQuestionUseCase
         };
     }
 
-    private static Dictionary<string, object>? BuildMetadataFilter(ChatFilters? filters)
+    private Dictionary<string, object>? BuildMetadataFilter(ChatFilters? filters, Domain.Entities.ParsedQuery parsedQuery)
     {
-        if (filters == null)
-            return null;
-
         var conditions = new List<Dictionary<string, object>>();
 
-        if (filters.Prepared.HasValue)
+        if (filters != null)
         {
-            conditions.Add(new Dictionary<string, object> { [PreparedKey] = filters.Prepared.Value });
+            if (filters.Prepared.HasValue)
+            {
+                conditions.Add(new Dictionary<string, object> { [PreparedKey] = filters.Prepared.Value });
+            }
+
+            if (!string.IsNullOrEmpty(filters.EnglishMin))
+            {
+                var englishLevelNum = EnglishLevelToNum(filters.EnglishMin);
+                conditions.Add(new Dictionary<string, object> { [EnglishLevelNumMinKey] = new Dictionary<string, object> { [GteOperator] = englishLevelNum } });
+            }
+
+            if (filters.CandidateIds?.Length > 0)
+            {
+                conditions.Add(new Dictionary<string, object> { [_metadataConfig.FieldCandidateId] = new Dictionary<string, object> { [InOperator] = filters.CandidateIds } });
+            }
         }
 
-        if (!string.IsNullOrEmpty(filters.EnglishMin))
-        {
-            var englishLevelNum = EnglishLevelToNum(filters.EnglishMin);
-            conditions.Add(new Dictionary<string, object> { [EnglishLevelNumMinKey] = new Dictionary<string, object> { [GteOperator] = englishLevelNum } });
-        }
+        var queryFilters = _filterBuilder.BuildCandidateFilters(parsedQuery);
+        conditions.AddRange(queryFilters);
 
-        if (filters.CandidateIds?.Length > 0)
+        var techFilter = _filterBuilder.BuildTechnologyFilters(parsedQuery);
+        if (techFilter != null)
         {
-            conditions.Add(new Dictionary<string, object> { [_metadataConfig.FieldCandidateId] = new Dictionary<string, object> { [InOperator] = filters.CandidateIds } });
+            conditions.Add(techFilter);
         }
 
         if (conditions.Count == 0)
@@ -111,6 +149,44 @@ public sealed class AskQuestionUseCase
             return conditions[0];
 
         return new Dictionary<string, object> { [AndOperator] = conditions };
+    }
+
+    private static string BuildContextFromCandidates(List<AggregatedCandidate> candidates)
+    {
+        var contextParts = new List<string>();
+        foreach (var candidate in candidates)
+        {
+            contextParts.AddRange(candidate.Documents);
+        }
+        return string.Join(ContextSeparator, contextParts);
+    }
+
+    private ChatSource[] ExtractSourcesFromCandidates(List<AggregatedCandidate> candidates)
+    {
+        var sources = new List<ChatSource>();
+        foreach (var candidate in candidates)
+        {
+            for (int i = 0; i < candidate.Documents.Count; i++)
+            {
+                var document = candidate.Documents[i];
+                var score = i < candidate.AllScores.Count ? candidate.AllScores[i] : 0.0;
+                var section = candidate.Metadata.TryGetValue(_metadataConfig.FieldType, out var type) 
+                    ? type.ToString() ?? UnknownValue 
+                    : UnknownValue;
+                var content = document.Length > DefaultContentLimit 
+                    ? document[..DefaultContentLimit] + ContentSuffix 
+                    : document;
+
+                sources.Add(new ChatSource
+                {
+                    CandidateId = candidate.CandidateId,
+                    Section = section,
+                    Content = content,
+                    Score = (float)score
+                });
+            }
+        }
+        return sources.ToArray();
     }
 
     private static string BuildContext((string Document, Dictionary<string, object> Metadata, float Score)[] searchResults)

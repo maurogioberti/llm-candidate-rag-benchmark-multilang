@@ -101,7 +101,7 @@ def _candidate_to_documents(candidate: CandidateRecord) -> list:
     if candidate.GeneralInfo:
         candidate_id = candidate.GeneralInfo.CandidateId or UNKNOWN_VALUE
         english_level = candidate.GeneralInfo.EnglishLevel or UNKNOWN_VALUE
-        seniority_level = candidate.GeneralInfo.SeniorityLevel or UNKNOWN_VALUE
+        seniority_level = candidate.GeneralInfo.SeniorityLevel.value if candidate.GeneralInfo.SeniorityLevel else UNKNOWN_VALUE
         years_experience = candidate.GeneralInfo.YearsExperience if candidate.GeneralInfo.YearsExperience is not None else 0
     
     metadata = METADATA_BUILDER.build_candidate_metadata(

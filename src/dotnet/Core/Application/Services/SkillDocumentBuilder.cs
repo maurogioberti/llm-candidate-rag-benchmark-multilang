@@ -27,25 +27,23 @@ public sealed class SkillDocumentBuilder
 
         foreach (var skill in candidate.SkillMatrix)
         {
-            if (string.IsNullOrWhiteSpace(skill.SkillName) || string.IsNullOrWhiteSpace(skill.SkillLevel))
+            if (string.IsNullOrWhiteSpace(skill.Name) || string.IsNullOrWhiteSpace(skill.Level))
                 continue;
 
-            var skillLevelEnum = SkillLevel.FromString(skill.SkillLevel);
-
-            if (!SkillLevel.IsStrong(skillLevelEnum))
+            if (!SkillLevelExtensions.IsStrong(skill.Level))
                 continue;
 
             var metadata = BuildSkillMetadata(
                 candidateId: candidateId,
-                skillName: skill.SkillName,
-                skillLevel: skill.SkillLevel,
+                skillName: skill.Name,
+                skillLevel: skill.Level,
                 seniorityLevel: seniorityLevel,
                 yearsExperience: yearsExperience
             );
 
             var content = BuildSkillContent(
-                skillName: skill.SkillName,
-                skillLevel: skill.SkillLevel,
+                skillName: skill.Name,
+                skillLevel: skill.Level,
                 evidence: skill.Evidence
             );
 

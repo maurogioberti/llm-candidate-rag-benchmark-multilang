@@ -2,9 +2,7 @@ using Rag.Candidates.Core.Application.DTOs;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
-using Semantic.Kernel.Api.Core.Application.Services;
-using Semantic.Kernel.Api.Core.Domain.Configuration;
-using Semantic.Kernel.Api.Core.Domain.Entities;
+using Rag.Candidates.Core.Domain.Entities;
 using System.Text.Json;
 
 namespace Rag.Candidates.Core.Application.UseCases;
@@ -166,7 +164,7 @@ public sealed class AskQuestionUseCase
         return new Dictionary<string, object> { [AndOperator] = conditions };
     }
 
-    private static string BuildContextFromCandidates(List<AggregatedCandidate> candidates)
+    private static string BuildContextFromCandidates(List<RankedCandidate> candidates)
     {
         var contextParts = new List<string>();
         foreach (var candidate in candidates)
@@ -176,7 +174,7 @@ public sealed class AskQuestionUseCase
         return string.Join(ContextSeparator, contextParts);
     }
 
-    private ChatSource[] ExtractSourcesFromCandidates(List<AggregatedCandidate> candidates)
+    private ChatSource[] ExtractSourcesFromCandidates(List<RankedCandidate> candidates)
     {
         var sources = new List<ChatSource>();
         foreach (var candidate in candidates)

@@ -28,7 +28,7 @@ class SkillDocumentBuilder:
             
             skill_level_enum = SkillLevel.from_string(skill.SkillLevel)
             
-            if not skill_level_enum.is_strong():
+            if not SkillLevel.is_strong(skill_level_enum):
                 continue
             
             metadata = self._build_skill_metadata(

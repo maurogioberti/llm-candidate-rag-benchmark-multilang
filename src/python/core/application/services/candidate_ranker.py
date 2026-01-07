@@ -82,10 +82,12 @@ class CandidateRanker:
         if not required_technologies:
             return self._MAX_NORMALIZED_SCORE
         
-        primary_skills = candidate.metadata.get("primary_skills", [])
-        if not primary_skills:
+        # Primary skills stored as comma-separated string for Chroma compatibility
+        primary_skills_str = candidate.metadata.get("primary_skills", "")
+        if not primary_skills_str:
             return self._MIN_NORMALIZED_SCORE
         
+        primary_skills = [s.strip() for s in primary_skills_str.split(",") if s.strip()]
         primary_skills_lower = [skill.lower() for skill in primary_skills]
         matched_count = sum(
             1 for tech in required_technologies 

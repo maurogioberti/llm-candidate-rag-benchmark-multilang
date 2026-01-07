@@ -64,7 +64,7 @@ public sealed class BuildIndexUseCase
                 var textBlocks = candidate.ToTextBlocks();
 
                 var enrichedMetadata = _metadataBuilder.BuildCandidateMetadata(
-                    candidate: candidate.Record,
+                    candidate: candidate.CandidateRecord,
                     candidateId: candidate.CandidateId,
                     englishLevel: candidate.GeneralInfo?.EnglishLevel ?? "unknown",
                     englishLevelNum: EnglishLevelToNum(candidate.GeneralInfo?.EnglishLevel)
@@ -79,9 +79,9 @@ public sealed class BuildIndexUseCase
                 }
                 
                 var skillDocuments = _skillDocumentBuilder.BuildSkillDocuments(
-                    candidate: candidate.Record,
+                    candidate: candidate.CandidateRecord,
                     candidateId: candidate.CandidateId,
-                    seniorityLevel: candidate.GeneralInfo?.SeniorityLevel ?? "unknown",
+                    seniorityLevel: candidate.GeneralInfo?.SeniorityLevel?.ToString() ?? "unknown",
                     yearsExperience: candidate.GeneralInfo?.YearsExperience ?? 0
                 );
                 

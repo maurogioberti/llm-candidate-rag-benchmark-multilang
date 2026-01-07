@@ -1,4 +1,4 @@
-namespace Semantic.Kernel.Api.Core.Domain.Configuration;
+namespace Rag.Candidates.Core.Domain.Configuration;
 
 public sealed record RankingWeights
 {

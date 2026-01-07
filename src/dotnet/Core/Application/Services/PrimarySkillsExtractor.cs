@@ -21,13 +21,13 @@ public sealed class PrimarySkillsExtractor
 
         foreach (var skill in candidate.SkillMatrix)
         {
-            if (string.IsNullOrWhiteSpace(skill.SkillName))
+            if (string.IsNullOrWhiteSpace(skill.Name))
                 continue;
 
             // Check if skill level is in the strong category
-            if (skill.SkillLevel != null && _config.StrongSkillLevels.Contains(skill.SkillLevel))
+            if (skill.Level != null && _config.StrongSkillLevels.Contains(skill.Level))
             {
-                primarySkills.Add(skill.SkillName);
+                primarySkills.Add(skill.Name);
             }
         }
 

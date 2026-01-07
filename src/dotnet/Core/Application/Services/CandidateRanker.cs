@@ -1,9 +1,9 @@
-using Semantic.Kernel.Api.Core.Application.Services;
-using Semantic.Kernel.Api.Core.Domain.Configuration;
-using Semantic.Kernel.Api.Core.Domain.Entities;
-using Semantic.Kernel.Api.Core.Domain.Enums;
+using Rag.Candidates.Core.Application.DTOs;
+using Rag.Candidates.Core.Domain.Configuration;
+using Rag.Candidates.Core.Domain.Entities;
+using Rag.Candidates.Core.Domain.Enums;
 
-namespace Semantic.Kernel.Api.Core.Application.Services;
+namespace Rag.Candidates.Core.Application.Services;
 
 public sealed class CandidateRanker
 {
@@ -46,7 +46,7 @@ public sealed class CandidateRanker
         {
             var technicalScore = CalculateTechnicalScore(
                 candidate, 
-                parsedQuery.RequiredTechnologies
+                parsedQuery.RequiredTechnologies.ToList()
             );
             var seniorityScore = CalculateSeniorityScore(
                 candidate, 

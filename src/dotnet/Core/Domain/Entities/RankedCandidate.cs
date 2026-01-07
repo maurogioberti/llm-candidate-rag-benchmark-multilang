@@ -1,4 +1,4 @@
-namespace Semantic.Kernel.Api.Core.Domain.Entities;
+namespace Rag.Candidates.Core.Domain.Entities;
 
 public sealed record RankedCandidate
 {

@@ -25,7 +25,7 @@ class VectorMetadataBuilder:
         
         if candidate.GeneralInfo:
             metadata[self.config.FIELD_SENIORITY_LEVEL] = (
-                candidate.GeneralInfo.SeniorityLevel or None
+                candidate.GeneralInfo.SeniorityLevel.value if candidate.GeneralInfo.SeniorityLevel else None
             )
             metadata[self.config.FIELD_YEARS_EXPERIENCE] = (
                 candidate.GeneralInfo.YearsExperience if candidate.GeneralInfo.YearsExperience is not None else None
@@ -37,6 +37,9 @@ class VectorMetadataBuilder:
                 candidate.GeneralInfo.MainIndustry or None
             )
         
-        metadata[self.config.FIELD_PRIMARY_SKILLS] = self.skills_extractor.extract(candidate)
+        # Extract primary skills and serialize as comma-separated string for Chroma
+        # (Chroma doesn't support list metadata, unlike Qdrant in .NET)
+        primary_skills = self.skills_extractor.extract(candidate)
+        metadata[self.config.FIELD_PRIMARY_SKILLS] = ",".join(primary_skills) if primary_skills else ""
         
         return metadata

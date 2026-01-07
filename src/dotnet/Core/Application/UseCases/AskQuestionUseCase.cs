@@ -2,6 +2,8 @@ using Rag.Candidates.Core.Application.DTOs;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
+using Semantic.Kernel.Api.Core.Application.Services;
+using Semantic.Kernel.Api.Core.Domain.Configuration;
 
 namespace Rag.Candidates.Core.Application.UseCases;
 
@@ -15,6 +17,7 @@ public sealed class AskQuestionUseCase
     private readonly VectorMetadataConfig _metadataConfig;
     private readonly QueryParser _queryParser;
     private readonly CandidateAggregator _candidateAggregator;
+    private readonly CandidateRanker _candidateRanker;
     private readonly MetadataFilterBuilder _filterBuilder;
 
     private const int DefaultLimit = 6;
@@ -48,6 +51,7 @@ public sealed class AskQuestionUseCase
         _metadataConfig = VectorMetadataConfig.Default;
         _queryParser = new QueryParser();
         _candidateAggregator = new CandidateAggregator(_metadataConfig.FieldCandidateId);
+        _candidateRanker = new CandidateRanker(RankingWeights.Default());
         _filterBuilder = new MetadataFilterBuilder(
             candidateIdField: _metadataConfig.FieldCandidateId,
             seniorityField: _metadataConfig.FieldSeniorityLevel,
@@ -95,8 +99,10 @@ public sealed class AskQuestionUseCase
             };
         }
 
-        var context = BuildContextFromCandidates(filteredCandidates);
-        var sources = ExtractSourcesFromCandidates(filteredCandidates);
+        var rankedCandidates = _candidateRanker.Rank(filteredCandidates, parsedQuery);
+
+        var context = BuildContextFromCandidates(rankedCandidates);
+        var sources = ExtractSourcesFromCandidates(rankedCandidates);
 
         var systemPrompt = await GetSystemPrompt(ct);
         var humanPrompt = await GetHumanPrompt(context, request.Question, ct);

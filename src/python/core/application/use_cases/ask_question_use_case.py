@@ -10,6 +10,8 @@ from ...infrastructure.shared.prompt_loader import load_prompt
 from ..services.query_parser import QueryParser
 from ..services.candidate_aggregator import CandidateAggregator
 from ..services.metadata_filter_builder import MetadataFilterBuilder
+from ..services.candidate_ranker import CandidateRanker
+from ...domain.configuration.ranking_weights import RankingWeights
 
 METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
 
@@ -39,6 +41,7 @@ class AskQuestionUseCase:
         self.llm_client = llm_client
         self.query_parser = QueryParser()
         self.candidate_aggregator = CandidateAggregator(METADATA_CONFIG.FIELD_CANDIDATE_ID)
+        self.candidate_ranker = CandidateRanker(RankingWeights.default())
         self.filter_builder = MetadataFilterBuilder(
             candidate_id_field=METADATA_CONFIG.FIELD_CANDIDATE_ID,
             seniority_field=METADATA_CONFIG.FIELD_SENIORITY_LEVEL,
@@ -78,8 +81,10 @@ class AskQuestionUseCase:
                 sources=[]
             )
         
-        context = self._build_context_from_candidates(filtered_candidates)
-        sources = self._extract_sources_from_candidates(filtered_candidates)
+        ranked_candidates = self.candidate_ranker.rank(filtered_candidates, parsed_query)
+        
+        context = self._build_context_from_candidates(ranked_candidates)
+        sources = self._extract_sources_from_candidates(ranked_candidates)
         
         human_prompt = self._get_human_prompt(context, request.question)
         system_prompt = self._get_system_prompt()

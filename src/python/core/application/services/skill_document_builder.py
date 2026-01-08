@@ -23,7 +23,13 @@ class SkillDocumentBuilder:
         if not candidate.SkillMatrix:
             return documents
         
-        fullname = candidate.GeneralInfo.Fullname if candidate.GeneralInfo and candidate.GeneralInfo.Fullname else candidate_id
+        fullname = None
+        if candidate.GeneralInfo and candidate.GeneralInfo.Fullname and candidate.GeneralInfo.Fullname.strip():
+            extracted_fullname = candidate.GeneralInfo.Fullname.strip()
+            if extracted_fullname != candidate_id:
+                fullname = extracted_fullname
+            else:
+                print(f"[WARNING] Fullname equals candidate_id for {candidate_id}, NOT storing in skill metadata")
         
         for skill in candidate.SkillMatrix:
             if not skill.SkillName or not skill.SkillLevel:
@@ -67,15 +73,19 @@ class SkillDocumentBuilder:
         seniority_level: str,
         years_experience: int
     ) -> Dict[str, Any]:
-        return {
+        metadata = {
             self._config.FIELD_TYPE: self._config.TYPE_SKILL,
             self._config.FIELD_CANDIDATE_ID: candidate_id,
-            self._config.FIELD_FULLNAME: fullname,
             self._config.FIELD_SKILL_NAME: skill_name,
             self._config.FIELD_SKILL_LEVEL: skill_level,
             self._config.FIELD_SENIORITY_LEVEL: seniority_level,
             self._config.FIELD_YEARS_EXPERIENCE: years_experience
         }
+        
+        if fullname:
+            metadata[self._config.FIELD_FULLNAME] = fullname
+        
+        return metadata
     
     def _build_skill_content(
         self,

@@ -2,70 +2,38 @@ using System.Text.RegularExpressions;
 
 namespace Rag.Candidates.Core.Application.Services;
 
-/// <summary>
-/// Normalizes skill names to canonical technology names for deterministic filtering.
-/// </summary>
 public static class SkillNormalizer
 {
     private static readonly Dictionary<string, string> NormalizationRules = new()
     {
-        // Java variants
-        [@"^Java\s*\d*\.?\d*$"] = "Java",
-        [@"^Java\s*\([^)]+\)$"] = "Java",
         [@".*\bJava\b.*"] = "Java",
-        
-        // JavaScript variants
-        [@"^JavaScript.*"] = "JavaScript",
-        [@"^JS\s*\(.*\)$"] = "JavaScript",
-        
-        // Python variants
-        [@"^Python\s*\d*\.?\d*$"] = "Python",
-        
-        // C# variants
-        [@"^C#.*"] = "C#",
-        [@"^CSharp.*"] = "C#",
-        
-        // TypeScript variants
-        [@"^TypeScript.*"] = "TypeScript",
-        [@"^TS\s*\(.*\)$"] = "TypeScript",
-        
-        // React variants
-        [@"^React.*"] = "React",
-        
-        // Angular variants
-        [@"^Angular.*"] = "Angular",
-        
-        // Spring variants
-        [@"^Spring\s*\([^)]+\)$"] = "Spring",
-        [@"^Spring\s+\w+$"] = "Spring",
-        
-        // .NET variants
-        [@"^\.NET.*"] = ".NET",
-        [@"^ASP\.NET.*"] = "ASP.NET",
-        
-        // Node variants
-        [@"^Node\.?js.*"] = "Node.js",
-        
-        // SQL variants
-        [@"^SQL\s*\([^)]+\)$"] = "SQL",
-        [@".*SQL$"] = "SQL",
-        
-        // Docker
-        [@"^Docker.*"] = "Docker",
-        
-        // Kubernetes
-        [@"^Kubernetes.*"] = "Kubernetes",
-        [@"^K8s$"] = "Kubernetes",
-        
-        // Git
-        [@"^Git.*"] = "Git",
+        [@".*\bSpring\b.*"] = "Spring",
+        [@".*\bASP\.?\s*NET\b.*"] = ".NET",
+        [@".*\b\.?\s*NET\b.*"] = ".NET",
+        [@".*\bC#\b.*"] = "C#",
+        [@".*\bCSharp\b.*"] = "C#",
+        [@".*\bNode\.?js\b.*"] = "Node.js",
+        [@".*\bNode\b.*"] = "Node.js",
+        [@".*\bReact\b.*"] = "React",
+        [@".*\bAngular.*"] = "Angular",
+        [@".*\bVue\b.*"] = "Vue",
+        [@".*\bJavaScript\b.*"] = "JavaScript",
+        [@".*\bJS\b.*"] = "JavaScript",
+        [@".*\bTypeScript\b.*"] = "TypeScript",
+        [@".*\bTS\b.*"] = "TypeScript",
+        [@".*\bPython\b.*"] = "Python",
+        [@".*\bSQL\b.*"] = "SQL",
+        [@".*MySQL.*"] = "SQL",
+        [@".*PostgreSQL.*"] = "SQL",
+        [@".*\bDocker\b.*"] = "Docker",
+        [@".*\bKubernetes\b.*"] = "Kubernetes",
+        [@".*\bK8s\b.*"] = "Kubernetes",
+        [@".*\bGit\b.*"] = "Git",
+        [@".*\bPHP\b.*"] = "PHP",
+        [@".*\bC\+\+\b.*"] = "C++",
+        [@".*\bKotlin\b.*"] = "Kotlin",
     };
 
-    /// <summary>
-    /// Normalize a skill name to its canonical form.
-    /// </summary>
-    /// <param name="skillName">Raw skill name from candidate data</param>
-    /// <returns>Canonical skill name for filtering, or original if no rule matches</returns>
     public static string Normalize(string skillName)
     {
         if (string.IsNullOrWhiteSpace(skillName))

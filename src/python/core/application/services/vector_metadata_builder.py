@@ -19,10 +19,16 @@ class VectorMetadataBuilder:
         metadata = {
             self.config.FIELD_TYPE: self.config.TYPE_CANDIDATE,
             self.config.FIELD_CANDIDATE_ID: candidate_id,
-            self.config.FIELD_FULLNAME: candidate.GeneralInfo.Fullname if candidate.GeneralInfo and candidate.GeneralInfo.Fullname else candidate_id,
             self.config.FIELD_ENGLISH_LEVEL: english_level,
             self.config.FIELD_ENGLISH_LEVEL_NUM: english_level_num,
         }
+        
+        if candidate.GeneralInfo and candidate.GeneralInfo.Fullname and candidate.GeneralInfo.Fullname.strip():
+            fullname = candidate.GeneralInfo.Fullname.strip()
+            if fullname != candidate_id:
+                metadata[self.config.FIELD_FULLNAME] = fullname
+            else:
+                print(f"[WARNING] Fullname equals candidate_id for {candidate_id}, NOT storing in metadata")
         
         if candidate.GeneralInfo:
             metadata[self.config.FIELD_SENIORITY_LEVEL] = (

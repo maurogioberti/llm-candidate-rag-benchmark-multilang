@@ -60,7 +60,10 @@ public sealed class BuildIndexUseCase
         {
             try
             {
-                var candidate = _candidateFactory.FromJsonToCandidate(candidateJson, Path.GetFileNameWithoutExtension("candidate"));
+                var tempCandidate = _candidateFactory.FromJson(candidateJson);
+                var candidateId = tempCandidate.GeneralInfo?.CandidateId ?? "unknown";
+                
+                var candidate = _candidateFactory.FromJsonToCandidate(candidateJson, candidateId);
                 var textBlocks = candidate.ToTextBlocks();
 
                 var enrichedMetadata = _metadataBuilder.BuildCandidateMetadata(

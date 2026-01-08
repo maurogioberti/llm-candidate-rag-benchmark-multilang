@@ -25,7 +25,21 @@ public sealed class SkillDocumentBuilder
         if (candidate.SkillMatrix == null)
             return documents;
 
-        var fullname = candidate.GeneralInfo?.Fullname ?? candidateId;
+        // Only extract fullname if it exists and is not empty
+        // NEVER use candidateId as fullname
+        string? fullname = null;
+        if (!string.IsNullOrWhiteSpace(candidate.GeneralInfo?.Fullname))
+        {
+            var extractedFullname = candidate.GeneralInfo.Fullname.Trim();
+            if (extractedFullname != candidateId)
+            {
+                fullname = extractedFullname;
+            }
+            else
+            {
+                Console.WriteLine($"[WARNING] Fullname equals candidateId for {candidateId}, NOT storing in skill metadata");
+            }
+        }
 
         foreach (var skill in candidate.SkillMatrix)
         {
@@ -60,22 +74,29 @@ public sealed class SkillDocumentBuilder
 
     private Dictionary<string, object> BuildSkillMetadata(
         string candidateId,
-        string fullname,
+        string? fullname,
         string skillName,
         string skillLevel,
         string seniorityLevel,
         int yearsExperience)
     {
-        return new Dictionary<string, object>
+        var metadata = new Dictionary<string, object>
         {
             [_config.FieldType] = _config.TypeSkill,
             [_config.FieldCandidateId] = candidateId,
-            [_config.FieldFullname] = fullname,
             [_config.FieldSkillName] = skillName,
             [_config.FieldSkillLevel] = skillLevel,
             [_config.FieldSeniorityLevel] = seniorityLevel,
             [_config.FieldYearsExperience] = yearsExperience
         };
+        
+        // Only add fullname if it exists (not null)
+        if (fullname != null)
+        {
+            metadata[_config.FieldFullname] = fullname;
+        }
+        
+        return metadata;
     }
 
     private static string BuildSkillContent(

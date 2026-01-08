@@ -24,10 +24,24 @@ public sealed class VectorMetadataBuilder
         {
             [_config.FieldType] = _config.TypeCandidate,
             [_config.FieldCandidateId] = candidateId,
-            [_config.FieldFullname] = candidate.GeneralInfo?.Fullname ?? candidateId,
             [_config.FieldEnglishLevel] = englishLevel,
             [_config.FieldEnglishLevelNum] = englishLevelNum
         };
+        
+        // Only set fullname if it exists and is not empty
+        // NEVER fallback to candidateId during indexing
+        if (!string.IsNullOrWhiteSpace(candidate.GeneralInfo?.Fullname))
+        {
+            var fullname = candidate.GeneralInfo.Fullname.Trim();
+            if (fullname != candidateId)
+            {
+                metadata[_config.FieldFullname] = fullname;
+            }
+            else
+            {
+                Console.WriteLine($"[WARNING] Fullname equals candidateId for {candidateId}, NOT storing in metadata");
+            }
+        }
 
         if (candidate.GeneralInfo != null)
         {

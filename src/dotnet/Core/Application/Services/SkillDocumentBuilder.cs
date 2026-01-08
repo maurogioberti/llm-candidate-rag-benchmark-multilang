@@ -25,6 +25,8 @@ public sealed class SkillDocumentBuilder
         if (candidate.SkillMatrix == null)
             return documents;
 
+        var fullname = candidate.GeneralInfo?.Fullname ?? candidateId;
+
         foreach (var skill in candidate.SkillMatrix)
         {
             if (string.IsNullOrWhiteSpace(skill.Name) || string.IsNullOrWhiteSpace(skill.Level))
@@ -33,9 +35,12 @@ public sealed class SkillDocumentBuilder
             if (!SkillLevelExtensions.IsStrong(skill.Level))
                 continue;
 
+            var normalizedSkillName = SkillNormalizer.Normalize(skill.Name);
+
             var metadata = BuildSkillMetadata(
                 candidateId: candidateId,
-                skillName: skill.Name,
+                fullname: fullname,
+                skillName: normalizedSkillName,
                 skillLevel: skill.Level,
                 seniorityLevel: seniorityLevel,
                 yearsExperience: yearsExperience
@@ -55,6 +60,7 @@ public sealed class SkillDocumentBuilder
 
     private Dictionary<string, object> BuildSkillMetadata(
         string candidateId,
+        string fullname,
         string skillName,
         string skillLevel,
         string seniorityLevel,
@@ -64,6 +70,7 @@ public sealed class SkillDocumentBuilder
         {
             [_config.FieldType] = _config.TypeSkill,
             [_config.FieldCandidateId] = candidateId,
+            [_config.FieldFullname] = fullname,
             [_config.FieldSkillName] = skillName,
             [_config.FieldSkillLevel] = skillLevel,
             [_config.FieldSeniorityLevel] = seniorityLevel,

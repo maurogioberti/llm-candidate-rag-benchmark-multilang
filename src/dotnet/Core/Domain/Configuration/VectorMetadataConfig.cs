@@ -1,9 +1,10 @@
 namespace Rag.Candidates.Core.Domain.Configuration;
 
-public sealed class VectorMetadataConfig
+public sealed record VectorMetadataConfig
 {
     public string FieldType { get; init; } = "type";
     public string FieldCandidateId { get; init; } = "candidate_id";
+    public string FieldFullname { get; init; } = "fullname";
     public string FieldEnglishLevel { get; init; } = "english_level";
     public string FieldEnglishLevelNum { get; init; } = "english_level_num";
     public string FieldSeniorityLevel { get; init; } = "seniority_level";

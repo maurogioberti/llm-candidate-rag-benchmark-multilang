@@ -4,6 +4,7 @@ from langchain_core.documents import Document
 from ...domain.entities.candidate_record import CandidateRecord
 from ...domain.enums.skill_level import SkillLevel
 from ...domain.configuration.vector_metadata_config import VectorMetadataConfig
+from .skill_normalizer import SkillNormalizer
 
 
 class SkillDocumentBuilder:
@@ -22,6 +23,8 @@ class SkillDocumentBuilder:
         if not candidate.SkillMatrix:
             return documents
         
+        fullname = candidate.GeneralInfo.Fullname if candidate.GeneralInfo and candidate.GeneralInfo.Fullname else candidate_id
+        
         for skill in candidate.SkillMatrix:
             if not skill.SkillName or not skill.SkillLevel:
                 continue
@@ -31,9 +34,12 @@ class SkillDocumentBuilder:
             if not SkillLevel.is_strong(skill_level_enum):
                 continue
             
+            normalized_skill_name = SkillNormalizer.normalize(skill.SkillName)
+            
             metadata = self._build_skill_metadata(
                 candidate_id=candidate_id,
-                skill_name=skill.SkillName,
+                fullname=fullname,
+                skill_name=normalized_skill_name,
                 skill_level=skill.SkillLevel,
                 seniority_level=seniority_level,
                 years_experience=years_experience
@@ -55,6 +61,7 @@ class SkillDocumentBuilder:
     def _build_skill_metadata(
         self,
         candidate_id: str,
+        fullname: str,
         skill_name: str,
         skill_level: str,
         seniority_level: str,
@@ -63,6 +70,7 @@ class SkillDocumentBuilder:
         return {
             self._config.FIELD_TYPE: self._config.TYPE_SKILL,
             self._config.FIELD_CANDIDATE_ID: candidate_id,
+            self._config.FIELD_FULLNAME: fullname,
             self._config.FIELD_SKILL_NAME: skill_name,
             self._config.FIELD_SKILL_LEVEL: skill_level,
             self._config.FIELD_SENIORITY_LEVEL: seniority_level,

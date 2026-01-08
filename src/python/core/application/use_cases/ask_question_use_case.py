@@ -13,6 +13,7 @@ from ..services.metadata_filter_builder import MetadataFilterBuilder
 from ..services.candidate_ranker import CandidateRanker
 from ...domain.configuration.ranking_weights import RankingWeights
 from ...domain.entities.llm_response_schema import LlmResponseSchema, SelectedCandidate
+from ...domain.entities.llm_justification_schema import LlmJustificationSchema
 import json
 
 METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
@@ -97,7 +98,9 @@ class AskQuestionUseCase:
             context=context
         )
         
-        parsed_response = self._parse_and_validate_llm_output(llm_output)
+        llm_justification = self._parse_and_validate_llm_output(llm_output)
+        
+        parsed_response = self._build_final_response(llm_justification, ranked_candidates)
         
         answer = self._format_final_answer(parsed_response)
         
@@ -110,6 +113,10 @@ class AskQuestionUseCase:
         )
     
     def _build_metadata_filter(self, filters, parsed_query):
+        tech_filter = self.filter_builder.build_technology_filters(parsed_query)
+        if tech_filter:
+            return tech_filter
+        
         conditions = []
         
         if filters:
@@ -125,10 +132,6 @@ class AskQuestionUseCase:
         query_filters = self.filter_builder.build_candidate_filters(parsed_query)
         conditions.extend(query_filters)
         
-        tech_filter = self.filter_builder.build_technology_filters(parsed_query)
-        if tech_filter:
-            conditions.append(tech_filter)
-        
         if not conditions:
             return None
         
@@ -139,9 +142,16 @@ class AskQuestionUseCase:
     
     def _build_context_from_candidates(self, candidates: List) -> str:
         context_parts = []
-        for candidate in candidates:
+        for rank, candidate in enumerate(candidates, 1):
+            fullname = candidate.metadata.get(METADATA_CONFIG.FIELD_FULLNAME, candidate.candidate_id)
+            header = f"=== CANDIDATE #{rank}: {fullname} (ID: {candidate.candidate_id}) ==="
+            context_parts.append(header)
+            
             for document in candidate.documents:
                 context_parts.append(document)
+            
+            context_parts.append("")
+        
         return CONTEXT_SEPARATOR.join(context_parts)
     
     def _extract_sources_from_candidates(self, candidates: List) -> List[ChatSource]:
@@ -180,7 +190,7 @@ class AskQuestionUseCase:
         human_template = load_prompt(CHAT_HUMAN_FILE)
         return human_template.format(context=context, input=question)
     
-    def _parse_and_validate_llm_output(self, llm_output: str) -> LlmResponseSchema:
+    def _parse_and_validate_llm_output(self, llm_output: str) -> LlmJustificationSchema:
         try:
             json_start = llm_output.find('{')
             json_end = llm_output.rfind('}') + 1
@@ -194,26 +204,33 @@ class AskQuestionUseCase:
             if "justification" not in data:
                 raise ValueError("Missing required field: justification")
             
-            selected_candidate = None
-            if data.get("selected_candidate") is not None:
-                candidate_data = data["selected_candidate"]
-                
-                if "fullname" not in candidate_data or "candidate_id" not in candidate_data or "rank" not in candidate_data:
-                    raise ValueError("selected_candidate must contain fullname, candidate_id, and rank")
-                
-                selected_candidate = SelectedCandidate(
-                    fullname=candidate_data["fullname"],
-                    candidate_id=candidate_data["candidate_id"],
-                    rank=candidate_data["rank"]
-                )
-            
-            return LlmResponseSchema(
-                selected_candidate=selected_candidate,
+            return LlmJustificationSchema(
                 justification=data["justification"]
             )
         
         except (json.JSONDecodeError, ValueError, KeyError) as e:
             raise ValueError(f"Failed to parse LLM output as valid JSON schema: {str(e)}")
+    
+    def _build_final_response(self, llm_justification: LlmJustificationSchema, ranked_candidates: List) -> LlmResponseSchema:
+        if not ranked_candidates:
+            return LlmResponseSchema(
+                selected_candidate=None,
+                justification=llm_justification.justification
+            )
+        
+        top_candidate = ranked_candidates[0]
+        fullname = top_candidate.metadata.get(METADATA_CONFIG.FIELD_FULLNAME, top_candidate.candidate_id)
+        
+        selected_candidate = SelectedCandidate(
+            fullname=fullname,
+            candidate_id=top_candidate.candidate_id,
+            rank=1
+        )
+        
+        return LlmResponseSchema(
+            selected_candidate=selected_candidate,
+            justification=llm_justification.justification
+        )
     
     def _format_final_answer(self, parsed_response: LlmResponseSchema) -> str:
         if parsed_response.selected_candidate is None:

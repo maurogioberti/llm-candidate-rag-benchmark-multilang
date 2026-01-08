@@ -24,11 +24,11 @@ public sealed class VectorMetadataBuilder
         {
             [_config.FieldType] = _config.TypeCandidate,
             [_config.FieldCandidateId] = candidateId,
+            [_config.FieldFullname] = candidate.GeneralInfo?.Fullname ?? candidateId,
             [_config.FieldEnglishLevel] = englishLevel,
             [_config.FieldEnglishLevelNum] = englishLevelNum
         };
 
-        // Add Phase 1 enrichments
         if (candidate.GeneralInfo != null)
         {
             if (candidate.GeneralInfo.SeniorityLevel != null)
@@ -44,7 +44,6 @@ public sealed class VectorMetadataBuilder
                 metadata[_config.FieldMainIndustry] = candidate.GeneralInfo.MainIndustry;
         }
 
-        // Extract primary skills
         var primarySkills = _skillsExtractor.Extract(candidate);
         if (primarySkills.Length > 0)
             metadata[_config.FieldPrimarySkills] = primarySkills;

@@ -109,7 +109,9 @@ public sealed class AskQuestionUseCase
 
         var llmOutput = await _llmClient.GenerateChatCompletionAsync(systemPrompt, humanPrompt, context, ct);
         
-        var parsedResponse = ParseAndValidateLlmOutput(llmOutput);
+        var llmJustification = ParseAndValidateLlmOutput(llmOutput);
+        
+        var parsedResponse = BuildFinalResponse(llmJustification, rankedCandidates);
         
         var answer = FormatFinalAnswer(parsedResponse);
         
@@ -125,6 +127,12 @@ public sealed class AskQuestionUseCase
 
     private Dictionary<string, object>? BuildMetadataFilter(ChatFilters? filters, Domain.Entities.ParsedQuery parsedQuery)
     {
+        var techFilter = _filterBuilder.BuildTechnologyFilters(parsedQuery);
+        if (techFilter != null)
+        {
+            return techFilter;
+        }
+
         var conditions = new List<Dictionary<string, object>>();
 
         if (filters != null)
@@ -149,12 +157,6 @@ public sealed class AskQuestionUseCase
         var queryFilters = _filterBuilder.BuildCandidateFilters(parsedQuery);
         conditions.AddRange(queryFilters);
 
-        var techFilter = _filterBuilder.BuildTechnologyFilters(parsedQuery);
-        if (techFilter != null)
-        {
-            conditions.Add(techFilter);
-        }
-
         if (conditions.Count == 0)
             return null;
 
@@ -164,13 +166,25 @@ public sealed class AskQuestionUseCase
         return new Dictionary<string, object> { [AndOperator] = conditions };
     }
 
-    private static string BuildContextFromCandidates(List<RankedCandidate> candidates)
+    private string BuildContextFromCandidates(List<RankedCandidate> candidates)
     {
         var contextParts = new List<string>();
-        foreach (var candidate in candidates)
+        for (int i = 0; i < candidates.Count; i++)
         {
+            var candidate = candidates[i];
+            var rank = i + 1;
+            
+            var fullname = candidate.Metadata.TryGetValue(_metadataConfig.FieldFullname, out var fn) 
+                ? fn.ToString() ?? candidate.CandidateId 
+                : candidate.CandidateId;
+            var header = $"=== CANDIDATE #{rank}: {fullname} (ID: {candidate.CandidateId}) ===";
+            contextParts.Add(header);
+            
             contextParts.AddRange(candidate.Documents);
+            
+            contextParts.Add("");
         }
+        
         return string.Join(ContextSeparator, contextParts);
     }
 
@@ -261,7 +275,7 @@ public sealed class AskQuestionUseCase
         };
     }
     
-    private LlmResponseSchema ParseAndValidateLlmOutput(string llmOutput)
+    private LlmJustificationSchema ParseAndValidateLlmOutput(string llmOutput)
     {
         try
         {
@@ -284,29 +298,8 @@ public sealed class AskQuestionUseCase
             
             var justification = root.GetProperty("justification").GetString() ?? string.Empty;
             
-            SelectedCandidate? selectedCandidate = null;
-            
-            if (root.TryGetProperty("selected_candidate", out var candidateElement) && 
-                candidateElement.ValueKind != JsonValueKind.Null)
+            return new LlmJustificationSchema
             {
-                if (!candidateElement.TryGetProperty("fullname", out _) ||
-                    !candidateElement.TryGetProperty("candidate_id", out _) ||
-                    !candidateElement.TryGetProperty("rank", out _))
-                {
-                    throw new InvalidOperationException("selected_candidate must contain fullname, candidate_id, and rank");
-                }
-                
-                selectedCandidate = new SelectedCandidate
-                {
-                    Fullname = candidateElement.GetProperty("fullname").GetString() ?? string.Empty,
-                    CandidateId = candidateElement.GetProperty("candidate_id").GetString() ?? string.Empty,
-                    Rank = candidateElement.GetProperty("rank").GetInt32()
-                };
-            }
-            
-            return new LlmResponseSchema
-            {
-                SelectedCandidate = selectedCandidate,
                 Justification = justification
             };
         }
@@ -314,6 +307,36 @@ public sealed class AskQuestionUseCase
         {
             throw new InvalidOperationException($"Failed to parse LLM output as valid JSON schema: {ex.Message}", ex);
         }
+    }
+    
+    private LlmResponseSchema BuildFinalResponse(LlmJustificationSchema llmJustification, List<RankedCandidate> rankedCandidates)
+    {
+        if (rankedCandidates.Count == 0)
+        {
+            return new LlmResponseSchema
+            {
+                SelectedCandidate = null,
+                Justification = llmJustification.Justification
+            };
+        }
+        
+        var topCandidate = rankedCandidates[0];
+        var fullname = topCandidate.Metadata.TryGetValue(_metadataConfig.FieldFullname, out var fn) 
+            ? fn.ToString() ?? topCandidate.CandidateId 
+            : topCandidate.CandidateId;
+        
+        var selectedCandidate = new SelectedCandidate
+        {
+            Fullname = fullname,
+            CandidateId = topCandidate.CandidateId,
+            Rank = 1
+        };
+        
+        return new LlmResponseSchema
+        {
+            SelectedCandidate = selectedCandidate,
+            Justification = llmJustification.Justification
+        };
     }
     
     private string FormatFinalAnswer(LlmResponseSchema parsedResponse)

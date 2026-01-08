@@ -258,9 +258,9 @@ public sealed class CandidateFactory : ICandidateFactory
                 {
                     skills.Add(new Skill
                     {
-                        Name = GetStringValue(skillData, "Name"),
-                        Category = GetStringValue(skillData, "Category"),
-                        Level = GetStringValue(skillData, "Level"),
+                        Name = GetStringValue(skillData, "SkillName"),
+                        Category = GetStringValue(skillData, "SkillCategory"),
+                        Level = GetStringValue(skillData, "SkillLevel"),
                         YearsExperience = GetIntValue(skillData, "YearsExperience"),
                         Evidence = GetStringValue(skillData, "Evidence"),
                         IsRelevant = GetBoolValue(skillData, "IsRelevant")

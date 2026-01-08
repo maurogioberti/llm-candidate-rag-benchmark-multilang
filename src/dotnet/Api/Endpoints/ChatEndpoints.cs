@@ -45,7 +45,8 @@ public static class ChatEndpoints
 
             var response = new ChatResponse(
                 Answer: result.Answer,
-                Sources: string.Join("\n", result.Sources.Select(s => $"{s.CandidateId}: {s.Content}"))
+                Sources: result.Sources,
+                Metadata: result.Metadata
             );
 
             return Results.Json(response);

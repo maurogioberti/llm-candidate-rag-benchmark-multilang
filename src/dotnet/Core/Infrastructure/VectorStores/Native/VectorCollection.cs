@@ -7,6 +7,8 @@ public sealed class VectorCollection
     private readonly ConcurrentDictionary<string, VectorItem> _items = new();
 
     private const string OperatorGte = "$gte";
+    private const string OperatorIn = "$in";
+    private const string OperatorAnd = "$and";
 
     public string Name { get; }
     public int Count => _items.Count;
@@ -58,6 +60,22 @@ public sealed class VectorCollection
     {
         foreach (var (key, value) in filter)
         {
+            if (key == OperatorAnd)
+            {
+                if (value is not object[] andConditions)
+                    return false;
+
+                foreach (var condition in andConditions)
+                {
+                    if (condition is not Dictionary<string, object> conditionDict)
+                        return false;
+
+                    if (!MatchesFilter(metadata, conditionDict))
+                        return false;
+                }
+                continue;
+            }
+
             if (!metadata.TryGetValue(key, out var metaValue))
                 return false;
 
@@ -65,11 +83,33 @@ public sealed class VectorCollection
             {
                 foreach (var (op, opValue) in operatorDict)
                 {
-                    if (op == OperatorGte &&
-                        int.TryParse(metaValue?.ToString(), out var metaInt) &&
-                        int.TryParse(opValue?.ToString(), out var filterInt))
+                    if (op == OperatorGte)
                     {
-                        if (metaInt < filterInt)
+                        if (int.TryParse(metaValue?.ToString(), out var metaInt) &&
+                            int.TryParse(opValue?.ToString(), out var filterInt))
+                        {
+                            if (metaInt < filterInt)
+                                return false;
+                        }
+                    }
+                    else if (op == OperatorIn)
+                    {
+                        if (opValue is not object[] inValues)
+                            return false;
+
+                        var metaStr = metaValue?.ToString();
+                        var found = false;
+
+                        foreach (var inVal in inValues)
+                        {
+                            if (Equals(metaStr, inVal?.ToString()))
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found)
                             return false;
                     }
                 }

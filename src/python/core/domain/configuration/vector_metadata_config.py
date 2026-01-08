@@ -6,6 +6,7 @@ from typing import List, Optional
 class VectorMetadataConfig:
     FIELD_TYPE: str = "type"
     FIELD_CANDIDATE_ID: str = "candidate_id"
+    FIELD_FULLNAME: str = "fullname"
     FIELD_ENGLISH_LEVEL: str = "english_level"
     FIELD_ENGLISH_LEVEL_NUM: str = "english_level_num"
     FIELD_SENIORITY_LEVEL: str = "seniority_level"

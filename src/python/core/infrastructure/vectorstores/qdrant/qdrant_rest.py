@@ -19,6 +19,8 @@ POINTS_KEY = "points"
 RESULT_KEY = "result"
 POINTS_COUNT_KEY = "points_count"
 MAX_COUNT = 2**31 - 1
+SINGLE_CONDITION_COUNT = 1
+MULTIPLE_CONDITIONS_THRESHOLD = 1
 
 
 class QdrantREST:
@@ -84,6 +86,50 @@ class QdrantREST:
         if r.status_code >= 400:
             raise RuntimeError(f"Qdrant upsert error: {r.status_code} {r.text}")
 
+    def _convert_filter_to_qdrant(self, filter_dict: Dict[str, Any]) -> Dict[str, Any]:
+        if "$and" in filter_dict and isinstance(filter_dict["$and"], list):
+            must_conditions = []
+            for condition in filter_dict["$and"]:
+                must_conditions.append(self._convert_condition(condition))
+            return {"must": must_conditions}
+        
+        if len(filter_dict) > MULTIPLE_CONDITIONS_THRESHOLD:
+            must_conditions = []
+            for key, value in filter_dict.items():
+                must_conditions.append(self._convert_condition({key: value}))
+            return {"must": must_conditions}
+        
+        return {"must": [self._convert_condition(filter_dict)]}
+    
+    def _convert_condition(self, condition: Dict[str, Any]) -> Dict[str, Any]:
+        if len(condition) == SINGLE_CONDITION_COUNT:
+            key, value = next(iter(condition.items()))
+            
+            if isinstance(value, dict):
+                if "$gte" in value:
+                    return {
+                        "key": key,
+                        "range": {
+                            "gte": value["$gte"]
+                        }
+                    }
+                if "$in" in value:
+                    return {
+                        "key": key,
+                        "match": {
+                            "any": value["$in"]
+                        }
+                    }
+            else:
+                return {
+                    "key": key,
+                    "match": {
+                        "value": value
+                    }
+                }
+        
+        return condition
+
     def search(
         self,
         collection: str,
@@ -103,7 +149,7 @@ class QdrantREST:
             }
         }
         if qfilter:
-            body["filter"] = qfilter
+            body["filter"] = self._convert_filter_to_qdrant(qfilter)
         
         # Diagnostic logging for benchmarking
         import logging

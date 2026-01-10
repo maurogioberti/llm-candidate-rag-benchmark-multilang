@@ -37,6 +37,9 @@ public sealed class QdrantVectorStore : IVectorStore
     private const string OperatorIn = "$in";
     private const string AndOperator = "$and";
     private const string DocumentKey = "document";
+    
+    private const int SingleConditionCount = 1;
+    private const int MultipleConditionsThreshold = 1;
 
     public QdrantVectorStore(IHttpClientFactory httpFactory, ILogger<QdrantVectorStore>? logger = null)
     {
@@ -220,20 +223,25 @@ public sealed class QdrantVectorStore : IVectorStore
 
     private static object BuildFilter(Dictionary<string, object> filter)
     {
-        if (filter.Count == 1 && filter.TryGetValue(AndOperator, out var andValue) && andValue is List<object> andList)
+        if (filter.Count == SingleConditionCount && filter.TryGetValue(AndOperator, out var andValue))
         {
-            var must = new List<object>();
-            foreach (var condition in andList)
+            var andList = andValue as IEnumerable<object> ?? (andValue is System.Text.Json.JsonElement je && je.ValueKind == JsonValueKind.Array ? je.EnumerateArray()!.Select(e => JsonSerializer.Deserialize<Dictionary<string, object>>(e.GetRawText(), JsonOpts) as object).OfType<object>().ToList() : null);
+            
+            if (andList != null)
             {
-                if (condition is Dictionary<string, object> conditionDict)
+                var must = new List<object>();
+                foreach (var condition in andList)
                 {
-                    must.Add(ConvertConditionToQdrant(conditionDict));
+                    if (condition is Dictionary<string, object> conditionDict)
+                    {
+                        must.Add(ConvertConditionToQdrant(conditionDict));
+                    }
                 }
+                return new { must };
             }
-            return new { must };
         }
         
-        if (filter.Count > 1)
+        if (filter.Count > MultipleConditionsThreshold)
         {
             var must = new List<object>();
             foreach (var kvp in filter)
@@ -243,12 +251,12 @@ public sealed class QdrantVectorStore : IVectorStore
             return new { must };
         }
         
-        return ConvertConditionToQdrant(filter);
+        return new { must = new[] { ConvertConditionToQdrant(filter) } };
     }
 
     private static object ConvertConditionToQdrant(Dictionary<string, object> condition)
     {
-        if (condition.Count == 1)
+        if (condition.Count == SingleConditionCount)
         {
             var kvp = condition.First();
             var key = kvp.Key;

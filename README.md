@@ -19,36 +19,53 @@ llm-candidate-rag-benchmark-multilang/
 ├── config/
 │   └── common.yaml            # Centralized configuration
 ├── data/
-│   ├── input/                 # Raw candidate data (JSON profiles)
+│   ├── input/                 # Preprocessed candidates dataset (JSON files)
 │   ├── instructions/          # Training datasets
-│   │   └── embeddings.jsonl    # Synthetic candidate matching examples
+│   │   ├── embeddings.jsonl   # Embeddings Instructions
+│   │   └── llm.jsonl          # Finetuning
 │   ├── prompts/               # LLM prompt templates
 │   │   ├── chat_system.txt    # System prompt for recruiter AI
 │   │   └── chat_human.txt     # Human prompt with context template
 │   └── schema/                # Data structure definitions
 ├── services/
-│   └── embeddings-python/     # Shared embeddings service
-│       ├── config_loader.py   # YAML configuration management
-│       ├── embedding_server.py # FastAPI server
-│       ├── embeddings_utils.py # Utility functions
-│       └── run_server.py      # Service entry point
+│   └── embeddings_python/     # Shared embeddings microservice
+│       ├── embeddings_api.py  # FastAPI server
+│       └── serve.py           # Entry point
 ├── src/
-│   └── python/                # Python RAG implementation
+│   ├── python/                # Python RAG implementation (LangChain)
+│   │   ├── api/               # FastAPI endpoints
+│   │   └── core/              # Application logic, domain, infrastructure
+│   └── dotnet/                # .NET RAG implementation (Semantic Kernel)
+│       ├── Api/               # ASP.NET endpoints
+│       └── Core/              # Application, domain, infrastructure
+├── tests/
+│   ├── python/                # Python tests
+│   │   ├── integration/       # End-to-end validation
+│   │   ├── parity/            # Python/NET behavior comparison
+│   │   └── normalization/     # Technology normalization
+│   └── dotnet/                # .NET tests
+│       ├── Integration/       # End-to-end validation
+│       ├── Parity/            # Python/NET behavior comparison
+│       └── Normalization/     # Technology normalization
 ├── benchmarks/
-│   ├── evaluator/             # LLM-as-a-Judge evaluation framework
-│   │   ├── config.py          # Configuration loader (reads common.yaml)
-│   │   ├── judge.py           # Main evaluation orchestrator
-│   │   ├── http_client.py     # HTTP client for chatbot endpoints
-│   │   ├── scoring.py         # Scoring strategies (OpenAI, Ollama, Heuristic)
-│   │   └── README.md          # Evaluator documentation
-│   ├── quality-prompts.json   # HR evaluation prompts for judge
-│   ├── results/               # Evaluation reports and JSON results
-│   ├── run-benchmarks.ps1     # PowerShell benchmark runner
-│   ├── run-benchmarks.sh      # Bash benchmark runner
-│   └── k6/                    # K6 load testing scripts
-├── pyproject.toml             # Python project configuration
+│   ├── evaluator/             # LLM-as-a-Judge framework
+│   │   ├── judge.py           # Evaluation orchestrator
+│   │   ├── scoring.py         # Judge providers (Ollama, OpenAI, Heuristic)
+│   │   └── http_client.py     # API client
+│   ├── k6/                    # Load testing scripts
+│   ├── results/               # Benchmark reports
+│   └── run-benchmarks.*       # Automation scripts
+├── infra/
+│   └── docker/                # Docker Compose for Qdrant, Ollama
+├── pyproject.toml             # Python dependencies
 └── README.md
 ```
+
+**Key Principles:**
+- **Multi-language parity**: Python and .NET implement identical RAG pipelines
+- **Shared embeddings**: Single embeddings service ensures consistent vector representations
+- **Benchmark-first**: LLM-as-a-Judge evaluator validates quality; K6 tests validate performance
+- **Integration over unit**: Tests focus on end-to-end behavior and cross-stack parity
 
 ## Services
 
@@ -267,7 +284,3 @@ llm_provider:
 ## Development Philosophy
 
 This project follows **KISS principles** for microservices - simple, focused, and maintainable code without over-engineering. Each service has a single responsibility and minimal dependencies.
-
----
-
-**Status**: � All core services functional - Ready for benchmarking

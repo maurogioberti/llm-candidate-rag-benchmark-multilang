@@ -53,7 +53,7 @@ llm-candidate-rag-benchmark-multilang/
 │   │   ├── scoring.py         # Judge providers (Ollama, OpenAI, Heuristic)
 │   │   └── http_client.py     # API client
 │   ├── k6/                    # Load testing scripts
-│   ├── results/               # Benchmark reports
+│   ├── resulfts/               # Benchmark reports
 │   └── run-benchmarks.*       # Automation scripts
 ├── infra/
 │   └── docker/                # Docker Compose for Qdrant, Ollama
@@ -90,16 +90,38 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 - Python 3.10+ with virtual environment
 - YAML configuration file at `config/common.yaml`
 
+**macOS quick notes**
+
+- **Python 3.13 (required):** 
+  - Check version: `python3 --version` (needs **3.10-3.13**, Python 3.14+ not yet supported by dependencies)
+  - Install if needed: `brew install python@3.13`
+  - Create venv: `python3.13 -m venv .venv`
+  - Activate: `source .venv/bin/activate`
+
+- **.NET 8 SDK (optional, for .NET API):**
+  - Install .NET 8 specifically: `brew install --cask dotnet-sdk@8`
+  - Verify: `dotnet --version` (should show 8.x.x)
+  - Note: If you have .NET 10+ installed, the project requires .NET 8
+
+- **Docker Desktop (required for Qdrant/Ollama):**
+  - Install: `brew install --cask docker`
+  - Or download from [docker.com](https://www.docker.com/products/docker-desktop)
+  - Start Docker Desktop app before running services
+
+- **Environment variables:** set `OPENAI_API_KEY` if using the OpenAI judge; check `config/common.yaml` for `OLLAMA`/`QDRANT` ports and URLs.
+
 ### Running the Embeddings Service
 
-1. **Activate your Python virtual environment:**
-   ```powershell
-   # Windows
-   .venv\Scripts\Activate.ps1
-   
-   # Unix/macOS  
-   source .venv/bin/activate
-   ```
+1. **Create and activate your Python virtual environment:**
+  ```bash
+  # Create (Unix/macOS)
+  python3 -m venv .venv
+  # Activate (Unix/macOS)
+  source .venv/bin/activate
+
+  # Windows (PowerShell)
+  .venv\Scripts\Activate.ps1
+  ```
 
 2. **Install dependencies:**
    ```bash
@@ -126,6 +148,10 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 
 2. **Start the Python API:**
    ```bash
+   # Activate venv first (if not already activated)
+   source .venv/bin/activate
+   
+   # Run the API
    python -m src.python.langchain_api
    ```
 
@@ -134,13 +160,15 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 #### .NET API (Semantic Kernel)
 
 1. **What you need:**
-   - .NET 8.0+ SDK installed
+   - .NET 8.0 SDK installed (specifically version 8.x, not 9 or 10)
    - Make sure the embeddings service is running (see above)
 
 2. **How to run the .NET API:**
    ```bash
    dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
    ```
+
+   **Troubleshooting:** If you see "Framework 'Microsoft.NETCore.App', version '8.0.0' was not found", install .NET 8: `brew install --cask dotnet@8`
 
    The API will start on the host/port you set in `config/common.yaml` under the `dotnet_api` section.
 

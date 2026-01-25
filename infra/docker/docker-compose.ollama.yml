@@ -9,8 +9,7 @@ services:
       - "${OLLAMA_PORT:-11434}:11434"
     volumes:
       - ollama:/root/.ollama
-    # Default image llama3:8b in volume cache
-    command: ["/bin/sh","-c","ollama serve & sleep 2 && ollama pull llama3:8b && tail -f /dev/null"]
+    # Start Ollama server (model pulled separately after container is up)
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:11434/api/tags >/dev/null || exit 1"]

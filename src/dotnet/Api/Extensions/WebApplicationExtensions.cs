@@ -23,6 +23,7 @@ public static class WebApplicationExtensions
 
     public static WebApplication MapEndpoints(this WebApplication app)
     {
+        app.MapHealthEndpoints();
         app.MapChatEndpoints();
         return app;
     }

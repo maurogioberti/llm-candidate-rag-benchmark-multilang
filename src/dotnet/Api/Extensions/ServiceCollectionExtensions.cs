@@ -19,6 +19,9 @@ public static class ServiceCollectionExtensions
     public const string SwaggerTitle = "Candidate RAG (Semantic Kernel)";
     public const string SwaggerApiVersion = "1.0.0";
     
+    private const string HealthCheckName = "self";
+    private const string HealthCheckDescription = "API is running";
+    
     private static readonly TimeSpan OllamaTimeout = TimeSpan.FromMinutes(5);
 
     public static IServiceCollection AddConfiguration(this IServiceCollection services, IConfiguration configuration)
@@ -97,6 +100,11 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddLogging(o => o.AddConsole());
+        
+        services.AddHealthChecks()
+            .AddCheck(HealthCheckName, () => 
+                Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(HealthCheckDescription), 
+                tags: new[] { HealthCheckReadyTag });
 
         return services;
     }

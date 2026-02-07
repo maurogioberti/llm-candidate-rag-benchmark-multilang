@@ -9,7 +9,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="TestFullnameParity.cs" />
     <Compile Remove="TestApiParity.cs" />
   </ItemGroup>
 

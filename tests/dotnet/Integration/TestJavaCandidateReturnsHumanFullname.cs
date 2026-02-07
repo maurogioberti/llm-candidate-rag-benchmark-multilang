@@ -4,7 +4,7 @@ using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Application.DTOs;
 using Rag.Candidates.Core.Infrastructure.Embeddings;
 using Rag.Candidates.Core.Infrastructure.VectorStores.Native;
-using Rag.Candidates.Core.Infrastructure.Llm.Ollama;
+using Rag.Candidates.Core.Infrastructure.Llm.ChatClients;
 using Rag.Candidates.Core.Infrastructure.Shared;
 
 const string TEST_QUERY_JAVA = "who is the best candidate for java?";

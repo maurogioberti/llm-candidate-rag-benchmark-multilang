@@ -8,7 +8,7 @@ from core.application.use_cases.build_index_use_case import BuildIndexUseCase
 from core.application.services.candidate_service import CandidateService
 from core.infrastructure.embeddings.http_embeddings_client import HttpEmbeddingsClient
 from core.infrastructure.shared.vector_provider_factory import VectorProviderFactory
-from core.infrastructure.llm.openai.llm_client import OpenAILlmClient
+from core.infrastructure.llm.llm_factory import create_llm_client
 from core.infrastructure.shared.config_loader import get_config
 
 APP_TITLE = "Candidate RAG (LangChain)"
@@ -25,7 +25,7 @@ app = FastAPI(title=APP_TITLE)
 
 embeddings_client = HttpEmbeddingsClient(base_url=cfg.get_embeddings_base_url())
 vector_store = VectorProviderFactory.create_provider()
-llm_client = OpenAILlmClient()
+llm_client = create_llm_client()
 candidate_service = CandidateService()
 
 ask_question_use_case = AskQuestionUseCase(embeddings_client, vector_store, llm_client)

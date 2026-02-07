@@ -188,11 +188,21 @@ data:
 ## Data Structure
 
 ### Candidate Profiles (`data/input/`)
+
+**⚠️ This dataset contains real CVs with PII. See [data/input/README.md](data/input/README.md) for privacy information, consent details, and usage restrictions.**
+
 Processed JSON files with structured candidate information including:
 - **GeneralInfo**: Experience, seniority, languages, location
 - **SkillMatrix**: Technical competencies with proficiency levels
 - **KeywordCoverage**: ATS compatibility and keyword analysis
 - **Scoring**: Overall candidate evaluation metrics
+
+For complete dataset documentation, including:
+- Candidate profiles and consent information
+- PII warnings and privacy recommendations
+- Data provenance and ethical use guidelines
+
+→ **See [data/input/README.md](data/input/README.md)**
 
 ### Training Data (`data/instructions/`)
 

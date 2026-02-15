@@ -6,16 +6,11 @@ namespace Rag.Candidates.Api.Endpoints;
 
 public static class ChatEndpoints
 {
-    private const string HealthEndpoint = "/health";
     private const string IndexEndpoint = "/index";
     private const string ChatEndpoint = "/chat";
 
-    private const string StatusOk = "ok";
-
     public static void MapChatEndpoints(this WebApplication app)
     {
-        app.MapGet(HealthEndpoint, () => Results.Json(new { status = StatusOk }));
-
         app.MapPost(IndexEndpoint, async (BuildIndexUseCase buildIndex, ILoggerFactory lf) =>
         {
             var result = await buildIndex.ExecuteAsync();

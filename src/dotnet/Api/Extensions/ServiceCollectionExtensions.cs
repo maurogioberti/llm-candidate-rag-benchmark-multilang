@@ -1,3 +1,4 @@
+using Microsoft.Extensions.AI;
 using Microsoft.OpenApi.Models;
 using Rag.Candidates.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
@@ -5,8 +6,10 @@ using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
 using Rag.Candidates.Core.Infrastructure.Embeddings;
-using Rag.Candidates.Core.Infrastructure.Llm.OpenAI;
-using Rag.Candidates.Core.Infrastructure.Llm.Ollama;
+using Rag.Candidates.Core.Infrastructure.Llm.Adapters;
+using Rag.Candidates.Core.Infrastructure.Llm.Factories;
+using Rag.Candidates.Core.Infrastructure.Llm.Providers;
+using Rag.Candidates.Core.Infrastructure.Llm.Chats;
 using Rag.Candidates.Core.Infrastructure.Shared;
 using Rag.Candidates.Core.Infrastructure.Shared.VectorStorage;
 using Rag.Candidates.Core.Infrastructure.VectorStores.Qdrant;
@@ -18,6 +21,10 @@ public static class ServiceCollectionExtensions
     public const string SwaggerVersion = "v1";
     public const string SwaggerTitle = "Candidate RAG (Semantic Kernel)";
     public const string SwaggerApiVersion = "1.0.0";
+    
+    private const string HealthCheckName = "self";
+    private const string HealthCheckDescription = "API is running";
+    private const string HealthCheckReadyTag = "ready";
     
     private static readonly TimeSpan OllamaTimeout = TimeSpan.FromMinutes(5);
 
@@ -63,6 +70,19 @@ public static class ServiceCollectionExtensions
                 client.BaseAddress = new Uri(settings.Ollama.BaseUrl);
             client.Timeout = OllamaTimeout;
         });
+        services.AddHttpClient(nameof(OpenAIChatClient), client =>
+        {
+            var settings = services.BuildServiceProvider().GetRequiredService<LlmProviderSettings>();
+            if (settings.OpenAi?.BaseUrl != null)
+                client.BaseAddress = new Uri(settings.OpenAi.BaseUrl);
+        });
+        services.AddHttpClient(nameof(OllamaChatClient), client =>
+        {
+            var settings = services.BuildServiceProvider().GetRequiredService<LlmProviderSettings>();
+            if (settings.Ollama?.BaseUrl != null)
+                client.BaseAddress = new Uri(settings.Ollama.BaseUrl);
+            client.Timeout = OllamaTimeout;
+        });
 
         services.AddSingleton<IEmbeddingsClient, HttpEmbeddingsClient>();
         services.AddSingleton<IResourceLoader, ResourceLoader>();
@@ -97,6 +117,11 @@ public static class ServiceCollectionExtensions
         });
 
         services.AddLogging(o => o.AddConsole());
+        
+        services.AddHealthChecks()
+            .AddCheck(HealthCheckName, () => 
+                Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(HealthCheckDescription), 
+                tags: new[] { HealthCheckReadyTag });
 
         return services;
     }
@@ -116,11 +141,17 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddLlmProviders(this IServiceCollection services)
     {
-        services.AddSingleton<LlmProviderFactory>();
+        services.AddSingleton<IChatClient>(provider =>
+        {
+            var httpClientFactory = provider.GetRequiredService<IHttpClientFactory>();
+            var settings = provider.GetRequiredService<LlmProviderSettings>();
+            return ChatClientFactory.CreateChatClient(httpClientFactory, settings);
+        });
+
         services.AddSingleton<ILlmClient>(provider =>
         {
-            var factory = provider.GetRequiredService<LlmProviderFactory>();
-            return factory.CreateLlmClient(provider);
+            var chatClient = provider.GetRequiredService<IChatClient>();
+            return new ChatClientAdapter(chatClient);
         });
 
         return services;

@@ -1,9 +1,10 @@
 from typing import List
+from langchain_core.language_models.chat_models import BaseChatModel
+from langchain_core.messages import SystemMessage, HumanMessage
 from ..dtos.chat_request_dto import ChatRequestDto
 from ..dtos.chat_result import ChatResult, ChatSource
 from ..protocols.embeddings_protocol import EmbeddingsClient
 from ..protocols.vector_store_protocol import VectorStore
-from ..protocols.llm_protocol import LlmClient
 from ...domain.configuration.vector_metadata_config import DEFAULT_VECTOR_METADATA_CONFIG
 from ...infrastructure.shared.config_loader import get_config
 from ...infrastructure.shared.prompt_loader import load_prompt
@@ -37,7 +38,7 @@ class AskQuestionUseCase:
         self, 
         embeddings_client: EmbeddingsClient, 
         vector_store: VectorStore, 
-        llm_client: LlmClient
+        llm_client: BaseChatModel
     ):
         self.embeddings_client = embeddings_client
         self.vector_store = vector_store
@@ -92,11 +93,12 @@ class AskQuestionUseCase:
         human_prompt = self._get_human_prompt(context, request.question)
         system_prompt = self._get_system_prompt()
         
-        llm_output = self.llm_client.generate_chat_completion(
-            system_prompt=system_prompt,
-            user_message=human_prompt,
-            context=context
-        )
+        messages = [
+            SystemMessage(content=system_prompt),
+            HumanMessage(content=human_prompt)
+        ]
+        response = self.llm_client.invoke(messages)
+        llm_output = response.content
         
         llm_justification = self._parse_and_validate_llm_output(llm_output)
         

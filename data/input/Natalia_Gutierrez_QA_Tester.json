@@ -1,14 +1,14 @@
 {
   "GeneralInfo": {
-    "CandidateId": "NataliaSoledadGutierrezQATesterManualAutomationEnglishB1",
+    "CandidateId": "NataliaSoledadGutierrezQATesterManualAutomationPlaywrightEnglishB1",
     "Fullname": "Natalia Soledad Gutierrez",
-    "TitleDetected": "QA Tester | Automation Trainee",
-    "TitlePredicted": "QA Manual Tester (API & SQL) | Automation Trainee (Robot Framework)",
+    "TitleDetected": "QA Tester | Automation (Playwright/TypeScript)",
+    "TitlePredicted": "QA Tester (Manual & Automation) | Playwright/TypeScript",
     "SeniorityLevel": "Mid",
-    "YearsExperience": 14,
-    "RelevantYears": 2,
+    "YearsExperience": 15,
+    "RelevantYears": 3,
     "IndustryMatch": "High",
-    "TrajectoryPattern": "Variable",
+    "TrajectoryPattern": "Growth",
     "MainIndustry": "Software Quality Assurance (QA)",
     "EnglishLevel": "Intermediate (B1)",
     "OtherLanguages": [
@@ -92,6 +92,16 @@
       "Evidence": "Completed Robot Framework Level 1 and 2 courses; automation practice with Selenium."
     },
     {
+      "SkillName": "Playwright",
+      "SkillLevel": "High",
+      "Evidence": "Certified in Playwright and TypeScript - Automation Web (Academia QA, Jan 2026); actively using locators, debugging, API automation, and POM."
+    },
+    {
+      "SkillName": "TypeScript (for QA/Automation)",
+      "SkillLevel": "High",
+      "Evidence": "Playwright and TypeScript automation certification; using TypeScript for test automation."
+    },
+    {
       "SkillName": "Selenium (via Robot Framework)",
       "SkillLevel": "Medium",
       "Evidence": "Course 'Robot Framework Test Automation - Level 1 (Selenium)'."
@@ -100,6 +110,11 @@
       "SkillName": "Python (for QA/Automation)",
       "SkillLevel": "Medium",
       "Evidence": "Course on REST API with Python and MySQL; Robot Framework with Python."
+    },
+    {
+      "SkillName": "Git/GitHub",
+      "SkillLevel": "Medium",
+      "Evidence": "Working with Git for versioning automated tests; executing tests in CI."
     },
     {
       "SkillName": "SAP (Logon/HANA) Testing",
@@ -158,10 +173,14 @@
       "Selenium",
       "Python",
       "MySQL",
-      "REST API"
+      "REST API",
+      "Playwright",
+      "TypeScript",
+      "Git",
+      "POM",
+      "Test Automation"
     ],
     "KeywordsMissing": [
-      "Playwright",
       "Cypress",
       "Selenium WebDriver (coding)",
       "BDD",
@@ -174,8 +193,6 @@
       "TestRail",
       "Zephyr",
       "CI/CD",
-      "Git",
-      "GitHub Actions",
       "Docker",
       "JMeter",
       "Performance Testing",
@@ -187,8 +204,8 @@
       "Contract Testing",
       "OpenAPI/Swagger"
     ],
-    "Density": 60,
-    "Context": "Strong coverage of manual QA and API testing (Postman, SoapUI, SQL, Jira/Xray/Squash, Agile/Scrum); weaker coverage in coded automation, CI/CD, BDD, and performance testing."
+    "Density": 72,
+    "Context": "Strong coverage of manual QA, API testing (Postman, SoapUI, SQL), and automation (Playwright, TypeScript, Robot Framework); good Agile/Scrum tools (Jira/Xray/Squash); growing in CI/CD and performance testing."
   },
   "Languages": [
     {
@@ -203,22 +220,22 @@
     }
   ],
   "Scores": {
-    "GeneralScore": 78,
-    "GeneralScoreComment": "Solid QA manual profile with API and SQL; clear trajectory and relevant tools.",
-    "ATSCompatibility": 80,
-    "ATSCompatibilityComment": "Good titles/sections and QA keywords; missing automation/CI keywords for improvement.",
+    "GeneralScore": 82,
+    "GeneralScoreComment": "Solid QA profile with strong manual, API, and automation (Playwright/TypeScript) skills; clear growth trajectory.",
+    "ATSCompatibility": 85,
+    "ATSCompatibilityComment": "Good titles/sections and comprehensive QA keywords including modern automation tools.",
     "ClarityScore": 82,
     "ClarityScoreComment": "Clear and structured content, focused on responsibilities and tools.",
     "FormattingScore": 78,
     "FormattingScoreComment": "Consistent structure; could improve with uniform bullets and quantified achievements.",
-    "KeywordDensity": 60,
-    "KeywordDensityComment": "Broad coverage in manual QA and API; limited in modern automation and CI/CD.",
+    "KeywordDensity": 72,
+    "KeywordDensityComment": "Strong coverage in manual QA, API, and modern automation (Playwright); growing in CI/CD.",
     "EnglishProficiency": 50,
     "EnglishProficiencyComment": "Intermediate level declared (B1 – technical reading and basic communication).",
-    "SeniorityMatch": 70,
-    "SeniorityMatchComment": "2 years of QA experience; suitable for mid-level in manual QA, junior in automation.",
-    "SkillCoverage": 76,
-    "SkillCoverageComment": "Broad in manual/API/management; medium in automation and performance.",
+    "SeniorityMatch": 75,
+    "SeniorityMatchComment": "3 years of QA experience with progression to automation; suitable for mid-level roles.",
+    "SkillCoverage": 82,
+    "SkillCoverageComment": "Comprehensive in manual/API/automation; certified in Playwright/TypeScript; active learning.",
     "AchievementsQuantification": 35,
     "AchievementsQuantificationComment": "Few measurable results; more focused on tasks than impact.",
     "SoftSkillsCoverage": 85,
@@ -234,26 +251,28 @@
     "FormattingScore": 78,
     "SpellingErrors": 0
   },
-  "Summary": "QA Manual Tester with 2 years of experience in Agile environments, strong focus on functional and exploratory testing, API validation (Postman, SoapUI), and SQL queries (PostgreSQL, SQL Server) using tools such as Jira, Xray, and Azure DevOps. Intensive training in Robot Framework and Selenium to start automation, plus a solid foundation of soft skills from more than 10 years of teaching.",
+  "Summary": "QA Tester with 3 years of experience in Agile environments, specializing in functional testing, exploratory testing, API validation (Postman, SoapUI), and test automation with Playwright and TypeScript. Currently working at Sabentis, with previous experience at NEORIS using Jira, Xray, Azure DevOps, and SQL databases (PostgreSQL, SQL Server). Recently certified in Playwright automation with strong foundation in POM, locators, debugging, and API automation. Backed by 12+ years of teaching experience bringing exceptional communication, organization, and teamwork skills.",
   "Strengths": [
     "Strong command of functional and exploratory manual testing",
     "Experience in API testing with Postman and SoapUI",
     "Test and defect management with Jira/Xray/Squash",
     "Practical knowledge of SQL in PostgreSQL and SQL Server",
+    "Certified in Playwright and TypeScript automation with hands-on experience",
+    "Active learning mindset with progression from manual to automation testing",
     "Solid soft skills (communication, organization, teamwork) from teaching background"
   ],
   "AreasToImprove": [
-    "Showcase measurable achievements (defect KPIs, coverage, cycle times)",
-    "Strengthen coded automation (Playwright/Cypress/Selenium WebDriver)",
-    "Introduce CI/CD and QA practices in pipelines (reporting, continuous quality)"
+    "Showcase measurable achievements (defect KPIs, coverage, cycle times, automation ROI)",
+    "Deepen CI/CD integration (GitHub Actions, automated test execution in pipelines)",
+    "Expand automation coverage beyond Playwright (consider Cypress for comparison)"
   ],
   "Tips": [
-    "Add 3–5 measurable achievements per project (e.g., +30% test coverage, −20% UAT defects).",
-    "Create an automation section with GitHub PoCs (Robot Framework + Selenium or Playwright).",
-    "Include BDD (Gherkin/Cucumber) and explicit regression/smoke testing to boost ATS.",
-    "Add reporting tools (Allure) and contract testing (OpenAPI/Swagger).",
-    "Mention CI/CD practices (e.g., GitHub Actions) and containerization (Docker) as desirable.",
-    "Highlight basic knowledge in performance (JMeter/K6) and accessibility (WAI-ARIA) if applicable."
+    "Add 3–5 measurable achievements per project (e.g., +30% test coverage, −20% UAT defects, X% automation coverage).",
+    "Create public GitHub repo showcasing Playwright tests with POM pattern and API automation examples.",
+    "Highlight CI/CD integration: running Playwright tests in GitHub Actions or Azure Pipelines.",
+    "Add reporting tools (Allure/Playwright HTML reports) and contract testing (OpenAPI/Swagger).",
+    "Include BDD (Gherkin/Cucumber) and explicit regression/smoke testing strategies.",
+    "Mention performance basics (JMeter/K6) and accessibility testing (WAI-ARIA, axe-core) if explored."
   ],
-  "CleanedResumeText": "NATALIA SOLEDAD GUTIERREZ | Barcelona, Catalonia, Spain | nataliasolegutierrez@gmail.com\nGitHub: github.com/natysoledadgutierrez | LinkedIn: linkedin.com/in/natalia-soledad-gutierrez\n\nTITLE\nQA Tester (Manual) | Automation Trainee\n\nPROFESSIONAL PROFILE\nQuality-oriented professional with a background in teaching and a strong focus on QA Testing. Experience in functional and exploratory testing, defect management, API testing, and SQL queries in Agile environments. Seeking to consolidate expertise in Manual QA and advance in automation.\n\nWORK EXPERIENCE\nQA Tester (Manual) — NEORIS (Remote) | 11/2022 – 10/2024\n• Designed, executed, and tracked test cases in Agile (Scrum) environments.\n• Reported and managed defects with Jira, Xray, and Squash.\n• API testing with Postman and SoapUI; data validation with PostgreSQL, SQL Server, and DBeaver.\n• Coordinated and participated in Scrum ceremonies.\nProjects:\n• Prosegur (Spain): API testing with Postman; test management with Jira/Xray; PostgreSQL/DBeaver queries.\n• Cooperación Seguros: Functional testing with SAP Logon and SAP HANA; management with Jira and Squash.\n• Viterra: Azure DevOps Boards management; WebServices testing with SoapUI; SQL Server queries.\n\nPrimary School Teacher — Rosario, Santa Fe | 04/2010 – 11/2022\n• Developed communication, planning, organization, and leadership skills applied to teams and projects.\n\nEDUCATION\n• QA Manual Testing — Coderhouse (2022)\n• EGB 1 & 2 Teacher — Escuela Normal N.°1 Dr. Nicolás Avellaneda (2010)\n• Accounting Technician — Escuela N.°638 Margarita Mazza de Carles (2002)\n• Administration Specialization — Escuela N.°638 Margarita Mazza de Carles (2001)\n\nIT TRAINING\n• QA Manual Testing (Coderhouse, 2022)\n• React JS (Coderhouse, 2022)\n• JavaScript (Coderhouse, 2021)\n• Web Development: HTML/CSS/Responsive (Coderhouse, 2021)\n• REST API with Python and MySQL (Udemy, 2022)\n• Robot Framework Test Automation — Level 1 & Level 2 (Udemy, 2022)\n• Robot Framework with Python (Udemy, 2022)\n• Postman API Testing (Udemy, 2022)\n• SQL for Beginners (Udemy, 2022)\n• Scrum with Jira (Udemy, 2022)\n• Exploratory Testing (Udemy, 2022)\n\nSKILLS\nTesting: functional, exploratory, test case design/execution, defect management.\nAPIs & Databases: Postman, SoapUI, SQL (PostgreSQL, SQL Server), DBeaver.\nTools: Jira, Xray, Squash, Azure DevOps, SAP Logon/HANA.\nAutomation (in progress): Robot Framework, Selenium; Python.\nMethodologies: Agile/Scrum (daily, planning, retrospectives).\nSoft Skills: effective communication, teamwork, organization, and attention to detail.\n\nLANGUAGES\n• Spanish: Native\n• English: Intermediate (B1 – technical reading and basic communication)"
+  "CleanedResumeText": "NATALIA SOLEDAD GUTIERREZ | Barcelona, Catalonia, Spain | nataliasolegutierrez@gmail.com\nGitHub: github.com/natysoledadgutierrez | LinkedIn: linkedin.com/in/natalia-soledad-gutierrez\n\nTITLE\nQA Tester (Manual & Automation) | Playwright/TypeScript\n\nPROFESSIONAL PROFILE\nQuality-oriented professional with a background in teaching and 3 years of experience in QA Testing. Expertise in functional testing, exploratory testing, defect management, API testing, SQL queries, and test automation with Playwright and TypeScript. Working in Agile environments with a strong focus on quality assurance and continuous learning.\n\nWORK EXPERIENCE\nQA Tester — Sabentis (Hybrid, Barcelona) | 07/2025 – Present\n• Perform manual and automated testing for software quality assurance.\n• Execute functional testing, regression testing, and exploratory testing in Agile environment.\n• Skills: Software Quality, Quality Assurance Testing, Playwright, TypeScript\n\nQA Tester (Manual) — NEORIS (Remote, Argentina) | 11/2022 – 10/2024\n• Designed, executed, and tracked test cases in Agile (Scrum) environments.\n• Reported and managed defects with Jira, Xray, and Squash.\n• API testing with Postman and SoapUI; data validation with PostgreSQL, SQL Server, and DBeaver.\n• Coordinated and participated in Scrum ceremonies.\nProjects:\n• Prosegur (Spain): API testing with Postman; test management with Jira/Xray; PostgreSQL/DBeaver queries.\n• Cooperación Seguros: Functional testing with SAP Logon and SAP HANA; management with Jira and Squash.\n• Viterra: Azure DevOps Boards management; WebServices testing with SoapUI; SQL Server queries.\n\nPrimary School Teacher — Rosario, Santa Fe | 04/2010 – 11/2022\n• Developed communication, planning, organization, and leadership skills applied to teams and projects.\n\nEDUCATION\n• QA Manual Testing — Coderhouse (2022)\n• EGB 1 & 2 Teacher — Escuela Normal N.°1 Dr. Nicolás Avellaneda (2010)\n• Accounting Technician — Escuela N.°638 Margarita Mazza de Carles (2002)\n• Administration Specialization — Escuela N.°638 Margarita Mazza de Carles (2001)\n\nCERTIFICATIONS\n• Playwright y TypeScript - Automation Web — Academia QA (January 2026)\n  Credential ID: 400b2033403a032751c04c095d4b7a57\n  Skills: QA Automation, Playwright, TypeScript, Locators, Debugging, API Automation, POM (Page Object Model)\n\nIT TRAINING\n• QA Manual Testing (Coderhouse, 2022)\n• Playwright and TypeScript - Automation Web (Academia QA, 2026)\n• React JS (Coderhouse, 2022)\n• JavaScript (Coderhouse, 2021)\n• Web Development: HTML/CSS/Responsive (Coderhouse, 2021)\n• REST API with Python and MySQL (Udemy, 2022)\n• Robot Framework Test Automation — Level 1 & Level 2 (Udemy, 2022)\n• Robot Framework with Python (Udemy, 2022)\n• Postman API Testing (Udemy, 2022)\n• SQL for Beginners (Udemy, 2022)\n• Scrum with Jira (Udemy, 2022)\n• Exploratory Testing (Udemy, 2022)\n\nSKILLS\nTesting: functional, exploratory, regression, test case design/execution, defect management.\nAutomation: Playwright, TypeScript, Robot Framework, Selenium, POM, API automation.\nAPIs & Databases: Postman, SoapUI, SQL (PostgreSQL, SQL Server), DBeaver.\nTools: Jira, Xray, Squash, Azure DevOps, SAP Logon/HANA, Git.\nMethodologies: Agile/Scrum (daily, planning, retrospectives).\nSoft Skills: effective communication, teamwork, organization, attention to detail, adaptability.\n\nLANGUAGES\n• Spanish: Native\n• English: Intermediate (B1 – technical reading and basic communication)"
 }

@@ -1,5 +1,6 @@
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Domain.Configuration;
+using Rag.Candidates.Core.Infrastructure.Llm.Providers;
 
 namespace Rag.Candidates.Core.Infrastructure.Shared;
 
@@ -14,8 +15,8 @@ public sealed class LlmProviderFactory(LlmProviderSettings settings)
 
         return providerType switch
         {
-            LlmProviderType.OpenAI => new Llm.OpenAI.OpenAILlmClient(httpFactory, settings),
-            LlmProviderType.Ollama => new Llm.Ollama.OllamaLlmClient(httpFactory, settings),
+            LlmProviderType.OpenAI => new OpenAILlmClient(httpFactory, settings),
+            LlmProviderType.Ollama => new OllamaLlmClient(httpFactory, settings),
             _ => throw new NotSupportedException($"LLM provider '{settings.Provider}' is not supported")
         };
     }

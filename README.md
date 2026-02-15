@@ -3,7 +3,7 @@
 A benchmarking project to compare RAG (Retrieval-Augmented Generation) implementations for candidate matching using two different tech stacks:
 
 - **Python** with LangChain framework
-- **C#** with Semantic Kernel framework
+- **C#** with Microsoft.Extensions.AI (MEAI)
 
 ## Current Implementation Status
 
@@ -24,8 +24,8 @@ llm-candidate-rag-benchmark-multilang/
 │   │   ├── embeddings.jsonl   # Embeddings Instructions
 │   │   └── llm.jsonl          # Finetuning
 │   ├── prompts/               # LLM prompt templates
-│   │   ├── chat_system.txt    # System prompt for recruiter AI
-│   │   └── chat_human.txt     # Human prompt with context template
+│   │   ├── chat_system.md     # System prompt for recruiter AI
+│   │   └── chat_human.md      # Human prompt with context template
 │   └── schema/                # Data structure definitions
 ├── services/
 │   └── embeddings_python/     # Shared embeddings microservice
@@ -35,7 +35,7 @@ llm-candidate-rag-benchmark-multilang/
 │   ├── python/                # Python RAG implementation (LangChain)
 │   │   ├── api/               # FastAPI endpoints
 │   │   └── core/              # Application logic, domain, infrastructure
-│   └── dotnet/                # .NET RAG implementation (Semantic Kernel)
+│   └── dotnet/                # .NET RAG implementation (Microsoft.Extensions.AI)
 │       ├── Api/               # ASP.NET endpoints
 │       └── Core/              # Application, domain, infrastructure
 ├── tests/
@@ -53,7 +53,7 @@ llm-candidate-rag-benchmark-multilang/
 │   │   ├── scoring.py         # Judge providers (Ollama, OpenAI, Heuristic)
 │   │   └── http_client.py     # API client
 │   ├── k6/                    # Load testing scripts
-│   ├── resulfts/               # Benchmark reports
+│   ├── results/               # Benchmark reports
 │   └── run-benchmarks.*       # Automation scripts
 ├── infra/
 │   └── docker/                # Docker Compose for Qdrant, Ollama
@@ -98,10 +98,8 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
   - Create venv: `python3.13 -m venv .venv`
   - Activate: `source .venv/bin/activate`
 
-- **.NET 8 SDK (optional, for .NET API):**
-  - Install .NET 8 specifically: `brew install --cask dotnet-sdk@8`
-  - Verify: `dotnet --version` (should show 8.x.x)
-  - Note: If you have .NET 10+ installed, the project requires .NET 8
+- **.NET SDK (optional, for .NET API):**
+  - Verify: `dotnet --version` (project targets **.NET 10**)
 
 - **Docker Desktop (required for Qdrant/Ollama):**
   - Install: `brew install --cask docker`
@@ -152,15 +150,15 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
    source .venv/bin/activate
    
    # Run the API
-   python -m src.python.langchain_api
+  python -m langchain_api
    ```
 
    The API will start on the host/port configured in `config/common.yaml` under `python_api` section.
 
-#### .NET API (Semantic Kernel)
+#### .NET API (Microsoft.Extensions.AI)
 
 1. **What you need:**
-   - .NET 8.0 SDK installed (specifically version 8.x, not 9 or 10)
+  - .NET SDK installed (project targets **.NET 10**)
    - Make sure the embeddings service is running (see above)
 
 2. **How to run the .NET API:**
@@ -168,7 +166,7 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
    dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
    ```
 
-   **Troubleshooting:** If you see "Framework 'Microsoft.NETCore.App', version '8.0.0' was not found", install .NET 8: `brew install --cask dotnet@8`
+  **Troubleshooting:** If you see a missing framework error, install the required .NET runtime/SDK for the target framework.
 
    The API will start on the host/port you set in `config/common.yaml` under the `dotnet_api` section.
 
@@ -190,11 +188,21 @@ data:
 ## Data Structure
 
 ### Candidate Profiles (`data/input/`)
+
+**⚠️ This dataset contains real CVs with PII. See [data/input/README.md](data/input/README.md) for privacy information, consent details, and usage restrictions.**
+
 Processed JSON files with structured candidate information including:
 - **GeneralInfo**: Experience, seniority, languages, location
 - **SkillMatrix**: Technical competencies with proficiency levels
 - **KeywordCoverage**: ATS compatibility and keyword analysis
 - **Scoring**: Overall candidate evaluation metrics
+
+For complete dataset documentation, including:
+- Candidate profiles and consent information
+- PII warnings and privacy recommendations
+- Data provenance and ethical use guidelines
+
+→ **See [data/input/README.md](data/input/README.md)**
 
 ### Training Data (`data/instructions/`)
 

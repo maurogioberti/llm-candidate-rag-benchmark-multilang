@@ -3,17 +3,14 @@ import httpx
 from pathlib import Path
 from typing import List, Dict, Any
 from dataclasses import dataclass, asdict, field
-import sys
 import statistics
 import logging
 import traceback
 from datetime import datetime
 
-sys.path.insert(0, str(Path(__file__).parent))
-
-from config import EvaluatorConfig
-from http_client import ChatbotClient
-from scoring import ScoringStrategyFactory, ScoringStrategy, determine_winner
+from .config import EvaluatorConfig
+from .http_client import ChatbotClient
+from .scoring import ScoringStrategyFactory, ScoringStrategy, determine_winner
 
 
 WINNER_DOTNET = "dotnet"
@@ -55,7 +52,6 @@ class EvaluationResult:
 class JudgeEvaluator:
     PROMPTS_FILE = "quality-prompts.json"
     PROMPTS_KEY = "hr_evaluation_prompts"
-    LOG_DIR = Path(__file__).parent.parent / "logs"
     
     def __init__(self, config: EvaluatorConfig):
         self.config = config
@@ -81,10 +77,11 @@ class JudgeEvaluator:
     
     def _setup_logging(self) -> None:
         """Setup logging infrastructure for error tracking."""
-        self.LOG_DIR.mkdir(exist_ok=True)
+        log_dir = Path(self.config.log_directory)
+        log_dir.mkdir(exist_ok=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = self.LOG_DIR / f"evaluation_{timestamp}.log"
+        log_file = log_dir / f"evaluation_{timestamp}.log"
         
         logging.basicConfig(
             level=logging.INFO,
@@ -126,40 +123,25 @@ class JudgeEvaluator:
         question = prompt["question"]
         expected_criteria = prompt.get("expected_criteria", [])
         
-        # Fetch API responses once
         dotnet_response = await self.dotnet_client.ask_question(client, question)
         python_response = await self.python_client.ask_question(client, question)
         
-        # Run judge evaluation N times
         run_details = []
         failed_runs = 0
         
         for run_idx in range(self.config.judge_runs):
             try:
-                evaluation = await self.scoring_strategy.evaluate(
+                run_detail = await self._execute_single_run(
                     question=question,
                     dotnet_response=dotnet_response,
                     python_response=python_response,
-                    expected_criteria=expected_criteria
+                    expected_criteria=expected_criteria,
+                    run_idx=run_idx
                 )
-                
-                # Coerce scores to float safely
-                dotnet_score = float(evaluation["dotnet_score"])
-                python_score = float(evaluation["python_score"])
-                
-                # Derive winner from scores (ignore LLM self-reported winner)
-                winner = determine_winner(dotnet_score, python_score, self.config.tie_tolerance)
-                
-                run_details.append(RunDetail(
-                    run_index=run_idx + 1,
-                    dotnet_score=dotnet_score,
-                    python_score=python_score,
-                    winner=winner,
-                    comment=evaluation.get("comment", "")
-                ))
+                run_details.append(run_detail)
                 
                 if self.config.judge_runs > 1:
-                    print(f"  Run {run_idx + 1}/{self.config.judge_runs}: {winner}")
+                    print(f"  Run {run_idx + 1}/{self.config.judge_runs}: {run_detail.winner}")
                     
             except Exception as e:
                 failed_runs += 1
@@ -171,16 +153,83 @@ class JudgeEvaluator:
                 # Print concise warning to console
                 print(f"⚠️  {error_msg}")
                 
-                # Continue with remaining runs instead of crashing
                 continue
         
-        # Check if all runs failed
+        # Handle failure scenarios (all failed, insufficient successful runs)
+        error_result = self._handle_failed_runs(
+            prompt=prompt,
+            question=question,
+            dotnet_response=dotnet_response,
+            python_response=python_response,
+            run_details=run_details,
+            failed_runs=failed_runs
+        )
+        
+        if error_result is not None:
+            return error_result
+        
+        aggregated = self._aggregate_runs(run_details, self.config.tie_tolerance)
+        
+        return EvaluationResult(
+            prompt_id=prompt["id"],
+            question=question,
+            dotnet_response=dotnet_response,
+            python_response=python_response,
+            dotnet_score=aggregated["mean_dotnet"],
+            python_score=aggregated["mean_python"],
+            winner=aggregated["final_winner"],
+            judge_comment=run_details[0].comment if run_details else "",
+            judge_runs=len(run_details),
+            dotnet_score_std=aggregated["std_dotnet"],
+            python_score_std=aggregated["std_python"],
+            agreement_pct=aggregated["agreement_pct"],
+            run_details=run_details
+        )
+    
+    async def _execute_single_run(
+        self,
+        question: str,
+        dotnet_response: str,
+        python_response: str,
+        expected_criteria: List[str],
+        run_idx: int
+    ) -> RunDetail:
+        """Execute a single judge evaluation run."""
+        evaluation = await self.scoring_strategy.evaluate(
+            question=question,
+            dotnet_response=dotnet_response,
+            python_response=python_response,
+            expected_criteria=expected_criteria
+        )
+        
+        dotnet_score = float(evaluation["dotnet_score"])
+        python_score = float(evaluation["python_score"])
+        
+        winner = determine_winner(dotnet_score, python_score, self.config.tie_tolerance)
+        
+        return RunDetail(
+            run_index=run_idx + 1,
+            dotnet_score=dotnet_score,
+            python_score=python_score,
+            winner=winner,
+            comment=evaluation.get("comment", "")
+        )
+    
+    def _handle_failed_runs(
+        self,
+        prompt: Dict[str, Any],
+        question: str,
+        dotnet_response: str,
+        python_response: str,
+        run_details: List[RunDetail],
+        failed_runs: int
+    ) -> EvaluationResult | None:
+        """Handle failed runs and return error result if needed, or None to continue."""
         if not run_details:
             error_msg = f"All {self.config.judge_runs} judge runs failed for prompt '{prompt['id']}'"
             self.logger.error(error_msg)
             print(f"❌ {error_msg}")
             
-            # Return controlled error result instead of crashing
             return EvaluationResult(
                 prompt_id=prompt["id"],
                 question=question,
@@ -197,7 +246,6 @@ class JudgeEvaluator:
                 run_details=[]
             )
         
-        # Check if we have minimum required successful runs
         if len(run_details) < self.config.min_successful_runs:
             error_msg = (
                 f"Prompt '{prompt['id']}': Only {len(run_details)}/{self.config.judge_runs} runs succeeded, "
@@ -225,23 +273,7 @@ class JudgeEvaluator:
         if failed_runs > 0:
             self.logger.warning(f"Prompt '{prompt['id']}': {failed_runs}/{self.config.judge_runs} runs failed")
         
-        aggregated = self._aggregate_runs(run_details, self.config.tie_tolerance)
-        
-        return EvaluationResult(
-            prompt_id=prompt["id"],
-            question=question,
-            dotnet_response=dotnet_response,
-            python_response=python_response,
-            dotnet_score=aggregated["mean_dotnet"],
-            python_score=aggregated["mean_python"],
-            winner=aggregated["final_winner"],
-            judge_comment=run_details[0].comment if run_details else "",
-            judge_runs=len(run_details),  # Actual successful runs
-            dotnet_score_std=aggregated["std_dotnet"],
-            python_score_std=aggregated["std_python"],
-            agreement_pct=aggregated["agreement_pct"],
-            run_details=run_details
-        )
+        return None
     
     def _aggregate_runs(self, run_details: List[RunDetail], tie_tolerance: float) -> Dict[str, Any]:
         if not run_details:
@@ -260,11 +292,9 @@ class JudgeEvaluator:
         mean_dotnet = statistics.mean(dotnet_scores)
         mean_python = statistics.mean(python_scores)
         
-        # Standard deviation (0 if only one run)
         std_dotnet = statistics.stdev(dotnet_scores) if len(dotnet_scores) > 1 else 0.0
         std_python = statistics.stdev(python_scores) if len(python_scores) > 1 else 0.0
         
-        # Agreement: percentage of runs agreeing with majority winner
         from collections import Counter
         winner_counts = Counter(r.winner for r in run_details)
         majority_winner = winner_counts.most_common(1)[0][0]
@@ -274,11 +304,11 @@ class JudgeEvaluator:
         final_winner = determine_winner(mean_dotnet, mean_python, tolerance=tie_tolerance)
         
         return {
-            "mean_dotnet": round(mean_dotnet, 2),
-            "mean_python": round(mean_python, 2),
-            "std_dotnet": round(std_dotnet, 2),
-            "std_python": round(std_python, 2),
-            "agreement_pct": round(agreement_pct, 1),
+            "mean_dotnet": round(mean_dotnet, self.config.score_decimals),
+            "mean_python": round(mean_python, self.config.score_decimals),
+            "std_dotnet": round(std_dotnet, self.config.std_dev_decimals),
+            "std_python": round(std_python, self.config.std_dev_decimals),
+            "agreement_pct": round(agreement_pct, self.config.agreement_decimals),
             "final_winner": final_winner
         }
     

@@ -23,3 +23,12 @@ timeouts:
 
 failure_policy:
   min_successful_runs: 1      # Minimum successful runs required to produce a result (0 = accept all-fail as error)
+
+logging:
+  directory: "benchmarks/logs"  # Directory for evaluation logs
+
+output:
+  score_decimals: 2           # Decimal precision for scores (e.g., 7.45)
+  std_dev_decimals: 2         # Decimal precision for standard deviation (e.g., 0.12)
+  agreement_decimals: 1       # Decimal precision for agreement percentage (e.g., 66.7%)
+

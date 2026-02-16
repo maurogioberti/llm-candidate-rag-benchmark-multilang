@@ -22,6 +22,10 @@ DEFAULT_OPENAI_TIMEOUT = 60.0
 DEFAULT_OLLAMA_TIMEOUT = 120.0
 DEFAULT_MIN_SUCCESSFUL_RUNS = 1
 DEFAULT_API_TIMEOUT = 30.0
+DEFAULT_LOG_DIRECTORY = "benchmarks/logs"
+DEFAULT_SCORE_DECIMALS = 2
+DEFAULT_STD_DEV_DECIMALS = 2
+DEFAULT_AGREEMENT_DECIMALS = 1
 
 
 @dataclass
@@ -41,6 +45,10 @@ class EvaluatorConfig:
     ollama_timeout: float = DEFAULT_OLLAMA_TIMEOUT
     min_successful_runs: int = DEFAULT_MIN_SUCCESSFUL_RUNS
     api_timeout: float = DEFAULT_API_TIMEOUT
+    log_directory: str = DEFAULT_LOG_DIRECTORY
+    score_decimals: int = DEFAULT_SCORE_DECIMALS
+    std_dev_decimals: int = DEFAULT_STD_DEV_DECIMALS
+    agreement_decimals: int = DEFAULT_AGREEMENT_DECIMALS
     
     @classmethod
     def from_yaml(cls, common_path: Path = CONFIG_COMMON_PATH, eval_path: Path = CONFIG_EVAL_PATH) -> "EvaluatorConfig":
@@ -73,6 +81,8 @@ class EvaluatorConfig:
         scoring_cfg = eval_cfg.get("scoring", {})
         timeouts_cfg = eval_cfg.get("timeouts", {})
         failure_cfg = eval_cfg.get("failure_policy", {})
+        logging_cfg = eval_cfg.get("logging", {})
+        output_cfg = eval_cfg.get("output", {})
         
         # Build API URLs from common.yaml
         python_url = f"http://localhost:{python_api_cfg.get('port', DEFAULT_PYTHON_PORT)}"
@@ -98,6 +108,11 @@ class EvaluatorConfig:
         api_timeout = float(timeouts_cfg.get("api_seconds", DEFAULT_API_TIMEOUT))
         min_successful_runs = int(failure_cfg.get("min_successful_runs", DEFAULT_MIN_SUCCESSFUL_RUNS))
         
+        log_directory = logging_cfg.get("directory", DEFAULT_LOG_DIRECTORY)
+        score_decimals = int(output_cfg.get("score_decimals", DEFAULT_SCORE_DECIMALS))
+        std_dev_decimals = int(output_cfg.get("std_dev_decimals", DEFAULT_STD_DEV_DECIMALS))
+        agreement_decimals = int(output_cfg.get("agreement_decimals", DEFAULT_AGREEMENT_DECIMALS))
+        
         return cls(
             dotnet_url=dotnet_url,
             python_url=python_url,
@@ -114,6 +129,10 @@ class EvaluatorConfig:
             ollama_timeout=ollama_timeout,
             min_successful_runs=min_successful_runs,
             api_timeout=api_timeout,
+            log_directory=log_directory,
+            score_decimals=score_decimals,
+            std_dev_decimals=std_dev_decimals,
+            agreement_decimals=agreement_decimals,
         )
     
     @classmethod
@@ -136,6 +155,10 @@ class EvaluatorConfig:
             ollama_timeout=DEFAULT_OLLAMA_TIMEOUT,
             min_successful_runs=DEFAULT_MIN_SUCCESSFUL_RUNS,
             api_timeout=DEFAULT_API_TIMEOUT,
+            log_directory=DEFAULT_LOG_DIRECTORY,
+            score_decimals=DEFAULT_SCORE_DECIMALS,
+            std_dev_decimals=DEFAULT_STD_DEV_DECIMALS,
+            agreement_decimals=DEFAULT_AGREEMENT_DECIMALS,
         )
     
     def is_openai_available(self) -> bool:
@@ -153,7 +176,9 @@ class EvaluatorConfig:
             "judge": ["provider", "runs", "temperature"],
             "scoring": ["tie_tolerance", "heuristic_tie_tolerance"],
             "timeouts": ["openai_seconds", "ollama_seconds", "api_seconds"],
-            "failure_policy": ["min_successful_runs"]
+            "failure_policy": ["min_successful_runs"],
+            "logging": ["directory"],
+            "output": ["score_decimals", "std_dev_decimals", "agreement_decimals"]
         }
         
         for section, keys in required_sections.items():

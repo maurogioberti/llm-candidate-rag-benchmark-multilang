@@ -9,6 +9,17 @@ OPENAI_TIMEOUT = 60.0
 OLLAMA_GENERATE_ENDPOINT = "/api/generate"
 OLLAMA_TIMEOUT = 120.0
 HEURISTIC_TIE_TOLERANCE = 0.25
+DEFAULT_TIE_TOLERANCE = 0.01
+
+
+def determine_winner(dotnet_score: float, python_score: float, tolerance: float = DEFAULT_TIE_TOLERANCE) -> str:
+    """Determine winner from scores with configurable tie tolerance."""
+    diff = abs(dotnet_score - python_score)
+    
+    if diff <= tolerance:
+        return "tie"
+    
+    return "dotnet" if dotnet_score > python_score else "python"
 
 
 class ScoringStrategy(ABC):
@@ -63,9 +74,7 @@ class OpenAIJudge(ScoringStrategy):
                 return json.loads(content)
                 
         except Exception as e:
-            print(f"⚠️  OpenAI error: {e}. Falling back to heuristic.")
-            heuristic = HeuristicJudge()
-            return await heuristic.evaluate(question, dotnet_response, python_response, expected_criteria)
+            raise RuntimeError(f"OpenAI judge evaluation failed: {e}") from e
     
     def _build_evaluation_prompt(
         self,
@@ -140,9 +149,7 @@ class OllamaJudge(ScoringStrategy):
                 return json.loads(text)
                 
         except Exception as e:
-            print(f"⚠️  Ollama error: {e}. Falling back to heuristic.")
-            heuristic = HeuristicJudge()
-            return await heuristic.evaluate(question, dotnet_response, python_response, expected_criteria)
+            raise RuntimeError(f"Ollama judge evaluation failed: {e}") from e
     
     def _build_evaluation_prompt(
         self,

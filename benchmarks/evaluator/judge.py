@@ -216,12 +216,10 @@ class JudgeEvaluator:
                 run_details=run_details
             )
         
-        # Log partial failures
         if failed_runs > 0:
             self.logger.warning(f"Prompt '{prompt['id']}': {failed_runs}/{self.config.judge_runs} runs failed")
         
-        # Aggregate successful results
-        aggregated = self._aggregate_runs(run_details)
+        aggregated = self._aggregate_runs(run_details, self.config.tie_tolerance)
         
         return EvaluationResult(
             prompt_id=prompt["id"],
@@ -239,8 +237,7 @@ class JudgeEvaluator:
             run_details=run_details
         )
     
-    def _aggregate_runs(self, run_details: List[RunDetail]) -> Dict[str, Any]:
-        """Aggregate multiple judge runs into summary statistics."""
+    def _aggregate_runs(self, run_details: List[RunDetail], tie_tolerance: float) -> Dict[str, Any]:
         if not run_details:
             return {
                 "mean_dotnet": 0.0,
@@ -268,8 +265,7 @@ class JudgeEvaluator:
         agreement_count = winner_counts[majority_winner]
         agreement_pct = (agreement_count / len(run_details)) * 100
         
-        # Final winner derived from mean scores (not majority vote)
-        final_winner = determine_winner(mean_dotnet, mean_python, tolerance=0.01)
+        final_winner = determine_winner(mean_dotnet, mean_python, tolerance=tie_tolerance)
         
         return {
             "mean_dotnet": round(mean_dotnet, 2),

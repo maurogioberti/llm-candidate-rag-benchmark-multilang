@@ -42,7 +42,6 @@ class EvaluatorConfig:
     
     @classmethod
     def from_yaml(cls, common_path: Path = CONFIG_COMMON_PATH, eval_path: Path = CONFIG_EVAL_PATH) -> "EvaluatorConfig":
-        # Load common.yaml (required)
         if not common_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {common_path}")
         
@@ -52,11 +51,13 @@ class EvaluatorConfig:
         if not common_cfg:
             raise ValueError(f"Configuration file is empty: {common_path}")
         
-        # Load evaluation.yaml (optional)
         eval_cfg = {}
         if eval_path.exists():
             with eval_path.open("r", encoding=FILE_ENCODING) as f:
                 eval_cfg = yaml.safe_load(f) or {}
+            
+            if eval_cfg:
+                cls._validate_eval_config(eval_cfg, eval_path)
         
         # Extract sections from common.yaml
         llm_provider_cfg = common_cfg.get("llm_provider", {})
@@ -140,6 +141,24 @@ class EvaluatorConfig:
     
     def is_heuristic_mode(self) -> bool:
         return self.judge_provider == "heuristic"
+    
+    @staticmethod
+    def _validate_eval_config(eval_cfg: dict, eval_path: Path) -> None:
+        required_sections = {
+            "judge": ["provider", "runs", "temperature"],
+            "scoring": ["tie_tolerance", "heuristic_tie_tolerance"],
+            "timeouts": ["openai_seconds", "ollama_seconds"],
+            "failure_policy": ["min_successful_runs"]
+        }
+        
+        for section, keys in required_sections.items():
+            if section not in eval_cfg:
+                raise ValueError(f"Missing required section '{section}' in {eval_path}")
+            
+            section_cfg = eval_cfg[section]
+            for key in keys:
+                if key not in section_cfg:
+                    raise ValueError(f"Missing required key '{section}.{key}' in {eval_path}")
     
     def validate(self) -> None:
         """Validate configuration and raise errors if invalid."""

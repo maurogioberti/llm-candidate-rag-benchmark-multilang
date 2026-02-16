@@ -21,13 +21,4 @@ timeouts:
   ollama_seconds: 120
 
 failure_policy:
-  continue_on_error: true     # If a judge run fails, continue with remaining runs
   min_successful_runs: 1      # Minimum successful runs required to produce a result (0 = accept all-fail as error)
-
-aggregation:
-  method: "mean"              # Aggregation method for multi-run scores
-  winner_from: "mean_scores"  # Winner derived from mean scores, NOT from LLM self-reported winner or majority vote
-
-logging:
-  level: "INFO"
-  directory: "benchmarks/logs"

@@ -1,33 +1,35 @@
 # LLM Judge Evaluator
 
-A modular quality evaluation framework for comparing chatbot implementations using the LLM-as-a-Judge methodology.
+A modular, statistically robust quality evaluation framework for comparing chatbot implementations using the LLM-as-a-Judge methodology with multi-run support.
 
 ## Overview
 
-This tool evaluates and compares two chatbot implementations (.NET with Semantic Kernel and Python with LangChain) by:
+This evaluator compares two chatbot implementations (.NET with Semantic Kernel and Python with LangChain) by:
 
 1. Sending HR-related questions to both APIs
-2. Scoring responses using configurable judge strategies
-3. Generating comprehensive comparison reports
+2. Running configurable multiple judge evaluations per prompt
+3. Aggregating results statistically (mean, standard deviation, agreement)
+4. Deriving winners from aggregated scores, not LLM self-reports
+5. Generating comprehensive comparison reports with confidence metrics
 
 ## Architecture
 
 ```
 benchmarks/evaluator/
-├── __init__.py          # Module exports
-├── config.py            # Configuration management
+├── config.py            # Configuration with multi-run support
 ├── http_client.py       # HTTP communication with chatbot APIs
-├── judge.py             # Core evaluation orchestration
-└── scoring.py           # Scoring strategies (OpenAI, Ollama, Heuristic)
+├── judge.py             # Evaluation orchestration + aggregation
+├── scoring.py           # Scoring strategies + winner determination
+└── README.md            # This file
 ```
 
 ### Design Principles
 
 - **Single Responsibility**: Each module handles one concern
 - **Strategy Pattern**: Pluggable scoring strategies (OpenAI, Ollama, Heuristic)
-- **Dependency Injection**: Configuration and clients injected, not hardcoded
-- **Clean Interfaces**: Protocol-based design with clear abstractions
-- **Type Safety**: Full type hints for better IDE support and validation
+- **Statistical Rigor**: Multi-run evaluation with aggregation
+- **Fail-Fast**: Strategies raise exceptions; orchestrator handles failures
+- **Type Safety**: Full type hints throughout
 
 ## Quick Start
 
@@ -59,17 +61,41 @@ python run_evaluation.py
 
 ## Configuration
 
-All configuration is via environment variables with sensible defaults:
+Configuration via `config/common.yaml` or environment variables (env vars override YAML):
 
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `DOTNET_URL` | `http://localhost:5000` | .NET API endpoint |
 | `PYTHON_URL` | `http://localhost:8000` | Python API endpoint |
-| `JUDGE_PROVIDER` | `heuristic` | Judge type: `heuristic`, `openai`, or `ollama` |
+| `JUDGE_PROVIDER` | `ollama` | Judge type: `heuristic`, `openai`, or `ollama` |
+| `JUDGE_RUNS` | `1` | **Number of judge evaluations per prompt (for statistical analysis)** |
 | `OPENAI_API_KEY` | None | OpenAI API key (required for `openai` provider) |
 | `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model to use |
 | `OLLAMA_HOST` | `http://localhost:11434` | Ollama service URL |
-| `OLLAMA_MODEL` | `llama3.1` | Ollama model to use |
+| `OLLAMA_MODEL` | from YAML | Ollama model to use (e.g., `llama3:8b`) |
+
+### Multi-Run Statistical Evaluation
+
+Set `JUDGE_RUNS` to run the judge multiple times per prompt:
+
+```bash
+# Single run (default, backward compatible)
+python run_evaluation.py
+
+# 5 runs per prompt for statistical significance
+export JUDGE_RUNS=5
+python run_evaluation.py
+
+# 10 runs for high-confidence metrics
+export JUDGE_RUNS=10
+python run_evaluation.py
+```
+
+**How it works:**
+1. API responses fetched **once** per prompt (not per run)
+2. Judge evaluates the same responses **N times** (configured by `JUDGE_RUNS`)
+3. Scores aggregated: mean, standard deviation, agreement percentage
+4. Winner derived from **mean scores**, not individual runs
 
 ## Scoring Strategies
 
@@ -112,61 +138,60 @@ Rule-based scoring without external LLM.
 **Cons:**
 - Less nuanced than LLM judges
 - May miss context
-- Baseline quality only
-
-## Evaluation Criteria
-
-Each response is evaluated on:
-
-1. **Accuracy** - Correctness and relevance
-2. **Completeness** - Coverage of expected criteria
-3. **Clarity** - Easy to understand and well-structured
-4. **Actionability** - Provides actionable HR insights
-5. **Ranking Quality** - Logical ordering of candidates
-
-### Scoring Scale
-
-- **0-2**: Very poor - Does not answer the question
-- **3-4**: Poor - Partial or incorrect response
-- **5-6**: Acceptable - Basic but incomplete response
-- **7-8**: Good - Complete and accurate response
-- **9-10**: Excellent - Exceptional and detailed response
-
-## Output
-
-Results are saved to `benchmarks/results/`:
-
-- `evaluation_report.md` - Human-readable markdown report
-- `evaluation_results.json` - Machine-readable JSON data
+- Baseline quality only with statistical metrics
+- `evaluation_results.json` - Machine-readable JSON data with per-run details
+- `benchmarks/logs/evaluation_YYYYMMDD_HHMMSS.log` - Detailed logs with error traces
 
 ### Report Sections
 
-1. **Summary** - Win/loss/tie counts and percentages
-2. **Average Scores** - Mean scores for each implementation
-3. **Detailed Results** - Per-prompt breakdown with judge comments
+1. **Summary**
+   - Win/loss/tie counts and percentages
+   - Judge runs per prompt
+   Error Handling & Robustness
+
+### Graceful Failure Handling
+
+- **Judge run failures**: Logged to file, run skipped, evaluation continues
+- **Partial failures**: If some runs succeed, aggregation uses successful runs only
+- **All runs fail**: Returns error result with `winner="error"` instead of crashing
+- **API errors**: Captured in response string, judge evaluates the error message
+- **Config errors**: Fail fast at startup with helpful messages
+
+### Failure Logs
+
+All failures are logged to `benchmarks/logs/` with:
+- Full exception traces
+- Timestamp
+- Prompt ID and run number
+- Concise console warnings during evaluation
 
 ## Programmatic Usage
 
 ```python
 import asyncio
 from pathlib import Path
-from evaluator import JudgeEvaluator, EvaluatorConfig
+from evaluator.judge import JudgeEvaluator
+from evaluator.config import EvaluatorConfig
 
-async def custom_evaluation():
-    # Create custom configuration
-    config = EvaluatorConfig(
-        dotnet_url="http://localhost:5000",
-        python_url="http://localhost:8000",
-        judge_provider="openai",
-        openai_model="gpt-4",
-        openai_api_key="your-key",
-        ollama_host="http://localhost:11434",
-        ollama_model="llama3.1"
-    )
+async def multi_run_evaluation():
+    # Load from YAML with overrides
+    config = EvaluatorConfig.from_yaml()
+    config.judge_runs = 5  # Override for statistical robustness
+    
+    # Validate before running
+    config.validate()
     
     # Run evaluation
     evaluator = JudgeEvaluator(config)
     results = await evaluator.evaluate_all()
+    
+    # Access aggregated statistics
+    for result in results:
+        print(f"{result.prompt_id}:")
+        print(f"  Winner: {result.winner}")
+        print(f"  .NET: {result.dotnet_score:.2f} (±{result.dotnet_score_std:.2f})")
+        print(f"  Python: {result.python_score:.2f} (±{result.python_score_std:.2f})")
+        print(f"  Agreement: {result.agreement_pct:.1f}%")
     
     # Save results
     output_dir = Path("./results")
@@ -174,97 +199,43 @@ async def custom_evaluation():
     
     return results
 
-# Run
-asyncio.run(custom_evaluation())
+asyncio.run(multi_run_evaluation())
 ```
 
-## Extending the Evaluator
+## Architecture Details
 
-### Add a New Scoring Strategy
+### Winner Determination
+
+Winners are **always** derived from scores using the `determine_winner()` function in `scoring.py`:
 
 ```python
-# In scoring.py
-from .scoring import ScoringStrategy
-
-class CustomJudge(ScoringStrategy):
-    async def evaluate(self, question, dotnet_response, python_response, expected_criteria):
-        # Your custom logic here
-        return {
-            "dotnet_score": 8.5,
-            "python_score": 7.2,
-            "winner": "dotnet",
-            "comment": "Your reasoning"
-        }
-
-# Register in ScoringStrategyFactory
+def determine_winner(dotnet_score: float, python_score: float, tolerance: float = 0.01) -> str:
+    """Determine winner from scores with configurable tie tolerance."""
+    diff = abs(dotnet_score - python_score)
+    if diff <= tolerance:
+        return "tie"
+    return "dotnet" if dotnet_score > python_score else "python"
 ```
 
-### Add New Evaluation Prompts
+**Why not trust LLM self-reported winner?**
+- LLMs can contradict their own scores
+- Score-derived winners are deterministic and auditable
+- Consistent logic across all judge types (OpenAI, Ollama, Heuristic)
 
-Edit `quality-prompts.json`:
+### Aggregation Logic
 
-```json
-{
-  "hr_evaluation_prompts": [
-    {
-      "id": "your-prompt-id",
-      "question": "Your question here",
-      "expected_criteria": ["criterion1", "criterion2"]
-    }
-  ]
-}
-```
+Located in `judge.py` as `_aggregate_runs()`:
 
-## Troubleshooting
+1. Collect all successful run scores
+2. Compute mean and standard deviation for both implementations
+3. Determine majority winner (most frequent winner across runs)
+4. Calculate agreement percentage (% agreeing with majority)
+5. Derive final winner from mean scores (not from majority vote)
 
-### APIs not responding
+**Note**: Final winner comes from mean scores, not majority vote. This handles edge cases where majority winner disagrees with statistical mean.
 
-```bash
-# Check if services are running
-curl http://localhost:5000/health
-curl http://localhost:8000/health
-```
+### Sequential vs Parallel Execution
 
-### OpenAI judge not working
+Current implementation: **sequential** (runs execute one after another)
 
-- Verify `OPENAI_API_KEY` is set
-- Check API key has sufficient credits
-- Ensure network access to OpenAI API
-
-### Ollama judge failing
-
-```bash
-# Check Ollama is running
-curl http://localhost:11434/api/version
-
-# Pull required model
-ollama pull llama3.1
-```
-
-## Clean Code Improvements
-
-This refactored version implements:
-
-✅ **Separation of Concerns** - Each file has a single responsibility  
-✅ **Strategy Pattern** - Pluggable scoring strategies  
-✅ **Dependency Injection** - Configuration and dependencies injected  
-✅ **Type Safety** - Full type hints throughout  
-✅ **Clear Naming** - Descriptive class and method names  
-✅ **No Magic Numbers** - Constants defined and named  
-✅ **Minimal Comments** - Self-documenting code with docs where needed  
-✅ **Error Handling** - Graceful degradation with fallbacks  
-✅ **Testability** - Easy to mock and test each component  
-
-## Integration with Repository
-
-This evaluator follows the same patterns as the main application:
-
-- **Config Management**: Similar to `core.infrastructure.shared.config_loader`
-- **Client Pattern**: Similar to `HttpEmbeddingsClient`
-- **Service Layer**: Similar to `CandidateService`
-- **Use Cases**: Orchestration pattern like `AskQuestionUseCase`
-- **DTOs**: Dataclasses for data transfer like `ChatResult`
-
----
-
-**Location**: `benchmarks/evaluator/` - Lives with other benchmark tools where it belongs.
+Future consideration: Parallel execution with `asyncio.gather()` and configurable concurrency limiter for rate-limiting-sensitive providers.

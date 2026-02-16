@@ -366,31 +366,3 @@ class JudgeEvaluator:
         print(f"\nResults saved to {output_dir}")
         print(f"Report: {report_path}")
         print(f"JSON: {json_path}")
-
-
-async def main():
-    try:
-        config = EvaluatorConfig.from_yaml()
-    except (FileNotFoundError, ValueError) as e:
-        print(f"❌ Configuration Error: {e}")
-        raise
-    
-    print("🚀 Starting LLM-as-a-Judge Evaluator")
-    print(f"  .NET URL: {config.dotnet_url}")
-    print(f"  Python URL: {config.python_url}")
-    print(f"  Judge Provider: {config.judge_provider}")
-    print(f"  Ollama Model: {config.ollama_model}")
-    print()
-    
-    evaluator = JudgeEvaluator(config)
-    results = await evaluator.evaluate_all()
-    
-    output_dir = Path(__file__).parent.parent / "results"
-    evaluator.save_results(results, output_dir)
-    
-    print("\n✅ Evaluation complete!")
-
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())

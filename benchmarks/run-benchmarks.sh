@@ -77,24 +77,6 @@ run_k6_tests() {
     print_success "K6 tests completed for $service_name"
 }
 
-# Function to run quality evaluation
-run_quality_evaluation() {
-    print_status "Running LLM-as-a-Judge quality evaluation..."
-    
-    # Check if Python evaluator script exists
-    if [ ! -f "benchmarks/llm-judge-evaluator.py" ]; then
-        print_error "LLM judge evaluator script not found"
-        return 1
-    fi
-    
-    # Run the evaluator
-    cd benchmarks
-    python llm-judge-evaluator.py
-    cd ..
-    
-    print_success "Quality evaluation completed"
-}
-
 # Function to generate comparison report
 generate_comparison_report() {
     print_status "Generating comparison report..."
@@ -176,13 +158,6 @@ main() {
             
             if [ "$python_available" = true ]; then
                 run_k6_tests "$PYTHON_URL" "python"
-            fi
-            
-            # Run quality evaluation if both services are available
-            if [ "$dotnet_available" = true ] && [ "$python_available" = true ]; then
-                run_quality_evaluation
-            else
-                print_warning "Skipping quality evaluation - both services not available"
             fi
             ;;
         *)

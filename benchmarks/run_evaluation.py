@@ -23,7 +23,19 @@ from evaluator.config import EvaluatorConfig
 
 
 async def main():
-    config = EvaluatorConfig.from_environment()
+    # Try to load from YAML first, fall back to environment-only if YAML doesn't exist
+    try:
+        config = EvaluatorConfig.from_yaml()
+    except FileNotFoundError:
+        print("⚠️  config/common.yaml not found, using environment variables only")
+        config = EvaluatorConfig.from_environment()
+    
+    # Validate configuration before starting
+    try:
+        config.validate()
+    except ValueError as e:
+        print(f"\n❌ Configuration Error:\n{e}\n")
+        return
     
     print("=" * 70)
     print("LLM-as-a-Judge Evaluation")
@@ -31,6 +43,7 @@ async def main():
     print(f".NET URL:       {config.dotnet_url}")
     print(f"Python URL:     {config.python_url}")
     print(f"Judge Provider: {config.judge_provider}")
+    print(f"Judge Runs:     {config.judge_runs}")
     
     if config.is_openai_available():
         print(f"OpenAI Model:   {config.openai_model}")

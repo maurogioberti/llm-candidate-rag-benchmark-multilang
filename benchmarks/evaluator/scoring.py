@@ -5,14 +5,10 @@ from abc import ABC, abstractmethod
 
 
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
-OPENAI_TIMEOUT = 60.0
 OLLAMA_GENERATE_ENDPOINT = "/api/generate"
-OLLAMA_TIMEOUT = 120.0
-HEURISTIC_TIE_TOLERANCE = 0.25
-DEFAULT_TIE_TOLERANCE = 0.01
 
 
-def determine_winner(dotnet_score: float, python_score: float, tolerance: float = DEFAULT_TIE_TOLERANCE) -> str:
+def determine_winner(dotnet_score: float, python_score: float, tolerance: float) -> str:
     """Determine winner from scores with configurable tie tolerance."""
     diff = abs(dotnet_score - python_score)
     
@@ -35,9 +31,11 @@ class ScoringStrategy(ABC):
 
 
 class OpenAIJudge(ScoringStrategy):
-    def __init__(self, api_key: str, model: str):
+    def __init__(self, api_key: str, model: str, temperature: float, timeout: float):
         self.api_key = api_key
         self.model = model
+        self.temperature = temperature
+        self.timeout = timeout
     
     async def evaluate(
         self,
@@ -57,6 +55,7 @@ class OpenAIJudge(ScoringStrategy):
             }
             payload = {
                 "model": self.model,
+                "temperature": self.temperature,
                 "response_format": {"type": "json_object"},
                 "messages": [
                     {
@@ -67,7 +66,7 @@ class OpenAIJudge(ScoringStrategy):
                 ],
             }
             
-            async with httpx.AsyncClient(timeout=OPENAI_TIMEOUT) as client:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(OPENAI_API_URL, headers=headers, json=payload)
                 response.raise_for_status()
                 content = response.json()["choices"][0]["message"]["content"].strip()
@@ -119,9 +118,11 @@ Respond in JSON format:
 
 
 class OllamaJudge(ScoringStrategy):
-    def __init__(self, host: str, model: str):
+    def __init__(self, host: str, model: str, temperature: float, timeout: float):
         self.host = host.rstrip("/")
         self.model = model
+        self.temperature = temperature
+        self.timeout = timeout
     
     async def evaluate(
         self,
@@ -138,11 +139,12 @@ class OllamaJudge(ScoringStrategy):
             payload = {
                 "model": self.model,
                 "prompt": prompt + "\n\nRespond ONLY with a valid JSON object.",
+                "temperature": self.temperature,
                 "stream": False,
             }
             
             url = f"{self.host}{OLLAMA_GENERATE_ENDPOINT}"
-            async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(url, json=payload)
                 response.raise_for_status()
                 text = response.json().get("response", "").strip()
@@ -194,6 +196,9 @@ Respond in JSON format:
 
 
 class HeuristicJudge(ScoringStrategy):
+    def __init__(self, tie_tolerance: float):
+        self.tie_tolerance = tie_tolerance
+    
     async def evaluate(
         self,
         question: str,
@@ -204,7 +209,7 @@ class HeuristicJudge(ScoringStrategy):
         dotnet_score = self._calculate_score(dotnet_response, expected_criteria)
         python_score = self._calculate_score(python_response, expected_criteria)
         
-        winner = self._determine_winner(dotnet_score, python_score)
+        winner = determine_winner(dotnet_score, python_score, self.tie_tolerance)
         
         return {
             "dotnet_score": round(dotnet_score, 2),
@@ -268,29 +273,26 @@ class HeuristicJudge(ScoringStrategy):
     def _calculate_ranking_score(self, text: str) -> float:
         ranking_keywords = ["rank", "ranking", "top", "1.", "2.", "3."]
         return 1.0 if any(keyword in text for keyword in ranking_keywords) else 0.2
-    
-    def _determine_winner(self, dotnet_score: float, python_score: float) -> str:
-        diff = abs(dotnet_score - python_score)
-        
-        if diff <= HEURISTIC_TIE_TOLERANCE:
-            return "tie"
-        
-        return "dotnet" if dotnet_score > python_score else "python"
 
 
 class ScoringStrategyFactory:
     @staticmethod
     def create(
         provider: str,
+        temperature: float,
+        tie_tolerance: float,
+        heuristic_tie_tolerance: float,
+        openai_timeout: float,
+        ollama_timeout: float,
         openai_api_key: str = None,
         openai_model: str = None,
         ollama_host: str = None,
         ollama_model: str = None
     ) -> ScoringStrategy:
         if provider == "openai" and openai_api_key:
-            return OpenAIJudge(openai_api_key, openai_model)
+            return OpenAIJudge(openai_api_key, openai_model, temperature, openai_timeout)
         
         if provider == "ollama":
-            return OllamaJudge(ollama_host, ollama_model)
+            return OllamaJudge(ollama_host, ollama_model, temperature, ollama_timeout)
         
-        return HeuristicJudge()
+        return HeuristicJudge(heuristic_tie_tolerance)

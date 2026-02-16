@@ -62,6 +62,11 @@ class JudgeEvaluator:
     def _create_scoring_strategy(self) -> ScoringStrategy:
         return ScoringStrategyFactory.create(
             provider=self.config.judge_provider,
+            temperature=self.config.temperature,
+            tie_tolerance=self.config.tie_tolerance,
+            heuristic_tie_tolerance=self.config.heuristic_tie_tolerance,
+            openai_timeout=self.config.openai_timeout,
+            ollama_timeout=self.config.ollama_timeout,
             openai_api_key=self.config.openai_api_key,
             openai_model=self.config.openai_model,
             ollama_host=self.config.ollama_host,
@@ -137,7 +142,7 @@ class JudgeEvaluator:
                 python_score = float(evaluation["python_score"])
                 
                 # Derive winner from scores (ignore LLM self-reported winner)
-                winner = determine_winner(dotnet_score, python_score)
+                winner = determine_winner(dotnet_score, python_score, self.config.tie_tolerance)
                 
                 run_details.append(RunDetail(
                     run_index=run_idx + 1,
@@ -184,6 +189,31 @@ class JudgeEvaluator:
                 python_score_std=0.0,
                 agreement_pct=0.0,
                 run_details=[]
+            )
+        
+        # Check if we have minimum required successful runs
+        if len(run_details) < self.config.min_successful_runs:
+            error_msg = (
+                f"Prompt '{prompt['id']}': Only {len(run_details)}/{self.config.judge_runs} runs succeeded, "
+                f"but min_successful_runs={self.config.min_successful_runs}"
+            )
+            self.logger.error(error_msg)
+            print(f"❌ {error_msg}")
+            
+            return EvaluationResult(
+                prompt_id=prompt["id"],
+                question=question,
+                dotnet_response=dotnet_response,
+                python_response=python_response,
+                dotnet_score=0.0,
+                python_score=0.0,
+                winner="error",
+                judge_comment=f"Insufficient successful runs: {len(run_details)}/{self.config.judge_runs} (minimum: {self.config.min_successful_runs})",
+                judge_runs=len(run_details),
+                dotnet_score_std=0.0,
+                python_score_std=0.0,
+                agreement_pct=0.0,
+                run_details=run_details
             )
         
         # Log partial failures
@@ -238,8 +268,8 @@ class JudgeEvaluator:
         agreement_count = winner_counts[majority_winner]
         agreement_pct = (agreement_count / len(run_details)) * 100
         
-        # Final winner derived from mean scores
-        final_winner = determine_winner(mean_dotnet, mean_python)
+        # Final winner derived from mean scores (not majority vote)
+        final_winner = determine_winner(mean_dotnet, mean_python, tolerance=0.01)
         
         return {
             "mean_dotnet": round(mean_dotnet, 2),

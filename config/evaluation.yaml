@@ -1,0 +1,33 @@
+# ──────────────────────────────────────────────────────────────
+# Evaluation Methodology Configuration
+# ──────────────────────────────────────────────────────────────
+# This file defines HOW evaluation works (methodology).
+# System topology (WHERE services run) lives in config/common.yaml.
+#
+# Precedence: ENV variables > this file > config/common.yaml > code defaults
+# ──────────────────────────────────────────────────────────────
+
+judge:
+  provider: "ollama"          # ollama | openai | heuristic (overrides common.yaml llm_provider.provider for judging)
+  runs: 3                     # Number of judge evaluations per prompt (minimum for statistical significance)
+  temperature: 0              # MUST be 0 for deterministic, reproducible evaluation
+
+scoring:
+  tie_tolerance: 0.01         # Score difference <= tolerance → tie
+  heuristic_tie_tolerance: 0.25  # Wider tolerance for rule-based heuristic judge
+
+timeouts:
+  openai_seconds: 60
+  ollama_seconds: 120
+
+failure_policy:
+  continue_on_error: true     # If a judge run fails, continue with remaining runs
+  min_successful_runs: 1      # Minimum successful runs required to produce a result (0 = accept all-fail as error)
+
+aggregation:
+  method: "mean"              # Aggregation method for multi-run scores
+  winner_from: "mean_scores"  # Winner derived from mean scores, NOT from LLM self-reported winner or majority vote
+
+logging:
+  level: "INFO"
+  directory: "benchmarks/logs"

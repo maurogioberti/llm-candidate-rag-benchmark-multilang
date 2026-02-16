@@ -44,6 +44,7 @@ async def main():
     print(f"Python URL:     {config.python_url}")
     print(f"Judge Provider: {config.judge_provider}")
     print(f"Judge Runs:     {config.judge_runs}")
+    print(f"Temperature:    {config.temperature}")
     
     if config.is_openai_available():
         print(f"OpenAI Model:   {config.openai_model}")

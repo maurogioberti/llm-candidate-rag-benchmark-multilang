@@ -1,16 +1,30 @@
 import json
 import httpx
-from typing import Dict, Any, List
+from pathlib import Path
+from typing import Dict, Any, List, Optional
 from abc import ABC, abstractmethod
 
 
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 OLLAMA_GENERATE_ENDPOINT = "/api/generate"
 
+EVALUATION_PROMPT_PATH = Path(__file__).parent.parent.parent / "data" / "prompts" / "evaluation_judge.md"
 
 WINNER_DOTNET = "dotnet"
 WINNER_PYTHON = "python"
 WINNER_TIE = "tie"
+
+_PROMPT_TEMPLATE_CACHE: Optional[str] = None
+
+
+def _load_prompt_template() -> str:
+    """Load evaluation prompt template from file (cached)."""
+    global _PROMPT_TEMPLATE_CACHE
+    
+    if _PROMPT_TEMPLATE_CACHE is None:
+        _PROMPT_TEMPLATE_CACHE = EVALUATION_PROMPT_PATH.read_text(encoding="utf-8")
+    
+    return _PROMPT_TEMPLATE_CACHE
 
 
 def determine_winner(dotnet_score: float, python_score: float, tolerance: float) -> str:
@@ -21,6 +35,21 @@ def determine_winner(dotnet_score: float, python_score: float, tolerance: float)
         return WINNER_TIE
     
     return WINNER_DOTNET if dotnet_score > python_score else WINNER_PYTHON
+
+
+def _build_standard_evaluation_prompt(
+    question: str,
+    dotnet_response: str,
+    python_response: str,
+    expected_criteria: List[str]
+) -> str:
+    """Build evaluation prompt from template file."""
+    template = _load_prompt_template()
+    return template.format(
+        question=question,
+        dotnet_response=dotnet_response,
+        python_response=python_response
+    )
 
 
 class ScoringStrategy(ABC):
@@ -49,7 +78,7 @@ class OpenAIJudge(ScoringStrategy):
         python_response: str,
         expected_criteria: List[str]
     ) -> Dict[str, Any]:
-        prompt = self._build_evaluation_prompt(
+        prompt = _build_standard_evaluation_prompt(
             question, dotnet_response, python_response, expected_criteria
         )
         
@@ -79,47 +108,6 @@ class OpenAIJudge(ScoringStrategy):
                 
         except Exception as e:
             raise RuntimeError(f"OpenAI judge evaluation failed: {e}") from e
-    
-    def _build_evaluation_prompt(
-        self,
-        question: str,
-        dotnet_response: str,
-        python_response: str,
-        expected_criteria: List[str]
-    ) -> str:
-        return f"""
-You are an HR expert evaluating chatbot responses for candidate selection.
-
-QUESTION: {question}
-
-.NET RESPONSE:
-{dotnet_response}
-
-PYTHON RESPONSE:
-{python_response}
-
-Evaluate both responses according to these criteria:
-1. Accuracy: Is the response accurate and relevant?
-2. Completeness: Does it include all expected criteria?
-3. Clarity: Is it clear and easy to understand?
-4. Actionability: Does it provide actionable information for HR?
-5. Ranking Quality: Is the ranking/ordering logical and justified?
-
-Scoring Scale:
-- 0-2: Very poor - Does not answer the question
-- 3-4: Poor - Partial or incorrect response
-- 5-6: Acceptable - Basic but incomplete response
-- 7-8: Good - Complete and accurate response
-- 9-10: Excellent - Exceptional and detailed response
-
-Respond in JSON format:
-{{
-    "dotnet_score": <score 0-10>,
-    "python_score": <score 0-10>,
-    "winner": "<dotnet|python|tie>",
-    "comment": "<detailed explanation of the evaluation>"
-}}
-"""
 
 
 class OllamaJudge(ScoringStrategy):
@@ -136,7 +124,7 @@ class OllamaJudge(ScoringStrategy):
         python_response: str,
         expected_criteria: List[str]
     ) -> Dict[str, Any]:
-        prompt = self._build_evaluation_prompt(
+        prompt = _build_standard_evaluation_prompt(
             question, dotnet_response, python_response, expected_criteria
         )
         
@@ -157,47 +145,6 @@ class OllamaJudge(ScoringStrategy):
                 
         except Exception as e:
             raise RuntimeError(f"Ollama judge evaluation failed: {e}") from e
-    
-    def _build_evaluation_prompt(
-        self,
-        question: str,
-        dotnet_response: str,
-        python_response: str,
-        expected_criteria: List[str]
-    ) -> str:
-        return f"""
-You are an HR expert evaluating chatbot responses for candidate selection.
-
-QUESTION: {question}
-
-.NET RESPONSE:
-{dotnet_response}
-
-PYTHON RESPONSE:
-{python_response}
-
-Evaluate both responses according to these criteria:
-1. Accuracy: Is the response accurate and relevant?
-2. Completeness: Does it include all expected criteria?
-3. Clarity: Is it clear and easy to understand?
-4. Actionability: Does it provide actionable information for HR?
-5. Ranking Quality: Is the ranking/ordering logical and justified?
-
-Scoring Scale:
-- 0-2: Very poor - Does not answer the question
-- 3-4: Poor - Partial or incorrect response
-- 5-6: Acceptable - Basic but incomplete response
-- 7-8: Good - Complete and accurate response
-- 9-10: Excellent - Exceptional and detailed response
-
-Respond in JSON format:
-{{
-    "dotnet_score": <score 0-10>,
-    "python_score": <score 0-10>,
-    "winner": "<dotnet|python|tie>",
-    "comment": "<detailed explanation of the evaluation>"
-}}
-"""
 
 
 class HeuristicJudge(ScoringStrategy):

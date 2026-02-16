@@ -21,6 +21,7 @@ DEFAULT_HEURISTIC_TIE_TOLERANCE = 0.25
 DEFAULT_OPENAI_TIMEOUT = 60.0
 DEFAULT_OLLAMA_TIMEOUT = 120.0
 DEFAULT_MIN_SUCCESSFUL_RUNS = 1
+DEFAULT_API_TIMEOUT = 30.0
 
 
 @dataclass
@@ -39,6 +40,7 @@ class EvaluatorConfig:
     openai_timeout: float = DEFAULT_OPENAI_TIMEOUT
     ollama_timeout: float = DEFAULT_OLLAMA_TIMEOUT
     min_successful_runs: int = DEFAULT_MIN_SUCCESSFUL_RUNS
+    api_timeout: float = DEFAULT_API_TIMEOUT
     
     @classmethod
     def from_yaml(cls, common_path: Path = CONFIG_COMMON_PATH, eval_path: Path = CONFIG_EVAL_PATH) -> "EvaluatorConfig":
@@ -93,6 +95,7 @@ class EvaluatorConfig:
         heuristic_tie_tolerance = float(scoring_cfg.get("heuristic_tie_tolerance", DEFAULT_HEURISTIC_TIE_TOLERANCE))
         openai_timeout = float(timeouts_cfg.get("openai_seconds", DEFAULT_OPENAI_TIMEOUT))
         ollama_timeout = float(timeouts_cfg.get("ollama_seconds", DEFAULT_OLLAMA_TIMEOUT))
+        api_timeout = float(timeouts_cfg.get("api_seconds", DEFAULT_API_TIMEOUT))
         min_successful_runs = int(failure_cfg.get("min_successful_runs", DEFAULT_MIN_SUCCESSFUL_RUNS))
         
         return cls(
@@ -110,6 +113,7 @@ class EvaluatorConfig:
             openai_timeout=openai_timeout,
             ollama_timeout=ollama_timeout,
             min_successful_runs=min_successful_runs,
+            api_timeout=api_timeout,
         )
     
     @classmethod
@@ -131,6 +135,7 @@ class EvaluatorConfig:
             openai_timeout=DEFAULT_OPENAI_TIMEOUT,
             ollama_timeout=DEFAULT_OLLAMA_TIMEOUT,
             min_successful_runs=DEFAULT_MIN_SUCCESSFUL_RUNS,
+            api_timeout=DEFAULT_API_TIMEOUT,
         )
     
     def is_openai_available(self) -> bool:
@@ -147,7 +152,7 @@ class EvaluatorConfig:
         required_sections = {
             "judge": ["provider", "runs", "temperature"],
             "scoring": ["tie_tolerance", "heuristic_tie_tolerance"],
-            "timeouts": ["openai_seconds", "ollama_seconds"],
+            "timeouts": ["openai_seconds", "ollama_seconds", "api_seconds"],
             "failure_policy": ["min_successful_runs"]
         }
         

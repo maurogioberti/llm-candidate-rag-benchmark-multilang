@@ -19,6 +19,7 @@ scoring:
 timeouts:
   openai_seconds: 60
   ollama_seconds: 120
+  api_seconds: 30            # HTTP timeout for API requests to .NET/Python chatbot endpoints
 
 failure_policy:
   min_successful_runs: 1      # Minimum successful runs required to produce a result (0 = accept all-fail as error)

@@ -16,6 +16,12 @@ from http_client import ChatbotClient
 from scoring import ScoringStrategyFactory, ScoringStrategy, determine_winner
 
 
+WINNER_DOTNET = "dotnet"
+WINNER_PYTHON = "python"
+WINNER_TIE = "tie"
+WINNER_ERROR = "error"
+
+
 @dataclass
 class RunDetail:
     """Single judge run result."""
@@ -53,8 +59,8 @@ class JudgeEvaluator:
     
     def __init__(self, config: EvaluatorConfig):
         self.config = config
-        self.dotnet_client = ChatbotClient(config.dotnet_url)
-        self.python_client = ChatbotClient(config.python_url)
+        self.dotnet_client = ChatbotClient(config.dotnet_url, config.api_timeout)
+        self.python_client = ChatbotClient(config.python_url, config.api_timeout)
         self.scoring_strategy = self._create_scoring_strategy()
         self.prompts = self._load_prompts()
         self._setup_logging()
@@ -103,7 +109,7 @@ class JudgeEvaluator:
         """Evaluate all prompts across both implementations."""
         results = []
         
-        async with httpx.AsyncClient(timeout=30.0) as client:
+        async with httpx.AsyncClient(timeout=self.config.api_timeout) as client:
             for prompt in self.prompts:
                 result = await self._evaluate_single_prompt(client, prompt)
                 results.append(result)
@@ -182,7 +188,7 @@ class JudgeEvaluator:
                 python_response=python_response,
                 dotnet_score=0.0,
                 python_score=0.0,
-                winner="error",
+                winner=WINNER_ERROR,
                 judge_comment=f"Evaluation failed: All {self.config.judge_runs} runs encountered errors. Check logs for details.",
                 judge_runs=self.config.judge_runs,
                 dotnet_score_std=0.0,
@@ -207,7 +213,7 @@ class JudgeEvaluator:
                 python_response=python_response,
                 dotnet_score=0.0,
                 python_score=0.0,
-                winner="error",
+                winner=WINNER_ERROR,
                 judge_comment=f"Insufficient successful runs: {len(run_details)}/{self.config.judge_runs} (minimum: {self.config.min_successful_runs})",
                 judge_runs=len(run_details),
                 dotnet_score_std=0.0,
@@ -245,7 +251,7 @@ class JudgeEvaluator:
                 "std_dotnet": 0.0,
                 "std_python": 0.0,
                 "agreement_pct": 0.0,
-                "final_winner": "tie"
+                "final_winner": WINNER_TIE
             }
         
         dotnet_scores = [r.dotnet_score for r in run_details]
@@ -292,9 +298,9 @@ class JudgeEvaluator:
     
     def _generate_summary(self, results: List[EvaluationResult]) -> str:
         total = len(results)
-        dotnet_wins = sum(1 for r in results if r.winner == "dotnet")
-        python_wins = sum(1 for r in results if r.winner == "python")
-        ties = sum(1 for r in results if r.winner == "tie")
+        dotnet_wins = sum(1 for r in results if r.winner == WINNER_DOTNET)
+        python_wins = sum(1 for r in results if r.winner == WINNER_PYTHON)
+        ties = sum(1 for r in results if r.winner == WINNER_TIE)
         
         avg_dotnet = sum(r.dotnet_score for r in results) / total
         avg_python = sum(r.python_score for r in results) / total

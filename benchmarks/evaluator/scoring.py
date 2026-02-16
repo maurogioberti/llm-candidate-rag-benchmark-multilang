@@ -8,14 +8,19 @@ OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 OLLAMA_GENERATE_ENDPOINT = "/api/generate"
 
 
+WINNER_DOTNET = "dotnet"
+WINNER_PYTHON = "python"
+WINNER_TIE = "tie"
+
+
 def determine_winner(dotnet_score: float, python_score: float, tolerance: float) -> str:
     """Determine winner from scores with configurable tie tolerance."""
     diff = abs(dotnet_score - python_score)
     
     if diff <= tolerance:
-        return "tie"
+        return WINNER_TIE
     
-    return "dotnet" if dotnet_score > python_score else "python"
+    return WINNER_DOTNET if dotnet_score > python_score else WINNER_PYTHON
 
 
 class ScoringStrategy(ABC):

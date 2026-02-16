@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.AI;
 using Rag.Candidates.Core.Domain.Configuration;
 using Rag.Candidates.Core.Infrastructure.Llm.Providers;
@@ -11,6 +12,11 @@ public sealed class OllamaChatClient(IHttpClientFactory httpFactory, LlmProvider
     private const string ChatCompletionsEndpoint = "/api/chat";
     private const string ProviderName = "Ollama";
     private const string SettingsRequiredMessage = "Ollama settings are required";
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     protected override object BuildRequest(
         IEnumerable<ChatMessage> chatMessages,
@@ -33,10 +39,22 @@ public sealed class OllamaChatClient(IHttpClientFactory httpFactory, LlmProvider
 
     protected override string ParseResponse(string responseContent)
     {
-        var result = JsonSerializer.Deserialize<OllamaResponse>(responseContent);
+        var result = JsonSerializer.Deserialize<OllamaResponse>(responseContent, JsonOptions);
         return result?.Message?.Content ?? string.Empty;
     }
 
-    private record OllamaResponse(Message? Message);
-    private record Message(string? Content);
+    private sealed record OllamaResponse
+    {
+        [JsonPropertyName("message")]
+        public OllamaMessage? Message { get; init; }
+    }
+
+    private sealed record OllamaMessage
+    {
+        [JsonPropertyName("role")]
+        public string? Role { get; init; }
+
+        [JsonPropertyName("content")]
+        public string? Content { get; init; }
+    }
 }

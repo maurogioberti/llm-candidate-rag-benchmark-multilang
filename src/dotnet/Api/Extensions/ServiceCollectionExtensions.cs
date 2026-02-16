@@ -1,10 +1,12 @@
 using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Rag.Candidates.Core.Application.UseCases;
 using Rag.Candidates.Core.Application.Configuration;
 using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
+using Rag.Candidates.Core.Domain.Entities;
 using Rag.Candidates.Core.Infrastructure.Embeddings;
 using Rag.Candidates.Core.Infrastructure.Llm.Adapters;
 using Rag.Candidates.Core.Infrastructure.Llm.Factories;
@@ -152,6 +154,13 @@ public static class ServiceCollectionExtensions
         {
             var chatClient = provider.GetRequiredService<IChatClient>();
             return new ChatClientAdapter(chatClient);
+        });
+
+        services.AddSingleton<IStructuredLlmClient<LlmJustificationSchema>>(provider =>
+        {
+            var chatClient = provider.GetRequiredService<IChatClient>();
+            var logger = provider.GetRequiredService<ILogger<StructuredChatClientAdapter<LlmJustificationSchema>>>();
+            return new StructuredChatClientAdapter<LlmJustificationSchema>(chatClient, logger);
         });
 
         return services;

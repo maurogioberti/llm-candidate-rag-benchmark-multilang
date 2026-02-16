@@ -1,10 +1,9 @@
 from typing import List
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.messages import SystemMessage, HumanMessage
 from ..dtos.chat_request_dto import ChatRequestDto
 from ..dtos.chat_result import ChatResult, ChatSource
 from ..protocols.embeddings_protocol import EmbeddingsClient
 from ..protocols.vector_store_protocol import VectorStore
+from ..protocols.structured_llm_protocol import StructuredLlmClient, ChatContext
 from ...domain.configuration.vector_metadata_config import DEFAULT_VECTOR_METADATA_CONFIG
 from ...infrastructure.shared.config_loader import get_config
 from ...infrastructure.shared.prompt_loader import load_prompt
@@ -15,7 +14,6 @@ from ..services.candidate_ranker import CandidateRanker
 from ...domain.configuration.ranking_weights import RankingWeights
 from ...domain.entities.llm_response_schema import LlmResponseSchema, SelectedCandidate
 from ...domain.entities.llm_justification_schema import LlmJustificationSchema
-import json
 
 METADATA_CONFIG = DEFAULT_VECTOR_METADATA_CONFIG
 
@@ -38,11 +36,11 @@ class AskQuestionUseCase:
         self, 
         embeddings_client: EmbeddingsClient, 
         vector_store: VectorStore, 
-        llm_client: BaseChatModel
+        structured_llm_client: StructuredLlmClient[LlmJustificationSchema]
     ):
         self.embeddings_client = embeddings_client
         self.vector_store = vector_store
-        self.llm_client = llm_client
+        self.structured_llm_client = structured_llm_client
         self.query_parser = QueryParser()
         self.candidate_aggregator = CandidateAggregator(METADATA_CONFIG.FIELD_CANDIDATE_ID)
         self.candidate_ranker = CandidateRanker(RankingWeights.default())
@@ -93,14 +91,12 @@ class AskQuestionUseCase:
         human_prompt = self._get_human_prompt(context, request.question)
         system_prompt = self._get_system_prompt()
         
-        messages = [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=human_prompt)
-        ]
-        response = self.llm_client.invoke(messages)
-        llm_output = response.content
-        
-        llm_justification = self._parse_and_validate_llm_output(llm_output)
+        chat_context = ChatContext(
+            system_prompt=system_prompt,
+            user_message=human_prompt,
+            context=context
+        )
+        llm_justification = await self.structured_llm_client.generate_structured(chat_context)
         
         parsed_response = self._build_final_response(llm_justification, ranked_candidates)
         
@@ -191,27 +187,6 @@ class AskQuestionUseCase:
     def _get_human_prompt(self, context: str, question: str) -> str:
         human_template = load_prompt(CHAT_HUMAN_FILE)
         return human_template.format(context=context, input=question)
-    
-    def _parse_and_validate_llm_output(self, llm_output: str) -> LlmJustificationSchema:
-        try:
-            json_start = llm_output.find('{')
-            json_end = llm_output.rfind('}') + 1
-            
-            if json_start == -1 or json_end == 0:
-                raise ValueError("No JSON object found in LLM output")
-            
-            json_str = llm_output[json_start:json_end]
-            data = json.loads(json_str)
-            
-            if "justification" not in data:
-                raise ValueError("Missing required field: justification")
-            
-            return LlmJustificationSchema(
-                justification=data["justification"]
-            )
-        
-        except (json.JSONDecodeError, ValueError, KeyError) as e:
-            raise ValueError(f"Failed to parse LLM output as valid JSON schema: {str(e)}")
     
     def _build_final_response(self, llm_justification: LlmJustificationSchema, ranked_candidates: List) -> LlmResponseSchema:
         if not ranked_candidates:

@@ -9,6 +9,8 @@ from core.application.services.candidate_service import CandidateService
 from core.infrastructure.embeddings.http_embeddings_client import HttpEmbeddingsClient
 from core.infrastructure.shared.vector_provider_factory import VectorProviderFactory
 from core.infrastructure.llm.llm_factory import create_llm_client
+from core.infrastructure.llm.adapters.structured_chat_adapter import StructuredChatAdapter
+from core.domain.entities.llm_justification_schema import LlmJustificationSchema
 from core.infrastructure.shared.config_loader import get_config
 
 APP_TITLE = "Candidate RAG (LangChain)"
@@ -26,9 +28,10 @@ app = FastAPI(title=APP_TITLE)
 embeddings_client = HttpEmbeddingsClient(base_url=cfg.get_embeddings_base_url())
 vector_store = VectorProviderFactory.create_provider()
 llm_client = create_llm_client()
+structured_llm_client = StructuredChatAdapter(llm_client, LlmJustificationSchema)
 candidate_service = CandidateService()
 
-ask_question_use_case = AskQuestionUseCase(embeddings_client, vector_store, llm_client)
+ask_question_use_case = AskQuestionUseCase(embeddings_client, vector_store, structured_llm_client)
 build_index_use_case = BuildIndexUseCase(embeddings_client, vector_store)
 
 

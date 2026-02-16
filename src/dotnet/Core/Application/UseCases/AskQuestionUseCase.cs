@@ -3,7 +3,6 @@ using Rag.Candidates.Core.Application.Interfaces;
 using Rag.Candidates.Core.Application.Services;
 using Rag.Candidates.Core.Domain.Configuration;
 using Rag.Candidates.Core.Domain.Entities;
-using System.Text.Json;
 
 namespace Rag.Candidates.Core.Application.UseCases;
 
@@ -11,7 +10,7 @@ public sealed class AskQuestionUseCase
 {
     private readonly IEmbeddingsClient _embeddingsClient;
     private readonly IVectorStore _vectorStore;
-    private readonly ILlmClient _llmClient;
+    private readonly IStructuredLlmClient<LlmJustificationSchema> _structuredLlmClient;
     private readonly IResourceLoader _resourceLoader;
     private readonly string _collection;
     private readonly VectorMetadataConfig _metadataConfig;
@@ -38,13 +37,13 @@ public sealed class AskQuestionUseCase
     public AskQuestionUseCase(
         IEmbeddingsClient embeddingsClient,
         IVectorStore vectorStore,
-        ILlmClient llmClient,
+        IStructuredLlmClient<LlmJustificationSchema> structuredLlmClient,
         IResourceLoader resourceLoader,
         VectorStorageSettings vectorSettings)
     {
         _embeddingsClient = embeddingsClient;
         _vectorStore = vectorStore;
-        _llmClient = llmClient;
+        _structuredLlmClient = structuredLlmClient;
         _resourceLoader = resourceLoader;
         _collection = vectorSettings.CollectionName;
         
@@ -107,9 +106,8 @@ public sealed class AskQuestionUseCase
         var systemPrompt = await GetSystemPrompt(ct);
         var humanPrompt = await GetHumanPrompt(context, request.Question, ct);
 
-        var llmOutput = await _llmClient.GenerateChatCompletionAsync(systemPrompt, humanPrompt, context, ct);
-        
-        var llmJustification = ParseAndValidateLlmOutput(llmOutput);
+        var chatContext = new ChatContext(systemPrompt, humanPrompt, context);
+        var llmJustification = await _structuredLlmClient.GenerateStructuredAsync(chatContext, ct);
         
         var parsedResponse = BuildFinalResponse(llmJustification, rankedCandidates);
         
@@ -273,40 +271,6 @@ public sealed class AskQuestionUseCase
             "ADVANCED" => 5,
             _ => 0
         };
-    }
-    
-    private LlmJustificationSchema ParseAndValidateLlmOutput(string llmOutput)
-    {
-        try
-        {
-            var jsonStart = llmOutput.IndexOf('{');
-            var jsonEnd = llmOutput.LastIndexOf('}');
-            
-            if (jsonStart == -1 || jsonEnd == -1 || jsonEnd <= jsonStart)
-            {
-                throw new InvalidOperationException("No JSON object found in LLM output");
-            }
-            
-            var jsonStr = llmOutput.Substring(jsonStart, jsonEnd - jsonStart + 1);
-            var jsonDoc = JsonDocument.Parse(jsonStr);
-            var root = jsonDoc.RootElement;
-            
-            if (!root.TryGetProperty("justification", out _))
-            {
-                throw new InvalidOperationException("Missing required field: justification");
-            }
-            
-            var justification = root.GetProperty("justification").GetString() ?? string.Empty;
-            
-            return new LlmJustificationSchema
-            {
-                Justification = justification
-            };
-        }
-        catch (Exception ex) when (ex is JsonException or InvalidOperationException)
-        {
-            throw new InvalidOperationException($"Failed to parse LLM output as valid JSON schema: {ex.Message}", ex);
-        }
     }
     
     private LlmResponseSchema BuildFinalResponse(LlmJustificationSchema llmJustification, List<RankedCandidate> rankedCandidates)

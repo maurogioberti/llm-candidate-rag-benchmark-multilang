@@ -1,6 +1,6 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-@dataclass
-class LlmJustificationSchema:
+class LlmJustificationSchema(BaseModel):
+    """LLM output schema for justification only."""
     justification: str

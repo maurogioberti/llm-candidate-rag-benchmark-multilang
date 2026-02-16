@@ -17,27 +17,22 @@ from ..services.candidate_factory import CandidateFactory
 from ..services.vector_metadata_builder import VectorMetadataBuilder
 from ..services.skill_document_builder import SkillDocumentBuilder
 
-# File and directory constants
 INPUT_SUBDIR = "input"
 EMBEDDING_INSTRUCTION_FILE = "embeddings.jsonl"
 LLM_INSTRUCTION_FILE = "llm.jsonl"
 JSON_FILE_PATTERN = "*.json"
 
-# Text chunking configuration
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 60
 
-# English level mapping
 ENGLISH_LEVEL_MAP = {"A1": 1, "A2": 2, "B1": 3, "B2": 4, "C1": 5, "C2": 6}
 DEFAULT_UNKNOWN_LEVEL = "UNK"
 
-# LLM instruction field names
 FIELD_INSTRUCTION = "instruction"
 FIELD_INPUT = "input"
 FIELD_OUTPUT = "output"
 FIELD_ROW_ID = "_row_id"
 
-# Text formatting
 LLM_PREFIX = "[LLMInstruction]"
 UNKNOWN_VALUE = "unknown"
 SUMMARY_PREFIX = "Summary: "

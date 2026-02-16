@@ -69,17 +69,85 @@ pip install aiohttp asyncio
 ./benchmarks/run-benchmarks.sh python
 ```
 
-### Quality Evaluation
+### Quality Evaluation (LLM-as-a-Judge)
 
-```bash
-# From benchmarks/ directory
-python run_evaluation.py
+**Prerequisites:**
 
-# With custom judge provider
-export JUDGE_PROVIDER=openai
-export OPENAI_API_KEY=your_key_here
-python run_evaluation.py
-```
+1. **Start Required Services:**
+   ```bash
+   # Start .NET API
+   cd src/dotnet
+   dotnet run
+   # Default: http://localhost:5000
+   
+   # Start Python API (in new terminal)
+   cd src/python
+   python -m uvicorn langchain_api:app --port 8000
+   # Default: http://localhost:8000
+   ```
+
+2. **Configure LLM Judge Provider:**
+
+   **Option A: Using Ollama (Recommended for local setup)**
+   ```bash
+   # Install Ollama: https://ollama.ai/
+   
+   # Pull a model (if not already installed)
+   ollama pull llama3:8b
+   
+   # Verify Ollama is running
+   curl http://localhost:11434/api/tags
+   
+   # Run evaluation
+   python benchmarks/run_evaluation.py
+   ```
+
+   **Option B: Using OpenAI**
+   ```bash
+   export JUDGE_PROVIDER=openai
+   export OPENAI_API_KEY=your_key_here
+   export OPENAI_MODEL=gpt-4o-mini  # Optional, defaults to gpt-4o-mini
+   python benchmarks/run_evaluation.py
+   ```
+
+   **Option C: Using Heuristic (No LLM)**
+   ```bash
+   export JUDGE_PROVIDER=heuristic
+   python benchmarks/run_evaluation.py
+   ```
+
+3. **Multi-Run Evaluation (Statistical Robustness):**
+   ```bash
+   # Run judge evaluation 5 times per prompt for statistical significance
+   export JUDGE_RUNS=5
+   python benchmarks/run_evaluation.py
+   ```
+
+**Environment Variables:**
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `DOTNET_URL` | `http://localhost:5000` | .NET API endpoint |
+| `PYTHON_URL` | `http://localhost:8000` | Python API endpoint |
+| `JUDGE_PROVIDER` | `ollama` | Judge type: `ollama`, `openai`, or `heuristic` |
+| `JUDGE_RUNS` | `1` | Number of judge runs per prompt (for statistical analysis) |
+| `OLLAMA_HOST` | `http://localhost:11434` | Ollama server URL |
+| `OLLAMA_MODEL` | from `config/common.yaml` | Ollama model name (e.g., `llama3:8b`) |
+| `OPENAI_API_KEY` | - | OpenAI API key (required if `JUDGE_PROVIDER=openai`) |
+| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model name |
+
+**Output:**
+- Results saved to `benchmarks/results/`
+- Markdown report: `evaluation_report.md`
+- JSON data: `evaluation_results.json`
+- Error logs: `benchmarks/logs/evaluation_YYYYMMDD_HHMMSS.log`
+
+**Troubleshooting:**
+
+- **"Ollama model must be configured"**: Set `llm_provider.model` in `config/common.yaml` or use `export OLLAMA_MODEL=llama3:8b`
+- **404 from Ollama**: Ensure Ollama is running (`ollama serve`) and the model is installed (`ollama list`)
+- **Connection refused**: Verify both APIs are running on the correct ports
+- **All runs fail**: Check `benchmarks/logs/` for detailed error traces
 
 See [`evaluator/README.md`](evaluator/README.md) for detailed documentation.
 

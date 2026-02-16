@@ -1,0 +1,34 @@
+# ──────────────────────────────────────────────────────────────
+# Evaluation Methodology Configuration
+# ──────────────────────────────────────────────────────────────
+# This file defines HOW evaluation works (methodology).
+# System topology (WHERE services run) lives in config/common.yaml.
+#
+# Precedence: ENV variables > this file > config/common.yaml > code defaults
+# ──────────────────────────────────────────────────────────────
+
+judge:
+  provider: "ollama"          # ollama | openai | heuristic (overrides common.yaml llm_provider.provider for judging)
+  runs: 3                     # Number of judge evaluations per prompt (minimum for statistical significance)
+  temperature: 0              # MUST be 0 for deterministic, reproducible evaluation
+
+scoring:
+  tie_tolerance: 0.01         # Score difference <= tolerance → tie
+  heuristic_tie_tolerance: 0.25  # Wider tolerance for rule-based heuristic judge
+
+timeouts:
+  openai_seconds: 60
+  ollama_seconds: 120
+  api_seconds: 30            # HTTP timeout for API requests to .NET/Python chatbot endpoints
+
+failure_policy:
+  min_successful_runs: 1      # Minimum successful runs required to produce a result (0 = accept all-fail as error)
+
+logging:
+  directory: "benchmarks/logs"  # Directory for evaluation logs
+
+output:
+  score_decimals: 2           # Decimal precision for scores (e.g., 7.45)
+  std_dev_decimals: 2         # Decimal precision for standard deviation (e.g., 0.12)
+  agreement_decimals: 1       # Decimal precision for agreement percentage (e.g., 66.7%)
+

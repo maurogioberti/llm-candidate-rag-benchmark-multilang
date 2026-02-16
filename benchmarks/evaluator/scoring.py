@@ -1,14 +1,55 @@
 import json
 import httpx
-from typing import Dict, Any, List
+from pathlib import Path
+from typing import Dict, Any, List, Optional
 from abc import ABC, abstractmethod
 
 
 OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
-OPENAI_TIMEOUT = 60.0
 OLLAMA_GENERATE_ENDPOINT = "/api/generate"
-OLLAMA_TIMEOUT = 120.0
-HEURISTIC_TIE_TOLERANCE = 0.25
+
+EVALUATION_PROMPT_PATH = Path(__file__).parent.parent.parent / "data" / "prompts" / "evaluation_judge.md"
+
+WINNER_DOTNET = "dotnet"
+WINNER_PYTHON = "python"
+WINNER_TIE = "tie"
+
+_PROMPT_TEMPLATE_CACHE: Optional[str] = None
+
+
+def _load_prompt_template() -> str:
+    """Load evaluation prompt template from file (cached)."""
+    global _PROMPT_TEMPLATE_CACHE
+    
+    if _PROMPT_TEMPLATE_CACHE is None:
+        _PROMPT_TEMPLATE_CACHE = EVALUATION_PROMPT_PATH.read_text(encoding="utf-8")
+    
+    return _PROMPT_TEMPLATE_CACHE
+
+
+def determine_winner(dotnet_score: float, python_score: float, tolerance: float) -> str:
+    """Determine winner from scores with configurable tie tolerance."""
+    diff = abs(dotnet_score - python_score)
+    
+    if diff <= tolerance:
+        return WINNER_TIE
+    
+    return WINNER_DOTNET if dotnet_score > python_score else WINNER_PYTHON
+
+
+def _build_standard_evaluation_prompt(
+    question: str,
+    dotnet_response: str,
+    python_response: str,
+    expected_criteria: List[str]
+) -> str:
+    """Build evaluation prompt from template file."""
+    template = _load_prompt_template()
+    return template.format(
+        question=question,
+        dotnet_response=dotnet_response,
+        python_response=python_response
+    )
 
 
 class ScoringStrategy(ABC):
@@ -24,9 +65,11 @@ class ScoringStrategy(ABC):
 
 
 class OpenAIJudge(ScoringStrategy):
-    def __init__(self, api_key: str, model: str):
+    def __init__(self, api_key: str, model: str, temperature: float, timeout: float):
         self.api_key = api_key
         self.model = model
+        self.temperature = temperature
+        self.timeout = timeout
     
     async def evaluate(
         self,
@@ -35,7 +78,7 @@ class OpenAIJudge(ScoringStrategy):
         python_response: str,
         expected_criteria: List[str]
     ) -> Dict[str, Any]:
-        prompt = self._build_evaluation_prompt(
+        prompt = _build_standard_evaluation_prompt(
             question, dotnet_response, python_response, expected_criteria
         )
         
@@ -46,6 +89,7 @@ class OpenAIJudge(ScoringStrategy):
             }
             payload = {
                 "model": self.model,
+                "temperature": self.temperature,
                 "response_format": {"type": "json_object"},
                 "messages": [
                     {
@@ -56,63 +100,22 @@ class OpenAIJudge(ScoringStrategy):
                 ],
             }
             
-            async with httpx.AsyncClient(timeout=OPENAI_TIMEOUT) as client:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(OPENAI_API_URL, headers=headers, json=payload)
                 response.raise_for_status()
                 content = response.json()["choices"][0]["message"]["content"].strip()
                 return json.loads(content)
                 
         except Exception as e:
-            print(f"⚠️  OpenAI error: {e}. Falling back to heuristic.")
-            heuristic = HeuristicJudge()
-            return await heuristic.evaluate(question, dotnet_response, python_response, expected_criteria)
-    
-    def _build_evaluation_prompt(
-        self,
-        question: str,
-        dotnet_response: str,
-        python_response: str,
-        expected_criteria: List[str]
-    ) -> str:
-        return f"""
-You are an HR expert evaluating chatbot responses for candidate selection.
-
-QUESTION: {question}
-
-.NET RESPONSE:
-{dotnet_response}
-
-PYTHON RESPONSE:
-{python_response}
-
-Evaluate both responses according to these criteria:
-1. Accuracy: Is the response accurate and relevant?
-2. Completeness: Does it include all expected criteria?
-3. Clarity: Is it clear and easy to understand?
-4. Actionability: Does it provide actionable information for HR?
-5. Ranking Quality: Is the ranking/ordering logical and justified?
-
-Scoring Scale:
-- 0-2: Very poor - Does not answer the question
-- 3-4: Poor - Partial or incorrect response
-- 5-6: Acceptable - Basic but incomplete response
-- 7-8: Good - Complete and accurate response
-- 9-10: Excellent - Exceptional and detailed response
-
-Respond in JSON format:
-{{
-    "dotnet_score": <score 0-10>,
-    "python_score": <score 0-10>,
-    "winner": "<dotnet|python|tie>",
-    "comment": "<detailed explanation of the evaluation>"
-}}
-"""
+            raise RuntimeError(f"OpenAI judge evaluation failed: {e}") from e
 
 
 class OllamaJudge(ScoringStrategy):
-    def __init__(self, host: str, model: str):
+    def __init__(self, host: str, model: str, temperature: float, timeout: float):
         self.host = host.rstrip("/")
         self.model = model
+        self.temperature = temperature
+        self.timeout = timeout
     
     async def evaluate(
         self,
@@ -121,7 +124,7 @@ class OllamaJudge(ScoringStrategy):
         python_response: str,
         expected_criteria: List[str]
     ) -> Dict[str, Any]:
-        prompt = self._build_evaluation_prompt(
+        prompt = _build_standard_evaluation_prompt(
             question, dotnet_response, python_response, expected_criteria
         )
         
@@ -129,64 +132,25 @@ class OllamaJudge(ScoringStrategy):
             payload = {
                 "model": self.model,
                 "prompt": prompt + "\n\nRespond ONLY with a valid JSON object.",
+                "temperature": self.temperature,
                 "stream": False,
             }
             
             url = f"{self.host}{OLLAMA_GENERATE_ENDPOINT}"
-            async with httpx.AsyncClient(timeout=OLLAMA_TIMEOUT) as client:
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(url, json=payload)
                 response.raise_for_status()
                 text = response.json().get("response", "").strip()
                 return json.loads(text)
                 
         except Exception as e:
-            print(f"⚠️  Ollama error: {e}. Falling back to heuristic.")
-            heuristic = HeuristicJudge()
-            return await heuristic.evaluate(question, dotnet_response, python_response, expected_criteria)
-    
-    def _build_evaluation_prompt(
-        self,
-        question: str,
-        dotnet_response: str,
-        python_response: str,
-        expected_criteria: List[str]
-    ) -> str:
-        return f"""
-You are an HR expert evaluating chatbot responses for candidate selection.
-
-QUESTION: {question}
-
-.NET RESPONSE:
-{dotnet_response}
-
-PYTHON RESPONSE:
-{python_response}
-
-Evaluate both responses according to these criteria:
-1. Accuracy: Is the response accurate and relevant?
-2. Completeness: Does it include all expected criteria?
-3. Clarity: Is it clear and easy to understand?
-4. Actionability: Does it provide actionable information for HR?
-5. Ranking Quality: Is the ranking/ordering logical and justified?
-
-Scoring Scale:
-- 0-2: Very poor - Does not answer the question
-- 3-4: Poor - Partial or incorrect response
-- 5-6: Acceptable - Basic but incomplete response
-- 7-8: Good - Complete and accurate response
-- 9-10: Excellent - Exceptional and detailed response
-
-Respond in JSON format:
-{{
-    "dotnet_score": <score 0-10>,
-    "python_score": <score 0-10>,
-    "winner": "<dotnet|python|tie>",
-    "comment": "<detailed explanation of the evaluation>"
-}}
-"""
+            raise RuntimeError(f"Ollama judge evaluation failed: {e}") from e
 
 
 class HeuristicJudge(ScoringStrategy):
+    def __init__(self, tie_tolerance: float):
+        self.tie_tolerance = tie_tolerance
+    
     async def evaluate(
         self,
         question: str,
@@ -197,7 +161,7 @@ class HeuristicJudge(ScoringStrategy):
         dotnet_score = self._calculate_score(dotnet_response, expected_criteria)
         python_score = self._calculate_score(python_response, expected_criteria)
         
-        winner = self._determine_winner(dotnet_score, python_score)
+        winner = determine_winner(dotnet_score, python_score, self.tie_tolerance)
         
         return {
             "dotnet_score": round(dotnet_score, 2),
@@ -261,29 +225,26 @@ class HeuristicJudge(ScoringStrategy):
     def _calculate_ranking_score(self, text: str) -> float:
         ranking_keywords = ["rank", "ranking", "top", "1.", "2.", "3."]
         return 1.0 if any(keyword in text for keyword in ranking_keywords) else 0.2
-    
-    def _determine_winner(self, dotnet_score: float, python_score: float) -> str:
-        diff = abs(dotnet_score - python_score)
-        
-        if diff <= HEURISTIC_TIE_TOLERANCE:
-            return "tie"
-        
-        return "dotnet" if dotnet_score > python_score else "python"
 
 
 class ScoringStrategyFactory:
     @staticmethod
     def create(
         provider: str,
+        temperature: float,
+        tie_tolerance: float,
+        heuristic_tie_tolerance: float,
+        openai_timeout: float,
+        ollama_timeout: float,
         openai_api_key: str = None,
         openai_model: str = None,
         ollama_host: str = None,
         ollama_model: str = None
     ) -> ScoringStrategy:
         if provider == "openai" and openai_api_key:
-            return OpenAIJudge(openai_api_key, openai_model)
+            return OpenAIJudge(openai_api_key, openai_model, temperature, openai_timeout)
         
         if provider == "ollama":
-            return OllamaJudge(ollama_host, ollama_model)
+            return OllamaJudge(ollama_host, ollama_model, temperature, ollama_timeout)
         
-        return HeuristicJudge()
+        return HeuristicJudge(heuristic_tie_tolerance)

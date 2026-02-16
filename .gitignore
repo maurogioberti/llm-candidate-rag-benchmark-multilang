@@ -83,5 +83,10 @@ data/vectors/
 data/chroma/
 data/faiss/
 
+# Benchmark generated files
+benchmarks/results/*.json
+benchmarks/results/*.md
+benchmarks/logs/*.log
+
 # Backup files
 *.bak

@@ -148,174 +148,104 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
    ```bash
    # Activate venv first (if not already activated)
    source .venv/bin/activate
-   
-   # Run the API
-  python -m langchain_api
-   ```
 
-   The API will start on the host/port configured in `config/common.yaml` under `python_api` section.
-
-#### .NET API (Microsoft.Extensions.AI)
-
-1. **What you need:**
-  - .NET SDK installed (project targets **.NET 10**)
-   - Make sure the embeddings service is running (see above)
-
-2. **How to run the .NET API:**
-   ```bash
-   dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
-   ```
-
-  **Troubleshooting:** If you see a missing framework error, install the required .NET runtime/SDK for the target framework.
-
-   The API will start on the host/port you set in `config/common.yaml` under the `dotnet_api` section.
-
-### Configuration
-
-The service reads configuration from `config/common.yaml`. Required sections:
-
-```yaml
-embeddings_service:
-  host: "0.0.0.0"
-  port: 8080
-  instruction_file: "embeddings.jsonl"
-
-data:
-  root: "./data"
-  embeddings_instructions: "instructions"
-```
-
-## Data Structure
-
-### Candidate Profiles (`data/input/`)
-
-**⚠️ This dataset contains real CVs with PII. See [data/input/README.md](data/input/README.md) for privacy information, consent details, and usage restrictions.**
-
-Processed JSON files with structured candidate information including:
-- **GeneralInfo**: Experience, seniority, languages, location
-- **SkillMatrix**: Technical competencies with proficiency levels
-- **KeywordCoverage**: ATS compatibility and keyword analysis
-- **Scoring**: Overall candidate evaluation metrics
-
-For complete dataset documentation, including:
-- Candidate profiles and consent information
-- PII warnings and privacy recommendations
-- Data provenance and ethical use guidelines
-
-→ **See [data/input/README.md](data/input/README.md)**
-
-### Training Data (`data/instructions/`)
-
-**Embeddings Instructions (`embeddings.jsonl`)**  
-JSONL instruction pairs for embeddings training:
-
-```json
-{
-  "query": "Tech Lead backend with C1 English and mentoring experience",
-  "positive": "MauroGiobertiBackendDotNetEnglishC1TechLead|GeneralInfo: 12 years, Tech Lead, mentoring, English C1",
-  "negative": "JeronimoGarciaFrontendReactEnglishB2|Experience: 3 years React/Next.js, migration AngularJS→Next.js"
-}
-```
-
-**Fine-tuning Data (`llm.jsonl`)**  
-JSONL instruction pairs for LLM fine-tuning with conversational format.
-
-### Prompt Templates (`data/prompts/`)
-- **System Prompt**: Defines AI assistant role as senior technical recruiter
-- **Human Prompt**: Template with retrieval context and query structure
-
-## Docker Infrastructure
-
-The project includes Docker Compose configurations for running supporting services.
-
-### Running Services (from `infra/docker/`)
-
-**Qdrant Vector Database:**
-```bash
-docker compose -f docker-compose.qdrant.yml up -d
-```
-
-**Ollama LLM Service:**
-```bash
-docker compose -f docker-compose.ollama.yml up -d
-```
-
-**Running Both Services:**
-```bash
-docker compose -f docker-compose.qdrant.yml up -d
-docker compose -f docker-compose.ollama.yml up -d
-```
-
-### Service Details
-
-- **Qdrant**: Vector database running on port `6333` (configurable via `QDRANT_HTTP_PORT`)
-- **Ollama**: LLM service running on port `11434` (configurable via `OLLAMA_PORT`) with `llama3:8b` model pre-loaded
-
-## Benchmarking
-
-We've built a comprehensive benchmark suite to compare .NET vs Python performance and quality:
-
-### LLM-as-a-Judge Evaluator
-
-Automated quality evaluation of .NET vs Python responses using LLM judging with fallback to heuristics.
-
-**Features:**
-- Reads configuration from `config/common.yaml` (same as APIs)
-- Three judge providers:
-  - **Ollama**: Local LLM evaluation (default, requires Ollama running)
-  - **OpenAI**: GPT-based evaluation (requires OPENAI_API_KEY)
-  - **Heuristic**: Rule-based scoring (no external LLM needed)
-- Evaluates both implementations against 10 HR evaluation prompts
-- Generates Markdown report and JSON results
-- Automatic fallback to heuristic if primary provider fails
-
-**Quick Start:**
-```powershell
-python .\benchmarks\evaluator\judge.py
-```
-
-**Configuration:**
-The judge automatically reads from `config/common.yaml`. Ensure these sections are configured:
-
-```yaml
-python_api:
-  port: 8000
-
-dotnet_api:
-  urls: "http://localhost:5000"
-
-llm_provider:
-  provider: "ollama"           # or "openai" or "heuristic"
-  model: "llama3:8b"
-  ollama:
-    base_url: "http://localhost:11434"
-  openai:
-    api_key: ""                # or use OPENAI_API_KEY env var
-```
-
+  Quality evaluation supports multi-run judging (`JUDGE_RUNS`) and reports aggregated metrics (mean score, standard deviation, and judge agreement %). See [`benchmarks/README.md`](benchmarks/README.md) for the statistical methodology, baseline settings, and the exact benchmark commands.
 **Output:**
-- `benchmarks/results/evaluation_report.md` - Human-readable comparison report
-- `benchmarks/results/evaluation_results.json` - Detailed scores and comments
+- `benchmarks/results/evaluation_report.md` - Human-readable report with statistical metrics
+- `benchmarks/results/evaluation_results.json` - Detailed scores, agreement %, std dev
+- `benchmarks/logs/evaluation_YYYYMMDD_HHMMSS.log` - Error traces
 
 ### Performance Tests (K6)
 
-**Quick Start:**
-```powershell
-# Windows - Run all benchmarks
+Load testing to measure throughput, latency, and resource usage under various loads.
+
+**Run performance benchmarks:**
+
+```bash
+# Windows (PowerShell)
 .\benchmarks\run-benchmarks.ps1 both
 
-# Linux/macOS - Run all benchmarks  
+# Linux/macOS
 ./benchmarks/run-benchmarks.sh both
+
+# Test only .NET or Python
+./benchmarks/run-benchmarks.sh dotnet
+./benchmarks/run-benchmarks.sh python
 ```
 
-**What's Included:**
-- **K6 Performance Tests**: Smoke, load, and stress testing
-- **Cross-platform scripts**: PowerShell (Windows) and Bash (Linux/macOS)
+**What it runs:**
+- **Smoke test**: Basic functionality validation (1 user, 30s)
+- **Load test**: Normal load performance (10-20 users, 14min)
+- **Stress test**: Breaking point discovery (10-100 users, 21min)
 
 **Prerequisites:**
 - **K6**: `winget install k6` (Windows) or `brew install k6` (macOS)
+- APIs running (ports configured in `config/common.yaml`)
 
 📖 **Full documentation**: See [`benchmarks/README.md`](benchmarks/README.md) for detailed instructions and configuration options.
+## Evaluation
+
+This project includes a statistically robust benchmark suite to compare .NET and Python implementations.
+
+### Methodology
+
+- Each prompt is evaluated multiple times (`JUDGE_RUNS`, recommended: 3).
+- Scores (0–10) are averaged per implementation.
+- Standard deviation and agreement percentage are reported.
+- The winner is determined **objectively by mean score**, not by self-reported LLM output.
+- All evaluations must run with **temperature = 0** for deterministic behavior.
+
+Detailed evaluation design and statistical explanation can be found in `benchmarks/README.md`.
+
+## Running Benchmarks
+
+### Start Required Services
+
+```bash
+docker compose -f infra/docker/docker-compose.qdrant.yml up -d
+docker compose -f infra/docker/docker-compose.ollama.yml up -d
+python -m services.embeddings_python.serve
+```
+
+## Start APIs
+
+```bash
+# .NET
+dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
+
+# Python
+python -m src.python.api.main
+```
+
+## Quality Evaluation
+
+```bash
+export JUDGE_PROVIDER=ollama
+export JUDGE_RUNS=3
+export OLLAMA_MODEL=llama3:8b
+
+python benchmarks/run_evaluation.py
+```
+
+Results are written to:
+
+- `benchmarks/results/evaluation_report.md`
+- `benchmarks/results/evaluation_results.json`
+
+## Performance Testing
+
+```bash
+# Windows
+.\benchmarks\run-benchmarks.ps1 both
+
+# Linux/macOS
+./benchmarks/run-benchmarks.sh both
+```
+
+Performance results are stored under:
+
+- `benchmarks/results/dotnet/`
+- `benchmarks/results/python/`
 
 ## Development Philosophy
 

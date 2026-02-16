@@ -5,9 +5,8 @@ class ChatbotClient:
     CHAT_ENDPOINT = "/chat"
     QUESTION_KEY = "question"
     ANSWER_KEY = "answer"
-    DEFAULT_TIMEOUT = 30.0
     
-    def __init__(self, base_url: str, timeout: float = DEFAULT_TIMEOUT):
+    def __init__(self, base_url: str, timeout: float):
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
     

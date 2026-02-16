@@ -10,8 +10,11 @@ param(
 # Configuration
 $DOTNET_URL = "http://localhost:5000"
 $PYTHON_URL = "http://localhost:8000"
-$RESULTS_DIR = "results"
-$K6_SCRIPTS_DIR = "k6"
+
+# Use $PSScriptRoot to make paths relative to script location (benchmarks/)
+$SCRIPT_DIR = $PSScriptRoot
+$RESULTS_DIR = Join-Path $SCRIPT_DIR "results"
+$K6_SCRIPTS_DIR = Join-Path $SCRIPT_DIR "k6"
 
 # Function to print colored output
 function Write-Status {
@@ -133,46 +136,6 @@ function Invoke-K6Tests {
     return $true
 }
 
-# Function to run quality evaluation
-function Invoke-QualityEvaluation {
-    Write-Status "Running LLM-as-a-Judge quality evaluation..."
-    
-    # Check if Python evaluator script exists
-    $evaluatorScript = "benchmarks\llm-judge-evaluator.py"
-    if (!(Test-Path $evaluatorScript)) {
-        Write-Error "LLM judge evaluator script not found: $evaluatorScript"
-        return $false
-    }
-    
-    # Check if Python is available
-    try {
-        $pythonVersion = python --version 2>$null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Python not found"
-        }
-        Write-Status "Python version: $pythonVersion"
-    }
-    catch {
-        Write-Error "Python is not installed or not in PATH"
-        return $false
-    }
-    
-    # Run the evaluator
-    Push-Location "benchmarks"
-    try {
-        python llm-judge-evaluator.py
-        if ($LASTEXITCODE -ne 0) {
-            Write-Error "Quality evaluation failed"
-            return $false
-        }
-        Write-Success "Quality evaluation completed"
-        return $true
-    }
-    finally {
-        Pop-Location
-    }
-}
-
 # Function to generate comparison report
 function New-ComparisonReport {
     Write-Status "Generating comparison report..."
@@ -286,15 +249,6 @@ function Main {
                     Write-Error "Failed to run Python benchmarks"
                     exit 1
                 }
-            }
-            
-            # Run quality evaluation if both services are available
-            if ($dotnetAvailable -and $pythonAvailable) {
-                if (!(Invoke-QualityEvaluation)) {
-                    Write-Warning "Quality evaluation failed, but continuing..."
-                }
-            } else {
-                Write-Warning "Skipping quality evaluation - both services not available"
             }
         }
     }

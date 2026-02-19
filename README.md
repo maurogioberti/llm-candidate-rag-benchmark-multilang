@@ -137,19 +137,51 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 
 ### Running the APIs
 
-#### Python API (LangChain)
+> **Required startup order:** Docker services → Ollama model → Embeddings server → API
 
-1. **Prerequisites:**
-   - Python 3.10+ with virtual environment
-   - Running embeddings service and vector database (Qdrant)
-   - Installed dependencies (`pip install -e .`)
+#### 1. Start Docker services
 
-2. **Start the Python API:**
-   ```bash
-   # Activate venv first (if not already activated)
-   source .venv/bin/activate
+```bash
+docker compose -f infra/docker/docker-compose.qdrant.yml up -d
+docker compose -f infra/docker/docker-compose.ollama.yml up -d
+```
 
-  Quality evaluation supports multi-run judging (`JUDGE_RUNS`) and reports aggregated metrics (mean score, standard deviation, and judge agreement %). See [`benchmarks/README.md`](benchmarks/README.md) for the statistical methodology, baseline settings, and the exact benchmark commands.
+#### 2. Pull the Ollama model
+
+The model is configured in `config/common.yaml` under `llm_provider.model`. Pull it before starting any API:
+
+```bash
+# Default model (see config/common.yaml > llm_provider.model)
+docker exec -it ollama ollama pull llama3:8b
+```
+
+> If you change the model in `common.yaml`, pull that model instead.
+
+#### 3. Start the Embeddings server
+
+```bash
+# Activate venv first (if not already activated)
+.venv\Scripts\Activate.ps1          # Windows
+source .venv/bin/activate            # macOS/Linux
+
+python -m services.embeddings_python.serve
+```
+
+The service starts on the host/port configured in `config/common.yaml` under `embeddings_service`.
+
+#### 4. Start an API
+
+**Python API (LangChain):**
+```bash
+python -m src.python.langchain_api
+```
+
+**C# API (Semantic Kernel):**
+```bash
+dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
+```
+
+Quality evaluation supports multi-run judging (`JUDGE_RUNS`) and reports aggregated metrics (mean score, standard deviation, and judge agreement %). See [`benchmarks/README.md`](benchmarks/README.md) for the statistical methodology, baseline settings, and the exact benchmark commands.
 **Output:**
 - `benchmarks/results/evaluation_report.md` - Human-readable report with statistical metrics
 - `benchmarks/results/evaluation_results.json` - Detailed scores, agreement %, std dev
@@ -202,19 +234,25 @@ Detailed evaluation design and statistical explanation can be found in `benchmar
 ### Start Required Services
 
 ```bash
+# 1. Start Docker containers
 docker compose -f infra/docker/docker-compose.qdrant.yml up -d
 docker compose -f infra/docker/docker-compose.ollama.yml up -d
+
+# 2. Pull the Ollama model (see llm_provider.model in config/common.yaml)
+docker exec -it ollama ollama pull llama3:8b
+
+# 3. Start the embeddings server
 python -m services.embeddings_python.serve
 ```
 
 ## Start APIs
 
 ```bash
-# .NET
+# .NET (Semantic Kernel)
 dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
 
-# Python
-python -m src.python.api.main
+# Python (LangChain)
+python -m src.python.langchain_api
 ```
 
 ## Quality Evaluation

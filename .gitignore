@@ -90,3 +90,4 @@ benchmarks/logs/*.log
 
 # Backup files
 *.bak
+src/dotnet/Semantic.Kernel.Api.csproj

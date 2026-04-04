@@ -5,6 +5,22 @@ A benchmarking project to compare RAG (Retrieval-Augmented Generation) implement
 - **Python** with LangChain framework
 - **C#** with Microsoft.Extensions.AI (MEAI)
 
+## Purpose
+
+This project was created for educational purposes. It supports a technical talk and provides a practical codebase for developers who want to better understand RAG architectures, retrieval pipelines, and LLM evaluation approaches across different implementation styles.
+
+## Background
+
+The project comes from a real-world benchmarking talk focused on comparing Python and .NET implementations of the same RAG system. The goal is to make the tradeoffs visible through working code, shared infrastructure, and repeatable evaluation.
+
+## Philosophy
+
+The central idea behind this repository is that architecture matters more than language. Python and .NET are both valid tools; what matters most is system design, consistency, observability, and clarity. This repository is intended to support learning, experimentation, and informed technical discussion rather than language advocacy.
+
+## Attribution
+
+This repository is released under the MIT License. If you use it in talks, articles, demos, internal experiments, or derivative educational work, attribution is appreciated as a professional courtesy, but it is not required by the license.
+
 ## Current Implementation Status
 
 🟢 **Embeddings Service** - Ready  

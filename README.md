@@ -103,203 +103,346 @@ A FastAPI microservice that provides text embeddings using HuggingFace transform
 
 ### Prerequisites
 
-- Python 3.10+ with virtual environment
-- YAML configuration file at `config/common.yaml`
+- Python 3.10 or newer. The project metadata declares `requires-python = ">=3.10"`.
+- .NET SDK 10.0 or newer, required only for the .NET API.
+- Docker Desktop, required for Qdrant and Ollama.
+- K6, required only for performance benchmarks.
+- YAML configuration file at `config/common.yaml`.
 
-**macOS quick notes**
+The default local LLM is configured in `config/common.yaml` under `llm_provider.model` as `llama3:8b`.
 
-- **Python 3.13 (required):** 
-  - Check version: `python3 --version` (needs **3.10-3.13**, Python 3.14+ not yet supported by dependencies)
-  - Install if needed: `brew install python@3.13`
-  - Create venv: `python3.13 -m venv .venv`
-  - Activate: `source .venv/bin/activate`
+### macOS Setup
 
-- **.NET SDK (optional, for .NET API):**
-  - Verify: `dotnet --version` (project targets **.NET 10**)
+These commands assume a clean macOS machine using zsh or bash.
 
-- **Docker Desktop (required for Qdrant/Ollama):**
-  - Install: `brew install --cask docker`
-  - Or download from [docker.com](https://www.docker.com/products/docker-desktop)
-  - Start Docker Desktop app before running services
+#### 1. Clone the repository
 
-- **Environment variables:** set `OPENAI_API_KEY` if using the OpenAI judge; check `config/common.yaml` for `OLLAMA`/`QDRANT` ports and URLs.
+```bash
+git clone https://github.com/maurogioberti/llm-candidate-rag-benchmark-multilang.git
+cd llm-candidate-rag-benchmark-multilang
+```
 
-### Running the Embeddings Service
+#### 2. Install Homebrew Python
 
-1. **Create and activate your Python virtual environment:**
-  ```bash
-  # Create (Unix/macOS)
-  python3 -m venv .venv
-  # Activate (Unix/macOS)
-  source .venv/bin/activate
+macOS may include an older system Python, such as Python 3.9. That is fine as long as this project uses a Python virtual environment created with Python 3.10 or newer.
 
-  # Windows (PowerShell)
-  .venv\Scripts\Activate.ps1
-  ```
+Use an explicit Homebrew interpreter when creating the virtual environment:
 
-2. **Install dependencies:**
-   ```bash
-   pip install -e .
-   ```
+```bash
+brew install python@3.13
+"$(brew --prefix python@3.13)/bin/python3.13" --version
+```
 
-3. **Start the embeddings service:**
-   
-   **From Project Root (recommended)**
-   ```bash
-   python -m services.embeddings_python.serve
-   ```
+The global `python3` command does not need to point to Homebrew Python.
 
-   The service will start on the host/port configured in `config/common.yaml` under `embeddings_service` section.
+#### 3. Create and activate the Python virtual environment
 
-### Running the APIs
+```bash
+"$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv
+source .venv/bin/activate
+```
 
-> **Required startup order:** Docker services → Ollama model → Embeddings server → API
+Verify that the active `python` is inside this repository:
 
-#### 1. Start Docker services
+```bash
+python --version
+which python
+python -m pip --version
+```
+
+`which python` should print a path ending in:
+
+```text
+llm-candidate-rag-benchmark-multilang/.venv/bin/python
+```
+
+#### 4. Upgrade packaging tools and install dependencies
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+```
+
+`python -m pip install -e .` installs this project and the dependencies declared in `pyproject.toml` into the active virtual environment.
+
+Optional dependency check:
+
+```bash
+python -c "import uvicorn, fastapi, dataclasses_json; print('Python dependencies OK')"
+```
+
+#### 5. Install and start Docker Desktop
+
+```bash
+brew install --cask docker
+```
+
+Open Docker Desktop from Applications and wait until it is running before starting Qdrant or Ollama.
+
+Check which Docker Compose command is available:
+
+```bash
+docker compose version
+docker-compose --version
+```
+
+`docker compose` is the current Docker Compose plugin syntax. `docker-compose` is the older standalone syntax. Use whichever one is installed on your machine.
+
+#### 6. Optional macOS tools for benchmarks
+
+```bash
+brew install k6
+```
+
+### Windows Setup
+
+Use PowerShell from the repository root.
+
+```powershell
+py -3.10 -m venv .venv
+.venv\Scripts\Activate.ps1
+python --version
+where python
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+```
+
+Install Docker Desktop from [docker.com](https://www.docker.com/products/docker-desktop), then start Docker Desktop before running the infrastructure containers.
+
+For performance benchmarks, install K6:
+
+```powershell
+winget install k6
+```
+
+### Startup Order
+
+Start services in this order:
+
+```text
+Docker Desktop
+-> Qdrant and Ollama containers
+-> Pull and verify Ollama model
+-> Python embeddings service
+-> Python and/or .NET API
+-> Benchmarks
+```
+
+The embeddings service must be running before either API starts because both implementations use it to produce consistent vector embeddings.
+
+> **Important:** Starting the Ollama container does not download the model. The model must be pulled separately before either API can generate responses.
+
+### Start Infrastructure
+
+From the repository root:
 
 ```bash
 docker compose -f infra/docker/docker-compose.qdrant.yml up -d
 docker compose -f infra/docker/docker-compose.ollama.yml up -d
 ```
 
-#### 2. Pull the Ollama model
-
-The model is configured in `config/common.yaml` under `llm_provider.model`. Pull it before starting any API:
+If your machine only has the older standalone Compose command, use:
 
 ```bash
-# Default model (see config/common.yaml > llm_provider.model)
+docker-compose -f infra/docker/docker-compose.qdrant.yml up -d
+docker-compose -f infra/docker/docker-compose.ollama.yml up -d
+```
+
+### Pull Ollama Model
+
+The model is configured in `config/common.yaml` under `llm_provider.model`. The current value is `llama3:8b`.
+
+The Ollama Docker Compose file uses the container name `ollama`, so the commands below run inside that container.
+
+Check which models are already installed:
+
+```bash
+docker exec -it ollama ollama list
+```
+
+Pull the configured model:
+
+```bash
 docker exec -it ollama ollama pull llama3:8b
 ```
 
-> If you change the model in `common.yaml`, pull that model instead.
-
-#### 3. Start the Embeddings server
+Verify that the model is now available:
 
 ```bash
-# Activate venv first (if not already activated)
-.venv\Scripts\Activate.ps1          # Windows
-source .venv/bin/activate            # macOS/Linux
+docker exec -it ollama ollama list
+```
 
+Only start or test the Python and .NET APIs after the configured model appears in the list.
+
+If you change `llm_provider.model`, run the same commands with that model name instead.
+
+The Ollama Compose file stores models in a persistent Docker volume named `ollama`, mounted at `/root/.ollama`, so downloaded models should survive normal container restarts.
+
+### Start Embeddings Service
+
+Open a terminal from the repository root and activate the Python virtual environment.
+
+macOS/Linux:
+
+```bash
+source .venv/bin/activate
 python -m services.embeddings_python.serve
 ```
 
-The service starts on the host/port configured in `config/common.yaml` under `embeddings_service`.
+Windows PowerShell:
 
-#### 4. Start an API
+```powershell
+.venv\Scripts\Activate.ps1
+python -m services.embeddings_python.serve
+```
 
-**Python API (LangChain):**
+The service starts on the host and port configured in `config/common.yaml` under `embeddings_service`.
+
+### Start Python API
+
+Open a second terminal from the repository root and activate the same Python virtual environment.
+
+macOS/Linux:
+
 ```bash
+source .venv/bin/activate
 python -m src.python.langchain_api
 ```
 
-**C# API (Semantic Kernel):**
+Windows PowerShell:
+
+```powershell
+.venv\Scripts\Activate.ps1
+python -m src.python.langchain_api
+```
+
+The Python API uses the port configured in `config/common.yaml` under `python_api`.
+
+### Start .NET API
+
+Open another terminal from the repository root:
+
 ```bash
 dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
 ```
 
-Quality evaluation supports multi-run judging (`JUDGE_RUNS`) and reports aggregated metrics (mean score, standard deviation, and judge agreement %). See [`benchmarks/README.md`](benchmarks/README.md) for the statistical methodology, baseline settings, and the exact benchmark commands.
-**Output:**
-- `benchmarks/results/evaluation_report.md` - Human-readable report with statistical metrics
-- `benchmarks/results/evaluation_results.json` - Detailed scores, agreement %, std dev
-- `benchmarks/logs/evaluation_YYYYMMDD_HHMMSS.log` - Error traces
+The project targets `.NET 10` and uses the URL configured in `config/common.yaml` under `dotnet_api`.
 
-### Performance Tests (K6)
+### Run Benchmarks
 
-Load testing to measure throughput, latency, and resource usage under various loads.
+Benchmarks require the infrastructure containers, the embeddings service, and the API or APIs under test to be running.
 
-**Run performance benchmarks:**
+Quality evaluation supports multi-run judging (`JUDGE_RUNS`) and reports aggregated metrics. See [`benchmarks/README.md`](benchmarks/README.md) for the statistical methodology.
 
-```bash
-# Windows (PowerShell)
-.\benchmarks\run-benchmarks.ps1 both
+The K6 performance script runs smoke, load, and stress tests against the selected API target.
 
-# Linux/macOS
-./benchmarks/run-benchmarks.sh both
-
-# Test only .NET or Python
-./benchmarks/run-benchmarks.sh dotnet
-./benchmarks/run-benchmarks.sh python
-```
-
-**What it runs:**
-- **Smoke test**: Basic functionality validation (1 user, 30s)
-- **Load test**: Normal load performance (10-20 users, 14min)
-- **Stress test**: Breaking point discovery (10-100 users, 21min)
-
-**Prerequisites:**
-- **K6**: `winget install k6` (Windows) or `brew install k6` (macOS)
-- APIs running (ports configured in `config/common.yaml`)
-
-📖 **Full documentation**: See [`benchmarks/README.md`](benchmarks/README.md) for detailed instructions and configuration options.
-## Evaluation
-
-This project includes a statistically robust benchmark suite to compare .NET and Python implementations.
-
-### Methodology
-
-- Each prompt is evaluated multiple times (`JUDGE_RUNS`, recommended: 3).
-- Scores (0–10) are averaged per implementation.
-- Standard deviation and agreement percentage are reported.
-- The winner is determined **objectively by mean score**, not by self-reported LLM output.
-- All evaluations must run with **temperature = 0** for deterministic behavior.
-
-Detailed evaluation design and statistical explanation can be found in `benchmarks/README.md`.
-
-## Running Benchmarks
-
-### Start Required Services
-
-```bash
-# 1. Start Docker containers
-docker compose -f infra/docker/docker-compose.qdrant.yml up -d
-docker compose -f infra/docker/docker-compose.ollama.yml up -d
-
-# 2. Pull the Ollama model (see llm_provider.model in config/common.yaml)
-docker exec -it ollama ollama pull llama3:8b
-
-# 3. Start the embeddings server
-python -m services.embeddings_python.serve
-```
-
-## Start APIs
-
-```bash
-# .NET (Semantic Kernel)
-dotnet run --project src/dotnet/Semantic.Kernel.Api.csproj
-
-# Python (LangChain)
-python -m src.python.langchain_api
-```
-
-## Quality Evaluation
+macOS/Linux:
 
 ```bash
 export JUDGE_PROVIDER=ollama
 export JUDGE_RUNS=3
 export OLLAMA_MODEL=llama3:8b
-
 python benchmarks/run_evaluation.py
+
+./benchmarks/run-benchmarks.sh both
+```
+
+Windows PowerShell:
+
+```powershell
+$env:JUDGE_PROVIDER = "ollama"
+$env:JUDGE_RUNS = "3"
+$env:OLLAMA_MODEL = "llama3:8b"
+python benchmarks/run_evaluation.py
+
+.\benchmarks\run-benchmarks.ps1 both
+```
+
+Performance benchmark targets:
+
+```bash
+./benchmarks/run-benchmarks.sh dotnet
+./benchmarks/run-benchmarks.sh python
+./benchmarks/run-benchmarks.sh both
 ```
 
 Results are written to:
 
 - `benchmarks/results/evaluation_report.md`
 - `benchmarks/results/evaluation_results.json`
-
-## Performance Testing
-
-```bash
-# Windows
-.\benchmarks\run-benchmarks.ps1 both
-
-# Linux/macOS
-./benchmarks/run-benchmarks.sh both
-```
-
-Performance results are stored under:
-
 - `benchmarks/results/dotnet/`
 - `benchmarks/results/python/`
+
+### Troubleshooting
+
+#### Incomplete Python virtual environment
+
+If `.venv` exists but `.venv/bin/activate` or `.venv/bin/python` is missing, the virtual environment was only partially created. Recreate it from the repository root:
+
+```bash
+deactivate 2>/dev/null || true
+rm -rf .venv
+"$(brew --prefix python@3.13)/bin/python3.13" -m venv .venv
+source .venv/bin/activate
+```
+
+A Python virtual environment created on Windows cannot be copied to or reused on macOS. Recreate it locally.
+
+#### Old pip cannot install editable projects
+
+If `python -m pip install -e .` fails on a clean macOS machine, upgrade packaging tools first:
+
+```bash
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -e .
+```
+
+#### Docker Compose command not found
+
+If `docker compose ...` fails because Compose is not recognized, check for the legacy command:
+
+```bash
+docker compose version
+docker-compose --version
+```
+
+Then use either `docker compose` or `docker-compose` consistently for the Qdrant and Ollama Compose files.
+
+#### 404 model not found
+
+If the Python API returns an error like:
+
+```json
+{
+  "detail": "LLM/Index error: model 'llama3:8b' not found (status code: 404)"
+}
+```
+
+or the .NET API receives a 404 from Ollama, Ollama is usually running and reachable, but the requested model is not installed inside the Ollama environment.
+
+Check that the containers are running:
+
+```bash
+docker ps
+```
+
+Check which models Ollama has installed:
+
+```bash
+docker exec -it ollama ollama list
+```
+
+Check the Ollama HTTP API directly:
+
+```bash
+curl http://localhost:11434/api/tags
+```
+
+If the configured model is missing, pull it:
+
+```bash
+docker exec -it ollama ollama pull llama3:8b
+```
 
 ## Development Philosophy
 

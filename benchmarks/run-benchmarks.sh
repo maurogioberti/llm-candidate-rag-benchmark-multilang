@@ -84,7 +84,7 @@ generate_comparison_report() {
     # Create results directory
     mkdir -p "$RESULTS_DIR"
     
-    # Generate report (placeholder for now)
+    # Generate a lightweight report that links to the raw benchmark outputs.
     cat > "$RESULTS_DIR/benchmark-comparison.md" << EOF
 # Benchmark Comparison Report
 
